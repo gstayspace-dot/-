@@ -1,0 +1,25 @@
+# Dependencies
+node_modules
+
+# Build output
+.next
+out
+
+# Dev / local
+.env*.local
+*.log
+npm-debug.log*
+
+# Git & editor
+.git
+.gitignore
+.vscode
+.idea
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker itself
+Dockerfile
+.dockerignore
