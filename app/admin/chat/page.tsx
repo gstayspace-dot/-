@@ -71,6 +71,7 @@ export default function AdminChatPage() {
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [inputText, setInputText] = useState('')
   const [isSuper, setIsSuper] = useState(false)
+  const [checkedIds, setCheckedIds] = useState<Set<string>>(new Set())
 
   const chatEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -191,6 +192,48 @@ export default function AdminChatPage() {
     inputRef.current?.focus()
   }, [selectedId])
 
+  // ── Delete customer session ───────────────────────────────────────────────
+  async function deleteCustomer(customerId: string) {
+    if (!confirm('이 채팅창을 삭제하시겠습니까?\n대화 내역이 모두 사라집니다.')) return
+    await db.from('chat_messages').delete().eq('customer_id', customerId)
+    await db.from('chat_customers').delete().eq('id', customerId)
+    setCustomers(prev => prev.filter(c => c.id !== customerId))
+    setMsgMap(prev => { const m = { ...prev }; delete m[customerId]; return m })
+    if (selectedId === customerId) setSelectedId(null)
+  }
+
+  async function deleteChecked() {
+    if (checkedIds.size === 0) return
+    if (!confirm(`선택한 ${checkedIds.size}개 채팅창을 모두 삭제하시겠습니까?`)) return
+    const ids = Array.from(checkedIds)
+    await Promise.all(ids.map(id => db.from('chat_messages').delete().eq('customer_id', id)))
+    await Promise.all(ids.map(id => db.from('chat_customers').delete().eq('id', id)))
+    setCustomers(prev => prev.filter(c => !checkedIds.has(c.id)))
+    setMsgMap(prev => {
+      const m = { ...prev }
+      ids.forEach(id => delete m[id])
+      return m
+    })
+    if (selectedId && checkedIds.has(selectedId)) setSelectedId(null)
+    setCheckedIds(new Set())
+  }
+
+  function toggleCheck(id: string) {
+    setCheckedIds(prev => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id); else next.add(id)
+      return next
+    })
+  }
+
+  function toggleAll() {
+    if (checkedIds.size === customers.length) {
+      setCheckedIds(new Set())
+    } else {
+      setCheckedIds(new Set(customers.map(c => c.id)))
+    }
+  }
+
   // ── Send admin message ────────────────────────────────────────────────────
   async function sendMessage() {
     const text = inputText.trim()
@@ -265,12 +308,31 @@ export default function AdminChatPage() {
         {/* ════════════════ LEFT: Customer List ════════════════ */}
         <aside className="w-72 xl:w-80 flex-shrink-0 bg-white border-r border-gray-200 flex flex-col overflow-hidden">
 
-          <div className="px-4 py-3 border-b border-gray-100 flex-shrink-0 flex items-center justify-between">
-            <h2 className="font-bold text-gray-800 text-sm">👥 접속 고객</h2>
-            <div className="flex items-center gap-1.5">
-              <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-              <span className="text-xs text-gray-500 font-medium">{customers.length}명</span>
+          <div className="px-4 py-3 border-b border-gray-100 flex-shrink-0">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={customers.length > 0 && checkedIds.size === customers.length}
+                  onChange={toggleAll}
+                  className="w-4 h-4 rounded accent-orange-500 cursor-pointer"
+                  title="전체 선택"
+                />
+                <h2 className="font-bold text-gray-800 text-sm">👥 접속 고객</h2>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+                <span className="text-xs text-gray-500 font-medium">{customers.length}명</span>
+              </div>
             </div>
+            {checkedIds.size > 0 && (
+              <button
+                onClick={deleteChecked}
+                className="mt-2 w-full bg-red-500 hover:bg-red-600 text-white text-xs font-black py-1.5 rounded-lg transition-colors active:scale-95"
+              >
+                선택 삭제 ({checkedIds.size}건)
+              </button>
+            )}
           </div>
 
           <div className="flex-1 overflow-y-auto no-scrollbar">
@@ -284,8 +346,8 @@ export default function AdminChatPage() {
               const last = msgs[msgs.length - 1]
               const isActive = c.id === selectedId
               return (
+                <div key={c.id} className="relative group">
                 <button
-                  key={c.id}
                   onClick={() => setSelectedId(c.id)}
                   className={`w-full text-left px-4 py-3 border-b border-gray-100 transition-all hover:bg-orange-50 ${
                     isActive
@@ -294,6 +356,13 @@ export default function AdminChatPage() {
                   }`}
                 >
                   <div className="flex items-start gap-3">
+                    <input
+                      type="checkbox"
+                      checked={checkedIds.has(c.id)}
+                      onChange={() => toggleCheck(c.id)}
+                      onClick={e => e.stopPropagation()}
+                      className="w-4 h-4 rounded accent-orange-500 cursor-pointer flex-shrink-0 mt-1"
+                    />
                     <div className="relative flex-shrink-0">
                       <div
                         className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-extrabold shadow-sm"
@@ -331,6 +400,14 @@ export default function AdminChatPage() {
                     </div>
                   </div>
                 </button>
+                <button
+                  onClick={() => deleteCustomer(c.id)}
+                  title="채팅창 삭제"
+                  className="absolute top-2 right-2 w-6 h-6 rounded-full bg-red-100 text-red-400 hover:bg-red-500 hover:text-white text-xs font-black flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all z-10"
+                >
+                  ×
+                </button>
+                </div>
               )
             })}
           </div>

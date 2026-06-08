@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { supabase, type DbOrder, type DbOrderItem } from '@/lib/supabaseClient'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -21,6 +21,37 @@ export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<OrderWithItems[]>([])
   const [loading, setLoading] = useState(true)
   const [updatingId, setUpdatingId] = useState<string | null>(null)
+  const [toast, setToast] = useState<{ name: string; total: number } | null>(null)
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const audioCtx = useRef<AudioContext | null>(null)
+
+  function playAlert() {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const Ctx = window.AudioContext || (window as any).webkitAudioContext
+      if (!audioCtx.current) audioCtx.current = new Ctx()
+      const ctx = audioCtx.current
+      if (ctx.state === 'suspended') ctx.resume()
+      ;[880, 1100, 1320].forEach((freq, i) => {
+        const osc = ctx.createOscillator()
+        const gain = ctx.createGain()
+        const t = ctx.currentTime + i * 0.18
+        osc.type = 'sine'
+        osc.frequency.value = freq
+        gain.gain.setValueAtTime(0, t)
+        gain.gain.linearRampToValueAtTime(0.4, t + 0.01)
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.4)
+        osc.connect(gain); gain.connect(ctx.destination)
+        osc.start(t); osc.stop(t + 0.45)
+      })
+    } catch { /* AudioContext blocked — silent fail */ }
+  }
+
+  function showToast(name: string, total: number) {
+    if (toastTimer.current) clearTimeout(toastTimer.current)
+    setToast({ name, total })
+    toastTimer.current = setTimeout(() => setToast(null), 6000)
+  }
 
   const fetchOrders = useCallback(async () => {
     setLoading(true)
@@ -38,7 +69,24 @@ export default function AdminOrdersPage() {
     setLoading(false)
   }, [])
 
-  useEffect(() => { fetchOrders() }, [fetchOrders])
+  useEffect(() => {
+    fetchOrders()
+
+    const channel = supabase
+      .channel('admin-orders-notify')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'orders' }, async (payload) => {
+        const newOrder = payload.new as DbOrder
+        const { data: items } = await db.from('order_items').select('*').eq('order_id', newOrder.id)
+        const full: OrderWithItems = { ...newOrder, items: (items ?? []) as DbOrderItem[] }
+        setOrders(prev => [full, ...prev])
+        playAlert()
+        showToast(newOrder.customer_name, newOrder.total_price)
+      })
+      .subscribe()
+
+    return () => { supabase.removeChannel(channel) }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fetchOrders])
 
   async function updateStatus(orderId: string, status: string) {
     setUpdatingId(orderId)
@@ -79,6 +127,18 @@ export default function AdminOrdersPage() {
           <button onClick={handleLogout} className="text-sm text-gray-400 hover:text-red-500 transition-colors font-medium">로그아웃</button>
         </div>
       </nav>
+
+      {/* ── New Order Toast ── */}
+      {toast && (
+        <div className="fixed top-16 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-green-600 text-white px-5 py-3 rounded-2xl shadow-2xl animate-fade-in">
+          <span className="text-xl">🛎</span>
+          <div>
+            <p className="text-sm font-black">새 주문이 들어왔습니다!</p>
+            <p className="text-xs opacity-90">{toast.name} · ₩{toast.total.toLocaleString()}</p>
+          </div>
+          <button onClick={() => setToast(null)} className="ml-2 text-white/70 hover:text-white text-lg leading-none">×</button>
+        </div>
+      )}
 
       <div className="max-w-5xl mx-auto px-4 py-6">
 

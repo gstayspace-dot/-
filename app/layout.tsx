@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import './globals.css'
+import OrderAlertGlobal from './components/OrderAlertGlobal'
 
 export const metadata: Metadata = {
   title: '🔴 LIVE | 스테인리스 프리미엄 냄비 세트 5종 - 오늘만 60% 할인!',
@@ -19,7 +20,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ko">
-      <body className="antialiased">{children}</body>
+      <head>
+        <link rel="manifest" href="/manifest.json" />
+      </head>
+      <body className="antialiased">
+        {children}
+        <OrderAlertGlobal />
+      </body>
     </html>
   )
 }

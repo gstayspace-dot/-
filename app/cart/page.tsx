@@ -30,6 +30,11 @@ export default function CartPage() {
   const [orderId, setOrderId] = useState('')
   const [doneCart, setDoneCart] = useState<CartItem[]>([])
   const [doneTotal, setDoneTotal] = useState(0)
+  const [payMethod, setPayMethod] = useState<'bank' | 'card'>('bank')
+  const [cardNum, setCardNum] = useState('')
+  const [cardExpiry, setCardExpiry] = useState('')
+  const [cardPw, setCardPw] = useState('')
+  const [cardCvc, setCardCvc] = useState('')
 
   useEffect(() => {
     setCart(getCart())
@@ -54,6 +59,16 @@ export default function CartPage() {
   const shippingFee = subtotal >= FREE_SHIPPING_MIN ? 0 : SHIPPING_FEE
   const total = subtotal + shippingFee
 
+  function formatCardNum(raw: string) {
+    const d = raw.replace(/\D/g, '').slice(0, 16)
+    return d.replace(/(.{4})(?=.)/g, '$1-')
+  }
+
+  function formatExpiry(raw: string) {
+    const d = raw.replace(/\D/g, '').slice(0, 4)
+    return d.length > 2 ? `${d.slice(0, 2)}/${d.slice(2)}` : d
+  }
+
   function formatPhone(raw: string) {
     const digits = raw.replace(/\D/g, '').slice(0, 11)
     if (digits.length < 4) return digits
@@ -66,8 +81,19 @@ export default function CartPage() {
       setSubmitError('이름, 전화번호, 주소는 필수 입력 항목입니다.')
       return
     }
+    if (payMethod === 'card') {
+      const digits = cardNum.replace(/\D/g, '')
+      if (digits.length < 16) { setSubmitError('카드번호 16자리를 입력해주세요.'); return }
+      if (cardExpiry.length < 5) { setSubmitError('유효기간을 MM/YY 형식으로 입력해주세요.'); return }
+      if (cardPw.length < 2) { setSubmitError('비밀번호 앞 2자리를 입력해주세요.'); return }
+      if (cardCvc.length < 3) { setSubmitError('CVC 3자리를 입력해주세요.'); return }
+    }
     setSubmitError('')
     setSubmitting(true)
+    const payNote = payMethod === 'card'
+      ? `[카드결제 ****${cardNum.replace(/\D/g, '').slice(-4)} 유효기간:${cardExpiry}]`
+      : '[계좌이체]'
+    const fullRequest = [payNote, request.trim()].filter(Boolean).join(' | ')
     try {
       const { data: order, error: oErr } = await db
         .from('orders')
@@ -75,7 +101,7 @@ export default function CartPage() {
           customer_name: name.trim(),
           customer_phone: phone.trim(),
           customer_address: address.trim(),
-          customer_request: request.trim(),
+          customer_request: fullRequest,
           total_price: total,
           status: '입금대기',
         })
@@ -241,6 +267,78 @@ export default function CartPage() {
                   <span className="font-black text-red-500">₩{total.toLocaleString()}</span>
                 </div>
               </div>
+            </div>
+
+            {/* Payment method */}
+            <div className="px-5 py-4 bg-white border-b border-gray-100">
+              <p className="text-xs font-bold text-gray-600 mb-3">결제 수단</p>
+              <div className="flex gap-2">
+                {(['bank', 'card'] as const).map(m => (
+                  <button
+                    key={m}
+                    onClick={() => setPayMethod(m)}
+                    className={`flex-1 py-3 rounded-xl text-sm font-bold border-2 transition-all ${
+                      payMethod === m
+                        ? 'border-orange-400 bg-orange-50 text-orange-600'
+                        : 'border-gray-200 text-gray-500 hover:border-gray-300'
+                    }`}
+                  >
+                    {m === 'bank' ? '🏦 계좌이체' : '💳 카드결제'}
+                  </button>
+                ))}
+              </div>
+
+              {payMethod === 'card' && (
+                <div className="mt-4 space-y-3">
+                  <div>
+                    <label className="block text-xs font-bold text-gray-600 mb-1.5">카드번호 <span className="text-red-400">*</span></label>
+                    <input
+                      type="tel"
+                      value={cardNum}
+                      onChange={e => setCardNum(formatCardNum(e.target.value))}
+                      onFocus={e => setTimeout(() => e.target.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300)}
+                      placeholder="0000-0000-0000-0000"
+                      className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm tracking-widest focus:outline-none focus:ring-2 focus:ring-orange-400 transition"
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <div className="flex-1">
+                      <label className="block text-xs font-bold text-gray-600 mb-1.5">유효기간 <span className="text-red-400">*</span></label>
+                      <input
+                        type="tel"
+                        value={cardExpiry}
+                        onChange={e => setCardExpiry(formatExpiry(e.target.value))}
+                        onFocus={e => setTimeout(() => e.target.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300)}
+                        placeholder="MM/YY"
+                        className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm tracking-widest focus:outline-none focus:ring-2 focus:ring-orange-400 transition"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <label className="block text-xs font-bold text-gray-600 mb-1.5">CVC <span className="text-red-400">*</span></label>
+                      <input
+                        type="tel"
+                        value={cardCvc}
+                        onChange={e => setCardCvc(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                        onFocus={e => setTimeout(() => e.target.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300)}
+                        placeholder="000"
+                        className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm tracking-widest focus:outline-none focus:ring-2 focus:ring-orange-400 transition"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-gray-600 mb-1.5">비밀번호 앞 2자리 <span className="text-red-400">*</span></label>
+                    <input
+                      type="password"
+                      value={cardPw}
+                      onChange={e => setCardPw(e.target.value.replace(/\D/g, '').slice(0, 2))}
+                      onFocus={e => setTimeout(() => e.target.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300)}
+                      placeholder="••"
+                      className="w-40 border border-gray-200 rounded-xl px-4 py-3 text-sm tracking-widest focus:outline-none focus:ring-2 focus:ring-orange-400 transition"
+                    />
+                    <p className="text-[11px] text-gray-400 mt-1">카드 비밀번호 앞 2자리만 입력합니다.</p>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Form fields */}

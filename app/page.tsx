@@ -741,10 +741,18 @@ export default function LivePage() {
           </div>
         </section>
 
-        <div className="py-3 bg-white border-t border-gray-50 flex-shrink-0 flex items-center justify-center gap-4">
-          <a href="/my-orders" className="text-[12px] text-gray-500 hover:text-orange-500 font-semibold transition-colors">📦 내 주문 확인</a>
-          <span className="text-gray-200">|</span>
-          <a href="/admin/products" className="text-[11px] text-gray-300 hover:text-gray-500 transition-colors">관리자</a>
+        <div className="px-5 py-4 bg-white border-t border-gray-100 flex-shrink-0 space-y-2.5">
+          <a
+            href="/my-orders"
+            className="flex items-center justify-center gap-2 w-full py-4 rounded-2xl font-black text-base text-white shadow-lg active:scale-95 transition-all"
+            style={{ background: 'linear-gradient(135deg,#ff6a00,#e53935)' }}
+          >
+            <span className="text-xl">📦</span>
+            내 주문 내역 확인하기
+          </a>
+          <div className="text-center">
+            <a href="/admin/products" className="text-[11px] text-gray-300 hover:text-gray-500 transition-colors">관리자</a>
+          </div>
         </div>
 
       </div>
