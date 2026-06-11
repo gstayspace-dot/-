@@ -34,7 +34,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
+      <div className="min-h-screen-safe bg-white flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
           <div className="w-10 h-10 rounded-full border-4 border-orange-200 border-t-orange-500 animate-spin" />
           <p className="text-sm text-gray-400">불러오는 중...</p>
@@ -45,7 +45,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
 
   if (!product) {
     return (
-      <div className="min-h-screen bg-white flex flex-col items-center justify-center gap-4">
+      <div className="min-h-screen-safe bg-white flex flex-col items-center justify-center gap-4">
         <span className="text-6xl">😕</span>
         <p className="text-gray-500 font-semibold">상품을 찾을 수 없습니다.</p>
         <button
@@ -63,11 +63,11 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
   const specLines   = product.specs ? product.specs.split('\n').filter(Boolean) : []
 
   return (
-    <div className="min-h-screen bg-gray-50 flex justify-center">
-      <div className="w-full max-w-[480px] bg-white min-h-screen flex flex-col">
+    <div className="min-h-screen-safe bg-gray-50 flex justify-center">
+      <div className="w-full max-w-[480px] bg-white min-h-screen-safe flex flex-col">
 
         {/* ── Header ── */}
-        <header className="sticky top-0 z-20 bg-white/95 backdrop-blur-sm border-b border-gray-100 px-4 py-3 flex items-center gap-3 flex-shrink-0">
+        <header className="sticky top-0 z-20 bg-white/95 backdrop-blur-sm border-b border-gray-100 px-4 py-3 pt-[calc(0.75rem_+_env(safe-area-inset-top))] flex items-center gap-3 flex-shrink-0">
           <button
             onClick={() => router.push('/cart')}
             className="relative w-9 h-9 flex items-center justify-center flex-shrink-0"
@@ -220,7 +220,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
         </div>
 
         {/* ── Sticky CTA ── */}
-        <div className="flex-shrink-0 bg-white border-t border-gray-100 px-5 py-4 flex gap-2">
+        <div className="flex-shrink-0 bg-white border-t border-gray-100 px-5 py-4 pb-[calc(1rem_+_env(safe-area-inset-bottom))] flex gap-2">
           <button
             onClick={() => router.back()}
             className="flex-none bg-gray-100 text-gray-600 font-bold py-4 px-4 rounded-2xl hover:bg-gray-200 active:scale-95 transition-all text-sm"

@@ -135,9 +135,11 @@ export default function CartPage() {
 
   // ── STEP: DONE ────────────────────────────────────────────────────────────
   if (step === 'done') {
+    const doneSubtotal = getCartTotal(doneCart)
+    const doneShipping = doneTotal - doneSubtotal
     return (
-      <div className="min-h-screen bg-gray-50 flex justify-center">
-        <div className="w-full max-w-[480px] bg-white min-h-screen flex flex-col">
+      <div className="min-h-screen-safe bg-gray-50 flex justify-center">
+        <div className="w-full max-w-[480px] bg-white min-h-screen-safe flex flex-col">
           <div className="flex-1 px-5 py-10 flex flex-col items-center text-center">
             <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mb-5">
               <span className="text-4xl">✅</span>
@@ -182,14 +184,26 @@ export default function CartPage() {
                   </div>
                 ))}
               </div>
-              <div className="border-t border-gray-200 mt-3 pt-3 flex justify-between">
-                <span className="font-bold text-gray-700">합계</span>
-                <span className="font-black text-red-500">₩{doneTotal.toLocaleString()}</span>
+              <div className="border-t border-gray-200 mt-3 pt-3 space-y-1.5">
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-500">상품 합계</span>
+                  <span className="font-bold text-gray-800">₩{doneSubtotal.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-500">배송비</span>
+                  {doneShipping === 0
+                    ? <span className="font-bold text-green-600">무료</span>
+                    : <span className="font-bold text-gray-700">₩{doneShipping.toLocaleString()}</span>}
+                </div>
+                <div className="flex justify-between pt-1.5 border-t border-gray-200">
+                  <span className="font-bold text-gray-700">총 결제금액</span>
+                  <span className="font-black text-red-500">₩{doneTotal.toLocaleString()}</span>
+                </div>
               </div>
             </div>
           </div>
 
-          <div className="flex-shrink-0 px-5 py-4 bg-white border-t border-gray-100 space-y-2">
+          <div className="flex-shrink-0 px-5 py-4 pb-[calc(1rem_+_env(safe-area-inset-bottom))] bg-white border-t border-gray-100 space-y-2">
             <button
               onClick={() => router.push('/my-orders')}
               className="w-full font-black py-3 rounded-2xl text-sm border-2 border-orange-300 text-orange-500 hover:bg-orange-50 active:scale-95 transition-all"
@@ -212,10 +226,10 @@ export default function CartPage() {
   // ── STEP: ORDER FORM ──────────────────────────────────────────────────────
   if (step === 'form') {
     return (
-      <div className="min-h-screen bg-gray-50 flex justify-center">
-        <div className="w-full max-w-[480px] bg-white min-h-screen flex flex-col">
+      <div className="min-h-screen-safe bg-gray-50 flex justify-center">
+        <div className="w-full max-w-[480px] bg-white min-h-screen-safe flex flex-col">
 
-          <header className="sticky top-0 z-20 bg-white border-b border-gray-100 px-4 py-3 flex items-center gap-3 flex-shrink-0">
+          <header className="sticky top-0 z-20 bg-white border-b border-gray-100 px-4 py-3 pt-[calc(0.75rem_+_env(safe-area-inset-top))] flex items-center gap-3 flex-shrink-0">
             <button
               onClick={() => setStep('cart')}
               className="w-9 h-9 flex items-center justify-center rounded-full bg-gray-100 text-gray-700 font-bold text-lg flex-shrink-0"
@@ -409,7 +423,7 @@ export default function CartPage() {
             <div className="h-24" />
           </div>
 
-          <div className="flex-shrink-0 bg-white border-t border-gray-100 px-5 py-4">
+          <div className="flex-shrink-0 bg-white border-t border-gray-100 px-5 py-4 pb-[calc(1rem_+_env(safe-area-inset-bottom))]">
             <button
               onClick={handleSubmit}
               disabled={submitting}
@@ -426,8 +440,8 @@ export default function CartPage() {
 
   // ── STEP: CART ────────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-gray-50 flex justify-center">
-      <div className="w-full max-w-[480px] bg-white min-h-screen flex flex-col">
+    <div className="min-h-screen-safe bg-gray-50 flex justify-center">
+      <div className="w-full max-w-[480px] bg-white min-h-screen-safe flex flex-col">
 
         <header className="sticky top-0 z-20 bg-white border-b border-gray-100 px-4 py-3 flex items-center gap-3 flex-shrink-0">
           <button

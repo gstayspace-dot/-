@@ -86,11 +86,11 @@ export default function MyOrdersPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex justify-center">
-      <div className="w-full max-w-[480px] bg-white min-h-screen flex flex-col">
+    <div className="min-h-screen-safe bg-gray-50 flex justify-center">
+      <div className="w-full max-w-[480px] bg-white min-h-screen-safe flex flex-col">
 
         {/* Header */}
-        <header className="sticky top-0 z-20 bg-white border-b border-gray-100 px-4 py-3 flex items-center gap-3 flex-shrink-0">
+        <header className="sticky top-0 z-20 bg-white border-b border-gray-100 px-4 py-3 pt-[calc(0.75rem_+_env(safe-area-inset-top))] flex items-center gap-3 flex-shrink-0">
           <button
             onClick={() => router.back()}
             className="w-9 h-9 flex items-center justify-center rounded-full bg-gray-100 text-gray-700 font-bold text-lg flex-shrink-0"
@@ -139,6 +139,8 @@ export default function MyOrdersPage() {
                   {orders.map(order => {
                     const canEdit = order.status === '입금대기'
                     const isEditing = editing === order.id
+                    const itemsSubtotal = order.items.reduce((sum, it) => sum + it.price * it.quantity, 0)
+                    const shippingFee = order.total_price - itemsSubtotal
 
                     return (
                       <div key={order.id} className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
@@ -168,6 +170,16 @@ export default function MyOrdersPage() {
                                   <span className="font-bold text-gray-900 flex-shrink-0">₩{(item.price * item.quantity).toLocaleString()}</span>
                                 </div>
                               ))}
+                              <div className="pt-1.5 border-t border-gray-100 flex justify-between">
+                                <span className="text-xs text-gray-500">상품 합계</span>
+                                <span className="text-sm font-bold text-gray-800">₩{itemsSubtotal.toLocaleString()}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-xs text-gray-500">배송비</span>
+                                {shippingFee <= 0
+                                  ? <span className="text-sm font-bold text-green-600">무료</span>
+                                  : <span className="text-sm font-bold text-gray-700">₩{shippingFee.toLocaleString()}</span>}
+                              </div>
                               <div className="pt-1.5 border-t border-gray-100 flex justify-between">
                                 <span className="text-xs text-gray-500">총 결제금액</span>
                                 <span className="text-sm font-black text-red-500">₩{order.total_price.toLocaleString()}</span>

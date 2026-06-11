@@ -96,7 +96,7 @@ export default function AdminAccountsPage() {
   // Loading
   if (isAuthorized === null) {
     return (
-      <div className="min-h-screen bg-gray-950 flex items-center justify-center">
+      <div className="min-h-screen-safe bg-gray-950 flex items-center justify-center">
         <div className="text-gray-500 text-sm">확인 중...</div>
       </div>
     )
@@ -105,7 +105,7 @@ export default function AdminAccountsPage() {
   // Not authorized
   if (!isAuthorized) {
     return (
-      <div className="min-h-screen bg-gray-950 flex flex-col items-center justify-center gap-4">
+      <div className="min-h-screen-safe bg-gray-950 flex flex-col items-center justify-center gap-4">
         <div className="text-4xl">🔒</div>
         <p className="text-white font-bold text-lg">접근 권한이 없습니다</p>
         <p className="text-gray-500 text-sm">총괄 관리자만 접근할 수 있습니다.</p>
@@ -120,7 +120,7 @@ export default function AdminAccountsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-950">
+    <div className="min-h-screen-safe bg-gray-950">
 
       {/* ── Nav ── */}
       <nav className="bg-gray-900 border-b border-gray-800 px-6 py-3 flex items-center justify-between sticky top-0 z-20">

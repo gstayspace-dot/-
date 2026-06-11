@@ -482,11 +482,11 @@ export default function LivePage() {
   // ── Render ────────────────────────────────────────────────────────────────
 
   return (
-    <div className="min-h-screen bg-gray-100 flex justify-center items-start">
-      <div className="w-full max-w-[480px] bg-white flex flex-col min-h-screen shadow-2xl">
+    <div className="min-h-screen-safe bg-gray-100 flex justify-center items-start">
+      <div className="w-full max-w-[480px] bg-white flex flex-col min-h-screen-safe shadow-2xl">
 
         {/* ── LIVE HEADER ── */}
-        <header className="sticky top-0 z-30 bg-black text-white px-4 py-2.5 flex items-center justify-between flex-shrink-0">
+        <header className="sticky top-0 z-30 bg-black text-white px-4 py-2.5 pt-[calc(0.625rem_+_env(safe-area-inset-top))] flex items-center justify-between flex-shrink-0">
           <div className="flex items-center gap-2.5">
             <button
               onClick={() => router.push('/cart')}
@@ -741,7 +741,7 @@ export default function LivePage() {
           </div>
         </section>
 
-        <div className="px-5 py-4 bg-white border-t border-gray-100 flex-shrink-0 space-y-2.5">
+        <div className="px-5 py-4 pb-[calc(1rem_+_env(safe-area-inset-bottom))] bg-white border-t border-gray-100 flex-shrink-0 space-y-2.5">
           <a
             href="/my-orders"
             className="flex items-center justify-center gap-2 w-full py-4 rounded-2xl font-black text-base text-white shadow-lg active:scale-95 transition-all"

@@ -130,7 +130,7 @@ function LoginForm() {
 
 export default function AdminLoginPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-slate-900 to-black flex items-center justify-center px-4">
+    <div className="min-h-screen-safe bg-gradient-to-br from-gray-950 via-slate-900 to-black flex items-center justify-center px-4">
       <Suspense fallback={<div className="text-gray-600 text-sm">불러오는 중...</div>}>
         <LoginForm />
       </Suspense>

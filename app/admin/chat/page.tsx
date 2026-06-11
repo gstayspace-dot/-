@@ -268,7 +268,7 @@ export default function AdminChatPage() {
   // ── Render ────────────────────────────────────────────────────────────────
 
   return (
-    <div className="h-screen flex flex-col bg-gray-50 overflow-hidden">
+    <div className="h-screen-safe flex flex-col bg-gray-50 overflow-hidden">
 
       {/* ── NAV ── */}
       <nav className="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between flex-shrink-0 shadow-sm z-10">
@@ -402,8 +402,8 @@ export default function AdminChatPage() {
                 </button>
                 <button
                   onClick={() => deleteCustomer(c.id)}
-                  title="채팅창 삭제"
-                  className="absolute top-2 right-2 w-6 h-6 rounded-full bg-red-100 text-red-400 hover:bg-red-500 hover:text-white text-xs font-black flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all z-10"
+                  title="이 채팅창 삭제"
+                  className="absolute top-2 right-2 w-7 h-7 rounded-full bg-red-50 text-red-500 hover:bg-red-500 hover:text-white text-sm font-black flex items-center justify-center shadow-sm border border-red-200 transition-all active:scale-90 z-10"
                 >
                   ×
                 </button>
@@ -523,7 +523,7 @@ export default function AdminChatPage() {
               <div ref={chatEndRef} />
             </div>
 
-            <div className="bg-white border-t border-gray-200 px-5 py-3 flex-shrink-0">
+            <div className="bg-white border-t border-gray-200 px-5 py-3 pb-[calc(0.75rem_+_env(safe-area-inset-bottom))] flex-shrink-0">
               <div className="flex flex-wrap gap-1.5 mb-2.5">
                 {QUICK_REPLIES.map(r => (
                   <button
