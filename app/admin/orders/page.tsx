@@ -231,12 +231,30 @@ export default function AdminOrdersPage() {
                       <span className="text-[11px] font-bold text-gray-400 w-14 flex-shrink-0 mt-0.5">주소</span>
                       <span className="text-sm text-gray-700 leading-snug">{order.customer_address}</span>
                     </div>
-                    {order.customer_request && (
-                      <div className="flex items-start gap-2">
-                        <span className="text-[11px] font-bold text-gray-400 w-14 flex-shrink-0 mt-0.5">요청</span>
-                        <span className="text-sm text-gray-500 italic">{order.customer_request}</span>
-                      </div>
-                    )}
+                    {(() => {
+                      const raw = order.customer_request ?? ''
+                      const parts = raw.split(' | ')
+                      const payPart = parts.find(p => p.startsWith('[')) ?? ''
+                      const reqPart = parts.filter(p => !p.startsWith('[')).join(' | ').trim()
+                      const payText = payPart.replace(/^\[|\]$/g, '')
+                      const isCard = payText.startsWith('카드결제')
+                      return (
+                        <>
+                          {payText && (
+                            <div className="flex items-start gap-2">
+                              <span className="text-[11px] font-bold text-gray-400 w-14 flex-shrink-0 mt-0.5">결제</span>
+                              <span className={`text-sm font-bold ${isCard ? 'text-blue-600 select-all' : 'text-gray-700'}`}>{payText}</span>
+                            </div>
+                          )}
+                          {reqPart && (
+                            <div className="flex items-start gap-2">
+                              <span className="text-[11px] font-bold text-gray-400 w-14 flex-shrink-0 mt-0.5">요청</span>
+                              <span className="text-sm text-gray-500 italic">{reqPart}</span>
+                            </div>
+                          )}
+                        </>
+                      )
+                    })()}
                   </div>
 
                   {/* Items */}

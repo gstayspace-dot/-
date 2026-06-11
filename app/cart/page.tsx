@@ -31,10 +31,7 @@ export default function CartPage() {
   const [doneCart, setDoneCart] = useState<CartItem[]>([])
   const [doneTotal, setDoneTotal] = useState(0)
   const [payMethod, setPayMethod] = useState<'bank' | 'card'>('bank')
-  const [cardNum, setCardNum] = useState('')
-  const [cardExpiry, setCardExpiry] = useState('')
-  const [cardPw, setCardPw] = useState('')
-  const [cardCvc, setCardCvc] = useState('')
+  const [agreePrivacy, setAgreePrivacy] = useState(false)
 
   useEffect(() => {
     setCart(getCart())
@@ -59,16 +56,6 @@ export default function CartPage() {
   const shippingFee = subtotal >= FREE_SHIPPING_MIN ? 0 : SHIPPING_FEE
   const total = subtotal + shippingFee
 
-  function formatCardNum(raw: string) {
-    const d = raw.replace(/\D/g, '').slice(0, 16)
-    return d.replace(/(.{4})(?=.)/g, '$1-')
-  }
-
-  function formatExpiry(raw: string) {
-    const d = raw.replace(/\D/g, '').slice(0, 4)
-    return d.length > 2 ? `${d.slice(0, 2)}/${d.slice(2)}` : d
-  }
-
   function formatPhone(raw: string) {
     const digits = raw.replace(/\D/g, '').slice(0, 11)
     if (digits.length < 4) return digits
@@ -81,17 +68,14 @@ export default function CartPage() {
       setSubmitError('이름, 전화번호, 주소는 필수 입력 항목입니다.')
       return
     }
-    if (payMethod === 'card') {
-      const digits = cardNum.replace(/\D/g, '')
-      if (digits.length < 16) { setSubmitError('카드번호 16자리를 입력해주세요.'); return }
-      if (cardExpiry.length < 5) { setSubmitError('유효기간을 MM/YY 형식으로 입력해주세요.'); return }
-      if (cardPw.length < 2) { setSubmitError('비밀번호 앞 2자리를 입력해주세요.'); return }
-      if (cardCvc.length < 3) { setSubmitError('CVC 3자리를 입력해주세요.'); return }
+    if (!agreePrivacy) {
+      setSubmitError('개인정보 수집·이용에 동의해주세요.')
+      return
     }
     setSubmitError('')
     setSubmitting(true)
     const payNote = payMethod === 'card'
-      ? `[카드결제 ****${cardNum.replace(/\D/g, '').slice(-4)} 유효기간:${cardExpiry}]`
+      ? '[카드결제-채팅문의]'
       : '[계좌이체]'
     const fullRequest = [payNote, request.trim()].filter(Boolean).join(' | ')
     try {
@@ -303,54 +287,19 @@ export default function CartPage() {
               </div>
 
               {payMethod === 'card' && (
-                <div className="mt-4 space-y-3">
-                  <div>
-                    <label className="block text-xs font-bold text-gray-600 mb-1.5">카드번호 <span className="text-red-400">*</span></label>
-                    <input
-                      type="tel"
-                      value={cardNum}
-                      onChange={e => setCardNum(formatCardNum(e.target.value))}
-                      onFocus={e => setTimeout(() => e.target.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300)}
-                      placeholder="0000-0000-0000-0000"
-                      className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm tracking-widest focus:outline-none focus:ring-2 focus:ring-orange-400 transition"
-                    />
-                  </div>
-                  <div className="flex gap-2">
-                    <div className="flex-1">
-                      <label className="block text-xs font-bold text-gray-600 mb-1.5">유효기간 <span className="text-red-400">*</span></label>
-                      <input
-                        type="tel"
-                        value={cardExpiry}
-                        onChange={e => setCardExpiry(formatExpiry(e.target.value))}
-                        onFocus={e => setTimeout(() => e.target.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300)}
-                        placeholder="MM/YY"
-                        className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm tracking-widest focus:outline-none focus:ring-2 focus:ring-orange-400 transition"
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <label className="block text-xs font-bold text-gray-600 mb-1.5">CVC <span className="text-red-400">*</span></label>
-                      <input
-                        type="tel"
-                        value={cardCvc}
-                        onChange={e => setCardCvc(e.target.value.replace(/\D/g, '').slice(0, 4))}
-                        onFocus={e => setTimeout(() => e.target.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300)}
-                        placeholder="000"
-                        className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm tracking-widest focus:outline-none focus:ring-2 focus:ring-orange-400 transition"
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-gray-600 mb-1.5">비밀번호 앞 2자리 <span className="text-red-400">*</span></label>
-                    <input
-                      type="password"
-                      value={cardPw}
-                      onChange={e => setCardPw(e.target.value.replace(/\D/g, '').slice(0, 2))}
-                      onFocus={e => setTimeout(() => e.target.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300)}
-                      placeholder="••"
-                      className="w-40 border border-gray-200 rounded-xl px-4 py-3 text-sm tracking-widest focus:outline-none focus:ring-2 focus:ring-orange-400 transition"
-                    />
-                    <p className="text-[11px] text-gray-400 mt-1">카드 비밀번호 앞 2자리만 입력합니다.</p>
-                  </div>
+                <div className="mt-4 bg-blue-50 border border-blue-200 rounded-xl px-4 py-4">
+                  <p className="text-sm font-bold text-blue-700 mb-1">💬 카드결제는 채팅으로 안내해드려요</p>
+                  <p className="text-xs text-blue-600 leading-relaxed">
+                    아래 정보로 주문을 먼저 접수하신 뒤, 라이브 페이지 하단의 <span className="font-bold">1:1 상담 채팅</span>으로
+                    문의해 주시면 카드결제 방법을 안내해드립니다.
+                  </p>
+                  <a
+                    href="/"
+                    className="inline-flex items-center gap-1 mt-3 text-xs font-bold text-white px-4 py-2 rounded-lg active:scale-95 transition-all"
+                    style={{ background: 'linear-gradient(135deg,#ff6a00,#e53935)' }}
+                  >
+                    💬 채팅으로 문의하기
+                  </a>
                 </div>
               )}
             </div>
@@ -418,6 +367,27 @@ export default function CartPage() {
                   className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent transition resize-none"
                 />
               </div>
+
+              {/* 개인정보 수집·이용 동의 */}
+              <div className="border border-gray-200 rounded-xl p-4 bg-gray-50">
+                <p className="text-xs font-bold text-gray-700 mb-2">개인정보 수집·이용 동의 <span className="text-red-400">*</span></p>
+                <div className="text-[11px] text-gray-500 leading-relaxed space-y-0.5 mb-3 max-h-32 overflow-y-auto pr-1">
+                  <p>• <span className="font-semibold text-gray-600">수집 항목:</span> 이름, 연락처, 배송 주소, 주문 정보</p>
+                  <p>• <span className="font-semibold text-gray-600">수집 목적:</span> 주문 상품 배송 및 주문·결제 관련 상담</p>
+                  <p>• <span className="font-semibold text-gray-600">보유·이용 기간:</span> 관련 법령(전자상거래법)에 따라 거래기록은 5년간 보관 후 파기하며, 그 외 정보는 목적 달성 시 지체 없이 파기합니다.</p>
+                  <p>• <span className="font-semibold text-gray-600">개인정보 관리책임자:</span> 영진상사 대표 최영진 (☎ 032-327-1116)</p>
+                  <p className="text-gray-400 mt-1">※ 동의를 거부하실 권리가 있으나, 미동의 시 상품 주문 및 배송이 불가능합니다.</p>
+                </div>
+                <label className="flex items-center gap-2 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={agreePrivacy}
+                    onChange={e => setAgreePrivacy(e.target.checked)}
+                    className="w-4 h-4 accent-orange-500"
+                  />
+                  <span className="text-xs font-bold text-gray-700">위 개인정보 수집·이용에 동의합니다.</span>
+                </label>
+              </div>
             </div>
 
             <div className="h-24" />
@@ -426,7 +396,7 @@ export default function CartPage() {
           <div className="flex-shrink-0 bg-white border-t border-gray-100 px-5 py-4 pb-[calc(1rem_+_env(safe-area-inset-bottom))]">
             <button
               onClick={handleSubmit}
-              disabled={submitting}
+              disabled={submitting || !agreePrivacy}
               className="w-full text-white font-black py-4 rounded-2xl text-sm shadow-lg active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               style={{ background: 'linear-gradient(135deg,#ff6a00,#e53935)' }}
             >
