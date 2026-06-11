@@ -123,7 +123,10 @@ export default function AdminChatPage() {
         color: colorFor(c.name),
       }))
       setCustomers(initial)
-      if (initial.length > 0) setSelectedId(initial[0].id)
+      // 데스크톱(2단 레이아웃)에서만 첫 채팅 자동 선택. 모바일은 목록을 먼저 보여준다.
+      if (initial.length > 0 && window.matchMedia('(min-width: 768px)').matches) {
+        setSelectedId(initial[0].id)
+      }
     })
 
     // Realtime: new customers + new messages
@@ -271,18 +274,18 @@ export default function AdminChatPage() {
     <div className="h-screen-safe flex flex-col bg-gray-50 overflow-hidden">
 
       {/* ── NAV ── */}
-      <nav className="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between flex-shrink-0 shadow-sm z-10">
-        <div className="flex items-center gap-3">
+      <nav className="bg-white border-b border-gray-200 px-3 md:px-6 py-3 flex items-center gap-4 md:gap-0 md:justify-between flex-shrink-0 shadow-sm z-10 overflow-x-auto no-scrollbar whitespace-nowrap">
+        <div className="flex items-center gap-3 flex-shrink-0">
           <span className="text-xl font-black text-gray-900">🛠 관리자</span>
-          <span className="text-gray-300">|</span>
-          <span className="text-sm text-gray-600">실시간 1:1 채팅 상담</span>
+          <span className="hidden sm:inline text-gray-300">|</span>
+          <span className="hidden sm:inline text-sm text-gray-600">실시간 1:1 채팅 상담</span>
           {totalUnread > 0 && (
             <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full animate-pulse">
               {totalUnread}
             </span>
           )}
         </div>
-        <div className="flex items-center gap-4 text-sm">
+        <div className="flex items-center gap-4 text-sm flex-shrink-0">
           {isSuper && (
             <a href="/admin/accounts" className="text-purple-500 hover:text-purple-400 font-semibold transition-colors">
               👑 계정 관리
@@ -306,7 +309,7 @@ export default function AdminChatPage() {
       <div className="flex flex-1 overflow-hidden">
 
         {/* ════════════════ LEFT: Customer List ════════════════ */}
-        <aside className="w-72 xl:w-80 flex-shrink-0 bg-white border-r border-gray-200 flex flex-col overflow-hidden">
+        <aside className={`w-full md:w-72 xl:w-80 md:flex-shrink-0 bg-white border-r border-gray-200 flex-col overflow-hidden ${selectedId ? 'hidden md:flex' : 'flex'}`}>
 
           <div className="px-4 py-3 border-b border-gray-100 flex-shrink-0">
             <div className="flex items-center justify-between">
@@ -315,7 +318,7 @@ export default function AdminChatPage() {
                   type="checkbox"
                   checked={customers.length > 0 && checkedIds.size === customers.length}
                   onChange={toggleAll}
-                  className="w-4 h-4 rounded accent-orange-500 cursor-pointer"
+                  className="hidden md:block w-4 h-4 rounded accent-orange-500 cursor-pointer"
                   title="전체 선택"
                 />
                 <h2 className="font-bold text-gray-800 text-sm">👥 접속 고객</h2>
@@ -349,7 +352,7 @@ export default function AdminChatPage() {
                 <div key={c.id} className="relative group">
                 <button
                   onClick={() => setSelectedId(c.id)}
-                  className={`w-full text-left px-4 py-3 border-b border-gray-100 transition-all hover:bg-orange-50 ${
+                  className={`w-full text-left pl-4 pr-12 py-3.5 md:py-3 border-b border-gray-100 transition-all hover:bg-orange-50 ${
                     isActive
                       ? 'bg-orange-50 border-l-[3px] border-l-orange-500'
                       : 'border-l-[3px] border-l-transparent'
@@ -361,7 +364,7 @@ export default function AdminChatPage() {
                       checked={checkedIds.has(c.id)}
                       onChange={() => toggleCheck(c.id)}
                       onClick={e => e.stopPropagation()}
-                      className="w-4 h-4 rounded accent-orange-500 cursor-pointer flex-shrink-0 mt-1"
+                      className="hidden md:block w-4 h-4 rounded accent-orange-500 cursor-pointer flex-shrink-0 mt-1"
                     />
                     <div className="relative flex-shrink-0">
                       <div
@@ -403,7 +406,8 @@ export default function AdminChatPage() {
                 <button
                   onClick={() => deleteCustomer(c.id)}
                   title="이 채팅창 삭제"
-                  className="absolute top-2 right-2 w-7 h-7 rounded-full bg-red-50 text-red-500 hover:bg-red-500 hover:text-white text-sm font-black flex items-center justify-center shadow-sm border border-red-200 transition-all active:scale-90 z-10"
+                  aria-label="이 채팅창 삭제"
+                  className="absolute top-1/2 -translate-y-1/2 right-2.5 w-9 h-9 rounded-full bg-red-50 text-red-500 hover:bg-red-500 hover:text-white text-lg font-black flex items-center justify-center shadow-sm border border-red-200 transition-all active:scale-90 z-10"
                 >
                   ×
                 </button>
@@ -434,10 +438,17 @@ export default function AdminChatPage() {
         {selectedCustomer ? (
           <div className="flex-1 flex flex-col overflow-hidden">
 
-            <div className="bg-white border-b border-gray-200 px-6 py-3 flex-shrink-0 flex items-center justify-between shadow-sm">
-              <div className="flex items-center gap-3">
+            <div className="bg-white border-b border-gray-200 px-4 md:px-6 py-3 flex-shrink-0 flex items-center justify-between shadow-sm">
+              <div className="flex items-center gap-2 md:gap-3 min-w-0">
+                <button
+                  onClick={() => setSelectedId(null)}
+                  aria-label="목록으로"
+                  className="md:hidden w-9 h-9 -ml-1 flex items-center justify-center rounded-full text-gray-600 hover:bg-gray-100 active:scale-90 text-2xl flex-shrink-0"
+                >
+                  ←
+                </button>
                 <div
-                  className="w-9 h-9 rounded-full flex items-center justify-center text-white font-extrabold text-sm shadow"
+                  className="w-9 h-9 rounded-full flex items-center justify-center text-white font-extrabold text-sm shadow flex-shrink-0"
                   style={{ backgroundColor: selectedCustomer.color }}
                 >
                   {selectedCustomer.name.replace('익명_', '')}
@@ -567,7 +578,7 @@ export default function AdminChatPage() {
           </div>
 
         ) : (
-          <div className="flex-1 flex items-center justify-center bg-gray-50">
+          <div className="flex-1 hidden md:flex items-center justify-center bg-gray-50">
             <div className="text-center">
               <div className="text-6xl mb-4">💬</div>
               <h3 className="text-lg font-bold text-gray-700 mb-2">채팅을 선택하세요</h3>
