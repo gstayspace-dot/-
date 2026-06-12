@@ -123,6 +123,7 @@ export default function AdminOrdersPage() {
         <div className="flex items-center gap-4">
           <a href="/admin/products" className="text-sm text-gray-500 hover:text-gray-700 font-medium transition-colors">📦 상품</a>
           <a href="/admin/chat" className="text-sm text-gray-500 hover:text-gray-700 font-medium transition-colors">💬 채팅</a>
+          <a href="/admin/qr" className="text-sm text-gray-500 hover:text-gray-700 font-medium transition-colors">📱 QR</a>
           <a href="/" target="_blank" rel="noopener noreferrer" className="text-sm text-orange-500 hover:text-orange-600 font-semibold transition-colors">📺 라이브 →</a>
           <button onClick={handleLogout} className="text-sm text-gray-400 hover:text-red-500 transition-colors font-medium">로그아웃</button>
         </div>

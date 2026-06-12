@@ -293,6 +293,7 @@ export default function AdminChatPage() {
           )}
           <a href="/admin/products" className="text-gray-400 hover:text-gray-700 transition-colors">📦 상품 관리</a>
           <a href="/admin/orders" className="text-gray-400 hover:text-gray-700 transition-colors">📋 주문 관리</a>
+          <a href="/admin/qr" className="text-gray-400 hover:text-gray-700 transition-colors">📱 QR</a>
           <a href="/" target="_blank" rel="noopener noreferrer" className="text-orange-500 hover:text-orange-600 font-semibold transition-colors">
             📺 라이브 페이지 →
           </a>

@@ -788,11 +788,7 @@ export default function LivePage() {
             <p className="text-[11px] text-gray-400">대표 최영진 &nbsp;|&nbsp; 사업자등록번호 501-06-97617</p>
             <p className="text-[11px] text-gray-400">고객센터 / 개인정보 관리책임자 : 최영진 (032-327-1116)</p>
             <p className="text-[10px] text-gray-300 pt-1">© 영진상사. All rights reserved.</p>
-            <div className="flex items-center justify-center gap-3 pt-1">
-              <a href="/qr" className="text-[11px] text-gray-300 hover:text-gray-500 transition-colors">📱 QR 코드</a>
-              <span className="text-gray-200">·</span>
-              <a href="/admin/products" className="text-[11px] text-gray-300 hover:text-gray-500 transition-colors">관리자</a>
-            </div>
+            <a href="/admin/products" className="inline-block text-[11px] text-gray-300 hover:text-gray-500 transition-colors pt-1">관리자</a>
           </div>
         </div>
 
