@@ -3,8 +3,13 @@ import './globals.css'
 import OrderAlertGlobal from './components/OrderAlertGlobal'
 
 export const metadata: Metadata = {
-  title: '🔴 LIVE | 스테인리스 프리미엄 냄비 세트 5종 - 오늘만 60% 할인!',
-  description: '라이브 방송 한정 특가! 스테인리스 프리미엄 냄비 세트 5종 오늘만 60% 할인. 남은 수량 15개!',
+  title: '영진상사 라이브쇼핑',
+  description: '라이브 방송 한정 특가! 매일 새로운 상품을 만나보세요.',
+  openGraph: {
+    title: '영진상사 라이브쇼핑',
+    description: '라이브 방송 한정 특가! 매일 새로운 상품을 만나보세요.',
+    type: 'website',
+  },
 }
 
 export const viewport: Viewport = {

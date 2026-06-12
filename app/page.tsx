@@ -126,6 +126,15 @@ export default function LivePage() {
     return () => document.removeEventListener('visibilitychange', update)
   }, [])
 
+  // ── Deep-link: ?chat=1 → scroll to chat section ───────────────────────────
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get('chat') === '1') {
+      setTimeout(() => {
+        document.getElementById('chat-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }, 400)
+    }
+  }, [])
+
   // ── Draggable music button ─────────────────────────────────────────────────
   const [dragPos, setDragPos] = useState<{ x: number; y: number } | null>(null)
   const musicBtnRef = useRef<HTMLButtonElement>(null)
@@ -166,6 +175,19 @@ export default function LivePage() {
     }, 2000)
     return () => clearInterval(t)
   }, [activeProducts.length])
+
+  // ── Auto-rotate carousel: follow the hero's current product ──────────────
+  useEffect(() => {
+    if (autoPausedRef.current || userSelectedId) return
+    const el = carouselRef.current
+    if (!el || activeProducts.length === 0) return
+    const activeId = activeProducts[autoIdx % activeProducts.length]?.id
+    if (!activeId) return
+    const card = cardRefs.current.get(activeId)
+    if (!card) return
+    const target = card.offsetLeft - (el.clientWidth - card.clientWidth) / 2
+    el.scrollTo({ left: Math.max(0, target), behavior: 'smooth' })
+  }, [autoIdx, activeProducts, userSelectedId])
 
   // ── Sync carousel scroll → hero image (user manual scroll) ───────────────
   useEffect(() => {
@@ -512,8 +534,12 @@ export default function LivePage() {
           </div>
         </header>
 
-        {/* ══ HERO IMAGE — 50vh ══ */}
-        <div className="relative flex-shrink-0" style={{ height: '50vh' }}>
+        {/* ══ HERO IMAGE — 50vh (탭 시 전체 상품 보기) ══ */}
+        <div
+          onClick={() => router.push('/shop')}
+          className="relative flex-shrink-0 cursor-pointer"
+          style={{ height: '50vh' }}
+        >
           <div className="absolute inset-0">
             {pd.imageUrl ? (
               <img src={pd.imageUrl} alt={pd.name} className="w-full h-full object-cover" />
@@ -546,7 +572,14 @@ export default function LivePage() {
             </div>
           )}
 
-          <div className="absolute bottom-0 left-0 right-0 px-4 pb-5 pt-16">
+          {/* 전체 상품 보기 유도 */}
+          <div className="absolute bottom-4 right-4">
+            <span className="bg-white/90 text-gray-900 text-[11px] font-black px-3 py-1.5 rounded-full shadow-lg backdrop-blur-sm flex items-center gap-1 animate-pulse">
+              👆 전체 상품 보기
+            </span>
+          </div>
+
+          <div className="absolute bottom-0 left-0 right-0 px-4 pb-5 pt-16 pointer-events-none">
             <p className="text-white/70 text-xs mb-1.5 flex items-center gap-1">
               🚚 오늘 주문 시 내일 도착 &nbsp;•&nbsp; 5만원↑ 무료배송
             </p>
@@ -608,7 +641,7 @@ export default function LivePage() {
           <section className="bg-white border-t border-gray-100 px-4 pt-3 pb-4 flex-shrink-0">
             <div className="flex items-center justify-between mb-2.5">
               <span className="text-sm font-extrabold text-gray-800">📦 라이브 상품</span>
-              <span className="text-[11px] text-gray-400">{activeProducts.length}개 라이브 중</span>
+              <span className="text-[11px] text-orange-500 font-bold">전체 상품 보기 →</span>
             </div>
 
             <div ref={carouselRef} className="flex gap-3 overflow-x-auto no-scrollbar" style={{ scrollSnapType: 'x mandatory' }}>
@@ -621,7 +654,7 @@ export default function LivePage() {
                   <button
                     key={product.id}
                     ref={(el) => { if (el) cardRefs.current.set(product.id, el); else cardRefs.current.delete(product.id) }}
-                    onClick={() => router.push(`/product/${product.id}`)}
+                    onClick={() => router.push('/shop')}
                     style={{ scrollSnapAlign: 'start' }}
                     className={`flex-shrink-0 w-[134px] rounded-2xl overflow-hidden border-2 transition-all active:scale-95 ${
                       isSelected
@@ -661,7 +694,7 @@ export default function LivePage() {
         )}
 
         {/* ══ REAL-TIME CHAT ══ */}
-        <section className="flex flex-col flex-1 border-t-8 border-gray-100">
+        <section id="chat-section" className="flex flex-col flex-1 border-t-8 border-gray-100">
           <div className="px-4 py-3 bg-white border-b border-gray-100 flex items-center justify-between flex-shrink-0">
             <div className="flex items-center gap-2">
               <span className="text-sm font-extrabold text-gray-800">💬 관리자 1:1 상담</span>
@@ -755,7 +788,11 @@ export default function LivePage() {
             <p className="text-[11px] text-gray-400">대표 최영진 &nbsp;|&nbsp; 사업자등록번호 501-06-97617</p>
             <p className="text-[11px] text-gray-400">고객센터 / 개인정보 관리책임자 : 최영진 (032-327-1116)</p>
             <p className="text-[10px] text-gray-300 pt-1">© 영진상사. All rights reserved.</p>
-            <a href="/admin/products" className="inline-block text-[11px] text-gray-300 hover:text-gray-500 transition-colors pt-1">관리자</a>
+            <div className="flex items-center justify-center gap-3 pt-1">
+              <a href="/qr" className="text-[11px] text-gray-300 hover:text-gray-500 transition-colors">📱 QR 코드</a>
+              <span className="text-gray-200">·</span>
+              <a href="/admin/products" className="text-[11px] text-gray-300 hover:text-gray-500 transition-colors">관리자</a>
+            </div>
           </div>
         </div>
 
