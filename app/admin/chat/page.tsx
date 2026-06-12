@@ -13,6 +13,16 @@ type AdminCustomer = ChatCustomer & {
   unread: number
   isNew: boolean
   color: string
+  deletedAt?: string | null
+}
+
+// 삭제 보관 기간(일). 경과분은 관리자 접속 시 자동 영구삭제됩니다.
+const RETENTION_DAYS = 30
+const RETENTION_MS = RETENTION_DAYS * 24 * 60 * 60 * 1000
+
+function daysLeft(deletedAt: string): number {
+  const elapsed = Date.now() - new Date(deletedAt).getTime()
+  return Math.max(0, Math.ceil((RETENTION_MS - elapsed) / (24 * 60 * 60 * 1000)))
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -67,6 +77,8 @@ const QUICK_REPLIES = [
 
 export default function AdminChatPage() {
   const [customers, setCustomers] = useState<AdminCustomer[]>([])
+  const [deletedCustomers, setDeletedCustomers] = useState<AdminCustomer[]>([])
+  const [showTrash, setShowTrash] = useState(false)
   const [msgMap, setMsgMap] = useState<Record<string, ChatMessage[]>>({})
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [inputText, setInputText] = useState('')
@@ -80,8 +92,10 @@ export default function AdminChatPage() {
   useEffect(() => { selectedIdRef.current = selectedId }, [selectedId])
 
   const selectedMessages = selectedId ? (msgMap[selectedId] ?? []) : []
-  const selectedCustomer = customers.find(c => c.id === selectedId) ?? null
+  const selectedCustomer = [...customers, ...deletedCustomers].find(c => c.id === selectedId) ?? null
   const totalUnread = customers.reduce((acc, c) => acc + c.unread, 0)
+  const leftList = showTrash ? deletedCustomers : customers
+  const selectedIsTrashed = !!selectedCustomer?.deletedAt
 
   // ── Super admin check ─────────────────────────────────────────────────────
   useEffect(() => {
@@ -113,16 +127,32 @@ export default function AdminChatPage() {
       })
       setMsgMap(map)
 
-      // Build customer list with unread counts
-      const initial: AdminCustomer[] = (custRows ?? []).map(c => ({
+      // 30일 지난 삭제 채팅 자동 영구삭제 (deleted_at 컬럼이 없으면 모두 통과 → no-op)
+      const cutoff = Date.now() - RETENTION_MS
+      const rows = custRows ?? []
+      const expired = rows.filter(c => c.deleted_at && new Date(c.deleted_at).getTime() < cutoff)
+      if (expired.length > 0) {
+        const ids = expired.map(c => c.id)
+        Promise.all(ids.map(id => db.from('chat_messages').delete().eq('customer_id', id)))
+          .then(() => db.from('chat_customers').delete().in('id', ids))
+      }
+      const expiredSet = new Set(expired.map(c => c.id))
+
+      const toAdmin = (c: DbChatCustomer): AdminCustomer => ({
         id: c.id,
         name: c.name,
         joinedAt: c.joined_at,
         unread: countUnread(map[c.id] ?? []),
         isNew: false,
         color: colorFor(c.name),
-      }))
+        deletedAt: c.deleted_at ?? null,
+      })
+
+      const live = rows.filter(c => !expiredSet.has(c.id))
+      const initial = live.filter(c => !c.deleted_at).map(toAdmin)
+      const trashed = live.filter(c => c.deleted_at).map(toAdmin)
       setCustomers(initial)
+      setDeletedCustomers(trashed)
       // 데스크톱(2단 레이아웃)에서만 첫 채팅 자동 선택. 모바일은 목록을 먼저 보여준다.
       if (initial.length > 0 && window.matchMedia('(min-width: 768px)').matches) {
         setSelectedId(initial[0].id)
@@ -195,30 +225,50 @@ export default function AdminChatPage() {
     inputRef.current?.focus()
   }, [selectedId])
 
-  // ── Delete customer session ───────────────────────────────────────────────
+  // 소프트 삭제: 보관함으로 이동 (active → trashed)
+  function moveToTrash(ids: string[], ts: string) {
+    const idSet = new Set(ids)
+    const moved = customers.filter(c => idSet.has(c.id)).map(c => ({ ...c, deletedAt: ts }))
+    setCustomers(prev => prev.filter(c => !idSet.has(c.id)))
+    setDeletedCustomers(prev => [...moved, ...prev])
+  }
+
+  // ── Delete customer session (소프트 삭제) ──────────────────────────────────
   async function deleteCustomer(customerId: string) {
-    if (!confirm('이 채팅창을 삭제하시겠습니까?\n대화 내역이 모두 사라집니다.')) return
-    await db.from('chat_messages').delete().eq('customer_id', customerId)
-    await db.from('chat_customers').delete().eq('id', customerId)
-    setCustomers(prev => prev.filter(c => c.id !== customerId))
-    setMsgMap(prev => { const m = { ...prev }; delete m[customerId]; return m })
+    if (!confirm(`이 채팅창을 삭제하시겠습니까?\n삭제 보관함에서 ${RETENTION_DAYS}일간 복원할 수 있습니다.`)) return
+    const ts = new Date().toISOString()
+    await db.from('chat_customers').update({ deleted_at: ts }).eq('id', customerId)
+    moveToTrash([customerId], ts)
     if (selectedId === customerId) setSelectedId(null)
   }
 
   async function deleteChecked() {
     if (checkedIds.size === 0) return
-    if (!confirm(`선택한 ${checkedIds.size}개 채팅창을 모두 삭제하시겠습니까?`)) return
+    if (!confirm(`선택한 ${checkedIds.size}개 채팅창을 보관함으로 옮기시겠습니까?`)) return
     const ids = Array.from(checkedIds)
-    await Promise.all(ids.map(id => db.from('chat_messages').delete().eq('customer_id', id)))
-    await Promise.all(ids.map(id => db.from('chat_customers').delete().eq('id', id)))
-    setCustomers(prev => prev.filter(c => !checkedIds.has(c.id)))
-    setMsgMap(prev => {
-      const m = { ...prev }
-      ids.forEach(id => delete m[id])
-      return m
-    })
+    const ts = new Date().toISOString()
+    await Promise.all(ids.map(id => db.from('chat_customers').update({ deleted_at: ts }).eq('id', id)))
+    moveToTrash(ids, ts)
     if (selectedId && checkedIds.has(selectedId)) setSelectedId(null)
     setCheckedIds(new Set())
+  }
+
+  // ── 보관함: 복원 / 영구삭제 ────────────────────────────────────────────────
+  async function restoreCustomer(customerId: string) {
+    await db.from('chat_customers').update({ deleted_at: null }).eq('id', customerId)
+    const moved = deletedCustomers.filter(c => c.id === customerId).map(c => ({ ...c, deletedAt: null }))
+    setDeletedCustomers(prev => prev.filter(c => c.id !== customerId))
+    setCustomers(prev => [...moved, ...prev])
+    if (selectedId === customerId) setSelectedId(null)
+  }
+
+  async function purgeCustomer(customerId: string) {
+    if (!confirm('이 채팅창을 완전히 삭제할까요?\n대화 내역이 영구 삭제되며 복원할 수 없습니다.')) return
+    await db.from('chat_messages').delete().eq('customer_id', customerId)
+    await db.from('chat_customers').delete().eq('id', customerId)
+    setDeletedCustomers(prev => prev.filter(c => c.id !== customerId))
+    setMsgMap(prev => { const m = { ...prev }; delete m[customerId]; return m })
+    if (selectedId === customerId) setSelectedId(null)
   }
 
   function toggleCheck(id: string) {
@@ -315,21 +365,35 @@ export default function AdminChatPage() {
           <div className="px-4 py-3 border-b border-gray-100 flex-shrink-0">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={customers.length > 0 && checkedIds.size === customers.length}
-                  onChange={toggleAll}
-                  className="hidden md:block w-4 h-4 rounded accent-orange-500 cursor-pointer"
-                  title="전체 선택"
-                />
-                <h2 className="font-bold text-gray-800 text-sm">👥 접속 고객</h2>
+                {!showTrash && (
+                  <input
+                    type="checkbox"
+                    checked={customers.length > 0 && checkedIds.size === customers.length}
+                    onChange={toggleAll}
+                    className="hidden md:block w-4 h-4 rounded accent-orange-500 cursor-pointer"
+                    title="전체 선택"
+                  />
+                )}
+                <h2 className="font-bold text-gray-800 text-sm">
+                  {showTrash ? `🗑 삭제 보관함` : '👥 접속 고객'}
+                </h2>
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-                <span className="text-xs text-gray-500 font-medium">{customers.length}명</span>
+                {!showTrash && <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />}
+                <span className="text-xs text-gray-500 font-medium">{leftList.length}명</span>
               </div>
             </div>
-            {checkedIds.size > 0 && (
+            <button
+              onClick={() => { setShowTrash(v => !v); setSelectedId(null); setCheckedIds(new Set()) }}
+              className={`mt-2 w-full text-xs font-bold py-1.5 rounded-lg transition-colors active:scale-95 border ${
+                showTrash
+                  ? 'text-gray-600 border-gray-300 hover:bg-gray-100'
+                  : 'text-gray-500 border-gray-200 hover:bg-gray-50'
+              }`}
+            >
+              {showTrash ? '← 채팅 목록으로' : `🗑 삭제 보관함${deletedCustomers.length > 0 ? ` (${deletedCustomers.length})` : ''}`}
+            </button>
+            {!showTrash && checkedIds.size > 0 && (
               <button
                 onClick={deleteChecked}
                 className="mt-2 w-full bg-red-500 hover:bg-red-600 text-white text-xs font-black py-1.5 rounded-lg transition-colors active:scale-95"
@@ -340,12 +404,12 @@ export default function AdminChatPage() {
           </div>
 
           <div className="flex-1 overflow-y-auto no-scrollbar">
-            {customers.length === 0 ? (
+            {leftList.length === 0 ? (
               <div className="text-center py-12 text-sm text-gray-400">
-                <div className="text-3xl mb-3">👤</div>
-                고객 페이지를 열면<br />여기에 표시됩니다
+                <div className="text-3xl mb-3">{showTrash ? '🗑' : '👤'}</div>
+                {showTrash ? <>삭제된 채팅이<br />없습니다</> : <>고객 페이지를 열면<br />여기에 표시됩니다</>}
               </div>
-            ) : customers.map(c => {
+            ) : leftList.map(c => {
               const msgs = msgMap[c.id] ?? []
               const last = msgs[msgs.length - 1]
               const isActive = c.id === selectedId
@@ -353,36 +417,43 @@ export default function AdminChatPage() {
                 <div key={c.id} className="relative group">
                 <button
                   onClick={() => setSelectedId(c.id)}
-                  className={`w-full text-left pl-4 pr-12 py-3.5 md:py-3 border-b border-gray-100 transition-all hover:bg-orange-50 ${
+                  className={`w-full text-left pl-4 ${showTrash ? 'pr-28' : 'pr-12'} py-3.5 md:py-3 border-b border-gray-100 transition-all hover:bg-orange-50 ${
                     isActive
                       ? 'bg-orange-50 border-l-[3px] border-l-orange-500'
                       : 'border-l-[3px] border-l-transparent'
                   }`}
                 >
                   <div className="flex items-start gap-3">
-                    <input
-                      type="checkbox"
-                      checked={checkedIds.has(c.id)}
-                      onChange={() => toggleCheck(c.id)}
-                      onClick={e => e.stopPropagation()}
-                      className="hidden md:block w-4 h-4 rounded accent-orange-500 cursor-pointer flex-shrink-0 mt-1"
-                    />
+                    {!showTrash && (
+                      <input
+                        type="checkbox"
+                        checked={checkedIds.has(c.id)}
+                        onChange={() => toggleCheck(c.id)}
+                        onClick={e => e.stopPropagation()}
+                        className="hidden md:block w-4 h-4 rounded accent-orange-500 cursor-pointer flex-shrink-0 mt-1"
+                      />
+                    )}
                     <div className="relative flex-shrink-0">
                       <div
-                        className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-extrabold shadow-sm"
+                        className={`w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-extrabold shadow-sm ${showTrash ? 'opacity-50 grayscale' : ''}`}
                         style={{ backgroundColor: c.color }}
                       >
                         {c.name.replace('익명_', '')}
                       </div>
-                      <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-400 border-2 border-white rounded-full" />
+                      {!showTrash && <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-400 border-2 border-white rounded-full" />}
                     </div>
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between mb-0.5">
                         <div className="flex items-center gap-1.5">
                           <span className="text-sm font-bold text-gray-900">{c.name}</span>
-                          {c.isNew && (
+                          {!showTrash && c.isNew && (
                             <span className="text-[10px] bg-orange-500 text-white px-1.5 py-0.5 rounded-full font-bold">NEW</span>
+                          )}
+                          {showTrash && c.deletedAt && (
+                            <span className="text-[10px] bg-red-50 text-red-500 border border-red-200 px-1.5 py-0.5 rounded-full font-bold">
+                              {daysLeft(c.deletedAt)}일 후 삭제
+                            </span>
                           )}
                         </div>
                         <span className="text-[10px] text-gray-400 flex-shrink-0">
@@ -395,7 +466,7 @@ export default function AdminChatPage() {
                             ? (last.isAdmin ? `나: ${last.text}` : last.text)
                             : '새 고객 입장'}
                         </p>
-                        {c.unread > 0 && (
+                        {!showTrash && c.unread > 0 && (
                           <span className="flex-shrink-0 min-w-[18px] h-[18px] bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1">
                             {c.unread > 9 ? '9+' : c.unread}
                           </span>
@@ -404,14 +475,33 @@ export default function AdminChatPage() {
                     </div>
                   </div>
                 </button>
-                <button
-                  onClick={() => deleteCustomer(c.id)}
-                  title="이 채팅창 삭제"
-                  aria-label="이 채팅창 삭제"
-                  className="absolute top-1/2 -translate-y-1/2 right-2.5 w-9 h-9 rounded-full bg-red-50 text-red-500 hover:bg-red-500 hover:text-white text-lg font-black flex items-center justify-center shadow-sm border border-red-200 transition-all active:scale-90 z-10"
-                >
-                  ×
-                </button>
+                {showTrash ? (
+                  <div className="absolute top-1/2 -translate-y-1/2 right-2 flex items-center gap-1 z-10">
+                    <button
+                      onClick={() => restoreCustomer(c.id)}
+                      title="복원"
+                      className="px-2 h-8 rounded-lg bg-green-50 text-green-600 hover:bg-green-500 hover:text-white text-[11px] font-black flex items-center justify-center border border-green-200 transition-all active:scale-90"
+                    >
+                      ↩
+                    </button>
+                    <button
+                      onClick={() => purgeCustomer(c.id)}
+                      title="영구삭제"
+                      className="px-2 h-8 rounded-lg bg-red-50 text-red-500 hover:bg-red-500 hover:text-white text-[11px] font-black flex items-center justify-center border border-red-200 transition-all active:scale-90"
+                    >
+                      영구삭제
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => deleteCustomer(c.id)}
+                    title="이 채팅창 삭제"
+                    aria-label="이 채팅창 삭제"
+                    className="absolute top-1/2 -translate-y-1/2 right-2.5 w-9 h-9 rounded-full bg-red-50 text-red-500 hover:bg-red-500 hover:text-white text-lg font-black flex items-center justify-center shadow-sm border border-red-200 transition-all active:scale-90 z-10"
+                  >
+                    ×
+                  </button>
+                )}
                 </div>
               )
             })}
@@ -535,6 +625,28 @@ export default function AdminChatPage() {
               <div ref={chatEndRef} />
             </div>
 
+            {selectedIsTrashed ? (
+              <div className="bg-white border-t border-gray-200 px-5 py-4 pb-[calc(1rem_+_env(safe-area-inset-bottom))] flex-shrink-0">
+                <p className="text-center text-sm text-gray-500 mb-3">
+                  🗑 삭제된 채팅입니다 (읽기 전용)
+                  {selectedCustomer?.deletedAt && <span className="text-red-500 font-bold"> · {daysLeft(selectedCustomer.deletedAt)}일 후 영구삭제</span>}
+                </p>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => restoreCustomer(selectedCustomer!.id)}
+                    className="flex-1 bg-green-50 text-green-600 border-2 border-green-200 hover:bg-green-100 font-black py-3 rounded-2xl text-sm active:scale-95 transition-all"
+                  >
+                    ↩ 복원하기
+                  </button>
+                  <button
+                    onClick={() => purgeCustomer(selectedCustomer!.id)}
+                    className="flex-1 bg-white text-red-500 border-2 border-red-300 hover:bg-red-500 hover:text-white font-black py-3 rounded-2xl text-sm active:scale-95 transition-all"
+                  >
+                    영구삭제
+                  </button>
+                </div>
+              </div>
+            ) : (
             <div className="bg-white border-t border-gray-200 px-5 py-3 pb-[calc(0.75rem_+_env(safe-area-inset-bottom))] flex-shrink-0">
               <div className="flex flex-wrap gap-1.5 mb-2.5">
                 {QUICK_REPLIES.map(r => (
@@ -576,6 +688,7 @@ export default function AdminChatPage() {
                 Enter로 전송 &nbsp;·&nbsp; 위 빠른답변 클릭 후 수정 가능
               </p>
             </div>
+            )}
           </div>
 
         ) : (

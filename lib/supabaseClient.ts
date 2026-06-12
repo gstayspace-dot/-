@@ -19,6 +19,7 @@ export type DbChatCustomer = {
   id: string
   name: string
   joined_at: string
+  deleted_at?: string | null
 }
 
 export type DbChatMessage = {
@@ -38,6 +39,7 @@ export type DbOrder = {
   customer_request: string
   total_price: number
   status: string
+  deleted_at?: string | null
 }
 
 export type DbOrderItem = {

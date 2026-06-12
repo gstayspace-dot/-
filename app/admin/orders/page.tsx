@@ -17,9 +17,20 @@ const STATUS_STYLE: Record<string, string> = {
   '배송완료': 'bg-gray-100  text-gray-600  border-gray-300',
 }
 
+// 삭제 보관 기간(일). 이 기간이 지난 삭제 주문은 관리자 접속 시 자동 영구삭제됩니다.
+const RETENTION_DAYS = 30
+const RETENTION_MS = RETENTION_DAYS * 24 * 60 * 60 * 1000
+
+// 삭제 후 남은 보관 일수
+function daysLeft(deletedAt: string): number {
+  const elapsed = Date.now() - new Date(deletedAt).getTime()
+  return Math.max(0, Math.ceil((RETENTION_MS - elapsed) / (24 * 60 * 60 * 1000)))
+}
+
 export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<OrderWithItems[]>([])
   const [loading, setLoading] = useState(true)
+  const [showTrash, setShowTrash] = useState(false)
   const [updatingId, setUpdatingId] = useState<string | null>(null)
   const [toast, setToast] = useState<{ name: string; total: number } | null>(null)
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -65,7 +76,17 @@ export default function AdminOrdersPage() {
       ...o,
       items: allItems.filter((i: DbOrderItem) => i.order_id === o.id),
     }))
-    setOrders(merged)
+
+    // 30일 지난 삭제 주문 자동 영구삭제 (deleted_at 컬럼이 없으면 모두 통과 → no-op)
+    const cutoff = Date.now() - RETENTION_MS
+    const expired = merged.filter(o => o.deleted_at && new Date(o.deleted_at).getTime() < cutoff)
+    if (expired.length > 0) {
+      const ids = expired.map(o => o.id)
+      await db.from('order_items').delete().in('order_id', ids)
+      await db.from('orders').delete().in('id', ids)
+    }
+    const expiredSet = new Set(expired.map(o => o.id))
+    setOrders(merged.filter(o => !expiredSet.has(o.id)))
     setLoading(false)
   }, [])
 
@@ -95,8 +116,23 @@ export default function AdminOrdersPage() {
     setUpdatingId(null)
   }
 
+  // 소프트 삭제: 보관함으로 이동 (30일 후 자동 영구삭제)
   async function deleteOrder(orderId: string) {
-    if (!confirm('이 주문을 삭제하시겠습니까?')) return
+    if (!confirm(`이 주문을 삭제하시겠습니까?\n삭제 보관함에서 ${RETENTION_DAYS}일간 복원할 수 있습니다.`)) return
+    const ts = new Date().toISOString()
+    await db.from('orders').update({ deleted_at: ts }).eq('id', orderId)
+    setOrders(prev => prev.map(o => o.id === orderId ? { ...o, deleted_at: ts } : o))
+  }
+
+  // 보관함에서 복원
+  async function restoreOrder(orderId: string) {
+    await db.from('orders').update({ deleted_at: null }).eq('id', orderId)
+    setOrders(prev => prev.map(o => o.id === orderId ? { ...o, deleted_at: null } : o))
+  }
+
+  // 영구 삭제 (복원 불가)
+  async function purgeOrder(orderId: string) {
+    if (!confirm('이 주문을 완전히 삭제할까요?\n복원할 수 없습니다.')) return
     await db.from('order_items').delete().eq('order_id', orderId)
     await db.from('orders').delete().eq('id', orderId)
     setOrders(prev => prev.filter(o => o.id !== orderId))
@@ -107,8 +143,11 @@ export default function AdminOrdersPage() {
     window.location.href = '/admin/login'
   }
 
-  const totalRevenue = orders.reduce((s, o) => s + o.total_price, 0)
-  const pending = orders.filter(o => o.status === '입금대기').length
+  const activeOrders  = orders.filter(o => !o.deleted_at)
+  const trashedOrders = orders.filter(o => o.deleted_at)
+  const displayOrders = showTrash ? trashedOrders : activeOrders
+  const totalRevenue = activeOrders.reduce((s, o) => s + o.total_price, 0)
+  const pending = activeOrders.filter(o => o.status === '입금대기').length
 
   return (
     <div className="min-h-screen-safe bg-gray-50">
@@ -146,7 +185,7 @@ export default function AdminOrdersPage() {
         {/* ── Stats ── */}
         <div className="grid grid-cols-3 gap-4 mb-6">
           {[
-            { label: '전체 주문', value: `${orders.length}건`, color: 'text-gray-900' },
+            { label: '전체 주문', value: `${activeOrders.length}건`, color: 'text-gray-900' },
             { label: '입금 대기', value: `${pending}건`, color: 'text-amber-600' },
             { label: '누적 매출', value: `₩${totalRevenue.toLocaleString()}`, color: 'text-red-500' },
           ].map(s => (
@@ -159,13 +198,27 @@ export default function AdminOrdersPage() {
 
         {/* ── Header row ── */}
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-sm font-extrabold text-gray-700">주문 목록 (최신순)</h2>
-          <button
-            onClick={fetchOrders}
-            className="text-xs text-orange-500 hover:text-orange-600 font-bold border border-orange-200 rounded-lg px-3 py-1.5 transition-colors"
-          >
-            ↻ 새로고침
-          </button>
+          <h2 className="text-sm font-extrabold text-gray-700">
+            {showTrash ? `🗑 삭제 보관함 (${RETENTION_DAYS}일 보관)` : '주문 목록 (최신순)'}
+          </h2>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowTrash(v => !v)}
+              className={`text-xs font-bold border rounded-lg px-3 py-1.5 transition-colors ${
+                showTrash
+                  ? 'text-gray-600 border-gray-300 hover:bg-gray-100'
+                  : 'text-gray-500 border-gray-200 hover:bg-gray-50'
+              }`}
+            >
+              {showTrash ? '← 주문 목록' : `🗑 보관함${trashedOrders.length > 0 ? ` (${trashedOrders.length})` : ''}`}
+            </button>
+            <button
+              onClick={fetchOrders}
+              className="text-xs text-orange-500 hover:text-orange-600 font-bold border border-orange-200 rounded-lg px-3 py-1.5 transition-colors"
+            >
+              ↻ 새로고침
+            </button>
+          </div>
         </div>
 
         {/* ── Order list ── */}
@@ -173,14 +226,14 @@ export default function AdminOrdersPage() {
           <div className="flex items-center justify-center py-20">
             <div className="w-10 h-10 rounded-full border-4 border-orange-200 border-t-orange-500 animate-spin" />
           </div>
-        ) : orders.length === 0 ? (
+        ) : displayOrders.length === 0 ? (
           <div className="bg-white rounded-2xl border border-gray-200 py-20 text-center text-gray-400">
-            <p className="text-4xl mb-3">📭</p>
-            <p className="font-semibold">아직 접수된 주문이 없습니다.</p>
+            <p className="text-4xl mb-3">{showTrash ? '🗑' : '📭'}</p>
+            <p className="font-semibold">{showTrash ? '삭제된 주문이 없습니다.' : '아직 접수된 주문이 없습니다.'}</p>
           </div>
         ) : (
           <div className="space-y-4">
-            {orders.map(order => (
+            {displayOrders.map(order => (
               <div key={order.id} className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
 
                 {/* Order header */}
@@ -193,26 +246,50 @@ export default function AdminOrdersPage() {
                         hour: '2-digit', minute: '2-digit',
                       })}
                     </span>
+                    {showTrash && order.deleted_at && (
+                      <span className="text-[11px] font-bold text-red-500 bg-red-50 border border-red-200 rounded-md px-2 py-0.5">
+                        {daysLeft(order.deleted_at)}일 후 영구삭제
+                      </span>
+                    )}
                   </div>
                   <div className="flex items-center gap-2">
-                    {/* Status select */}
-                    <select
-                      value={order.status}
-                      disabled={updatingId === order.id}
-                      onChange={e => updateStatus(order.id, e.target.value)}
-                      className={`text-xs font-bold border rounded-lg px-2.5 py-1.5 cursor-pointer focus:outline-none focus:ring-2 focus:ring-orange-300 transition-all disabled:opacity-60 ${STATUS_STYLE[order.status] ?? 'bg-gray-100 text-gray-600 border-gray-300'}`}
-                    >
-                      {STATUS_LIST.map(s => (
-                        <option key={s} value={s}>{s}</option>
-                      ))}
-                    </select>
-                    {/* Delete button */}
-                    <button
-                      onClick={() => deleteOrder(order.id)}
-                      className="text-xs font-bold text-red-400 hover:text-red-600 border border-red-200 hover:border-red-400 rounded-lg px-2.5 py-1.5 transition-colors"
-                    >
-                      삭제
-                    </button>
+                    {showTrash ? (
+                      <>
+                        <button
+                          onClick={() => restoreOrder(order.id)}
+                          className="text-xs font-bold text-green-600 hover:text-green-700 border border-green-200 hover:border-green-400 rounded-lg px-2.5 py-1.5 transition-colors"
+                        >
+                          ↩ 복원
+                        </button>
+                        <button
+                          onClick={() => purgeOrder(order.id)}
+                          className="text-xs font-bold text-red-500 hover:text-white hover:bg-red-500 border border-red-300 rounded-lg px-2.5 py-1.5 transition-colors"
+                        >
+                          영구삭제
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        {/* Status select */}
+                        <select
+                          value={order.status}
+                          disabled={updatingId === order.id}
+                          onChange={e => updateStatus(order.id, e.target.value)}
+                          className={`text-xs font-bold border rounded-lg px-2.5 py-1.5 cursor-pointer focus:outline-none focus:ring-2 focus:ring-orange-300 transition-all disabled:opacity-60 ${STATUS_STYLE[order.status] ?? 'bg-gray-100 text-gray-600 border-gray-300'}`}
+                        >
+                          {STATUS_LIST.map(s => (
+                            <option key={s} value={s}>{s}</option>
+                          ))}
+                        </select>
+                        {/* Delete button */}
+                        <button
+                          onClick={() => deleteOrder(order.id)}
+                          className="text-xs font-bold text-red-400 hover:text-red-600 border border-red-200 hover:border-red-400 rounded-lg px-2.5 py-1.5 transition-colors"
+                        >
+                          삭제
+                        </button>
+                      </>
+                    )}
                   </div>
                 </div>
 
