@@ -103,10 +103,7 @@ export default function LivePage() {
   const chatRef = useRef<HTMLDivElement>(null)
   const sessionRef = useRef<ChatCustomer | null>(null)
   const carouselRef = useRef<HTMLDivElement>(null)
-  const cardRefs = useRef<Map<string, HTMLButtonElement>>(new Map())
-  const autoPausedRef  = useRef(false)
-  const resumeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const [userSelectedId, setUserSelectedId] = useState<string | null>(null)
+  const carouselPausedRef = useRef(false)
 
   // ── Music state ────────────────────────────────────────────────────────────
   const [musicOn, setMusicOn] = useState(false)
@@ -147,11 +144,9 @@ export default function LivePage() {
 
   // ── Derived ───────────────────────────────────────────────────────────────
   const activeProducts = allProducts.filter(p => p.isLive)
-  const displayProduct = userSelectedId
-    ? (allProducts.find(p => p.id === userSelectedId) ?? null)
-    : activeProducts.length > 0
-      ? activeProducts[autoIdx % activeProducts.length]
-      : null
+  const displayProduct = activeProducts.length > 0
+    ? activeProducts[autoIdx % activeProducts.length]
+    : null
 
   const pd = {
     name: displayProduct?.name ?? DEFAULT.name,
@@ -166,59 +161,41 @@ export default function LivePage() {
   // ── Keep ref in sync for use inside interval ─────────────────────────────
   useEffect(() => { activeProductsRef.current = activeProducts }, [activeProducts])
 
-  // ── Auto-cycle hero image through live products every 2 s ─────────────────
+  // ── Auto-cycle HERO image through live products (independent of carousel) ──
   useEffect(() => {
     if (activeProducts.length <= 1) return
     const t = setInterval(() => {
-      if (autoPausedRef.current) return
       setAutoIdx(prev => (prev + 1) % Math.max(1, activeProductsRef.current.length))
-    }, 2000)
+    }, 3000)
     return () => clearInterval(t)
   }, [activeProducts.length])
 
-  // ── Auto-rotate carousel: follow the hero's current product ──────────────
-  useEffect(() => {
-    if (autoPausedRef.current || userSelectedId) return
-    const el = carouselRef.current
-    if (!el || activeProducts.length === 0) return
-    const activeId = activeProducts[autoIdx % activeProducts.length]?.id
-    if (!activeId) return
-    const card = cardRefs.current.get(activeId)
-    if (!card) return
-    const target = card.offsetLeft - (el.clientWidth - card.clientWidth) / 2
-    el.scrollTo({ left: Math.max(0, target), behavior: 'smooth' })
-  }, [autoIdx, activeProducts, userSelectedId])
-
-  // ── Sync carousel scroll → hero image (user manual scroll) ───────────────
+  // ── Auto-scroll CAROUSEL (independent of hero); stops once user touches ────
   useEffect(() => {
     const el = carouselRef.current
-    if (!el) return
+    if (!el || activeProducts.length <= 1) return
 
-    const onTouch = () => {
-      autoPausedRef.current = true
-      if (resumeTimerRef.current) { clearTimeout(resumeTimerRef.current); resumeTimerRef.current = null }
-    }
+    const pause = () => { carouselPausedRef.current = true }
+    el.addEventListener('touchstart', pause, { passive: true })
+    el.addEventListener('mousedown', pause, { passive: true })
+    el.addEventListener('wheel', pause, { passive: true })
 
-    const onScroll = () => {
-      if (!autoPausedRef.current) return
-      const containerCenter = el.scrollLeft + el.clientWidth / 2
-      let closestId: string | null = null
-      let closestDist = Infinity
-      cardRefs.current.forEach((cardEl, id) => {
-        const cardCenter = cardEl.offsetLeft + cardEl.clientWidth / 2
-        const dist = Math.abs(cardCenter - containerCenter)
-        if (dist < closestDist) { closestDist = dist; closestId = id }
-      })
-      if (closestId) setUserSelectedId(closestId)
-    }
+    const t = setInterval(() => {
+      if (carouselPausedRef.current) return
+      const maxScroll = el.scrollWidth - el.clientWidth
+      if (maxScroll <= 0) return
+      const step = el.clientWidth * 0.6
+      const next = el.scrollLeft + step >= maxScroll - 2 ? 0 : el.scrollLeft + step
+      el.scrollTo({ left: next, behavior: 'smooth' })
+    }, 2500)
 
-    el.addEventListener('touchstart', onTouch, { passive: true })
-    el.addEventListener('scroll', onScroll, { passive: true })
     return () => {
-      el.removeEventListener('touchstart', onTouch)
-      el.removeEventListener('scroll', onScroll)
+      clearInterval(t)
+      el.removeEventListener('touchstart', pause)
+      el.removeEventListener('mousedown', pause)
+      el.removeEventListener('wheel', pause)
     }
-  }, [])
+  }, [activeProducts.length])
 
   // ── Supabase: products realtime subscription ──────────────────────────────
   useEffect(() => {
@@ -536,7 +513,7 @@ export default function LivePage() {
 
         {/* ══ HERO IMAGE — 50vh (탭 시 전체 상품 보기) ══ */}
         <div
-          onClick={() => router.push('/shop')}
+          onClick={() => router.push(displayProduct ? `/shop?focus=${displayProduct.id}` : '/shop')}
           className="relative flex-shrink-0 cursor-pointer"
           style={{ height: '50vh' }}
         >
@@ -641,28 +618,27 @@ export default function LivePage() {
           <section className="bg-white border-t border-gray-100 px-4 pt-3 pb-4 flex-shrink-0">
             <div className="flex items-center justify-between mb-2.5">
               <span className="text-sm font-extrabold text-gray-800">📦 라이브 상품</span>
-              <span className="text-[11px] text-orange-500 font-bold">전체 상품 보기 →</span>
+              <button
+                onClick={() => router.push('/shop')}
+                className="text-[11px] text-orange-500 font-bold active:scale-95 transition-transform"
+              >
+                전체 상품 보기 →
+              </button>
             </div>
 
             <div ref={carouselRef} className="flex gap-3 overflow-x-auto no-scrollbar" style={{ scrollSnapType: 'x mandatory' }}>
               {activeProducts.map((product, idx) => {
-                const isSelected = product.id === displayProduct?.id
                 const disc = Math.round((1 - product.livePrice / product.originalPrice) * 100)
                 const fallbackEmoji = PRODUCT_EMOJIS[idx % PRODUCT_EMOJIS.length]
 
                 return (
                   <button
                     key={product.id}
-                    ref={(el) => { if (el) cardRefs.current.set(product.id, el); else cardRefs.current.delete(product.id) }}
-                    onClick={() => router.push('/shop')}
+                    onClick={() => router.push(`/shop?focus=${product.id}`)}
                     style={{ scrollSnapAlign: 'start' }}
-                    className={`flex-shrink-0 w-[134px] rounded-2xl overflow-hidden border-2 transition-all active:scale-95 ${
-                      isSelected
-                        ? 'border-orange-500 shadow-lg shadow-orange-100'
-                        : 'border-gray-200 hover:border-orange-200'
-                    }`}
+                    className="flex-shrink-0 w-[134px] rounded-2xl overflow-hidden border-2 border-gray-200 hover:border-orange-200 transition-all active:scale-95"
                   >
-                    <div className={`h-[88px] relative flex items-center justify-center overflow-hidden ${isSelected ? 'bg-orange-50' : 'bg-gray-50'}`}>
+                    <div className="h-[88px] relative flex items-center justify-center overflow-hidden bg-gray-50">
                       {product.imageUrl ? (
                         <img src={product.imageUrl} alt={product.name} loading="lazy" className="w-full h-full object-cover" />
                       ) : (
@@ -673,7 +649,7 @@ export default function LivePage() {
                       </span>
                     </div>
 
-                    <div className={`px-2 py-2 text-left ${isSelected ? 'bg-orange-50' : 'bg-white'}`}>
+                    <div className="px-2 py-2 text-left bg-white">
                       <p className="text-[11px] font-bold text-gray-800 leading-tight line-clamp-2 min-h-[28px]">
                         {product.name}
                       </p>

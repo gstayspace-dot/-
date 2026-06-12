@@ -19,11 +19,46 @@ export default function AdminQrPage() {
     }).then(setDataUrl).catch(() => {})
   }, [])
 
-  function copyLink() {
-    navigator.clipboard?.writeText(url).then(() => {
+  async function copyLink() {
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(url)
+      } else {
+        // 클립보드 API 미지원 환경(일부 모바일/인앱 브라우저) 폴백
+        const ta = document.createElement('textarea')
+        ta.value = url
+        ta.style.position = 'fixed'
+        ta.style.left = '-9999px'
+        document.body.appendChild(ta)
+        ta.focus(); ta.select()
+        document.execCommand('copy')
+        ta.remove()
+      }
       setCopied(true)
       setTimeout(() => setCopied(false), 1500)
-    })
+    } catch {
+      window.prompt('아래 링크를 길게 눌러 복사하세요', url)
+    }
+  }
+
+  async function downloadQr() {
+    if (!dataUrl) return
+    try {
+      // 데이터 URL을 Blob URL로 변환 — 모바일에서도 안정적으로 저장됨
+      const res = await fetch(dataUrl)
+      const blob = await res.blob()
+      const objUrl = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = objUrl
+      a.download = '영진상사-쇼핑몰-QR.png'
+      document.body.appendChild(a)
+      a.click()
+      a.remove()
+      setTimeout(() => URL.revokeObjectURL(objUrl), 1000)
+    } catch {
+      // 저장이 막힌 환경: 새 탭으로 열어 길게 눌러 저장하도록 안내
+      window.open(dataUrl, '_blank')
+    }
   }
 
   return (
@@ -73,16 +108,14 @@ export default function AdminQrPage() {
             >
               {copied ? '✓ 복사됨!' : '🔗 링크 복사'}
             </button>
-            {dataUrl && (
-              <a
-                href={dataUrl}
-                download="영진상사-쇼핑몰-QR.png"
-                className="w-full text-center text-white font-black py-3.5 rounded-2xl text-sm shadow-lg active:scale-95 transition-all"
-                style={{ background: 'linear-gradient(135deg,#ff6a00,#e53935)' }}
-              >
-                ⬇ QR 이미지 저장
-              </a>
-            )}
+            <button
+              onClick={downloadQr}
+              disabled={!dataUrl}
+              className="w-full text-center text-white font-black py-3.5 rounded-2xl text-sm shadow-lg active:scale-95 transition-all disabled:opacity-50"
+              style={{ background: 'linear-gradient(135deg,#ff6a00,#e53935)' }}
+            >
+              ⬇ QR 이미지 저장
+            </button>
           </div>
         </div>
       </div>

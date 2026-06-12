@@ -16,8 +16,14 @@ export default function ShopPage() {
   const [loading, setLoading] = useState(true)
   const [cartCount, setCartCount] = useState(0)
   const [addedId, setAddedId] = useState<string | null>(null)
+  const [focusId, setFocusId] = useState<string | null>(null)
 
   useEffect(() => { setCartCount(getCartCount(getCart())) }, [addedId])
+
+  // 메인에서 특정 상품을 눌러 넘어온 경우 해당 상품을 상단에 노출
+  useEffect(() => {
+    setFocusId(new URLSearchParams(window.location.search).get('focus'))
+  }, [])
 
   useEffect(() => {
     supabase
@@ -47,13 +53,19 @@ export default function ShopPage() {
     return () => { supabase.removeChannel(channel) }
   }, [])
 
-  const liveProducts = products.filter(p => p.isLive)
-  const normalProducts = products.filter(p => !p.isLive)
+  const focused = focusId ? products.find(p => p.id === focusId) ?? null : null
+  const liveProducts = products.filter(p => p.isLive && p.id !== focusId)
+  const normalProducts = products.filter(p => !p.isLive && p.id !== focusId)
 
   function quickAdd(p: LiveProduct) {
     addToCart({ productId: p.id, productName: p.name, price: p.livePrice, imageUrl: p.imageUrl ?? '' })
     setAddedId(p.id)
     setTimeout(() => setAddedId(prev => prev === p.id ? null : prev), 1500)
+  }
+
+  function orderNow(p: LiveProduct) {
+    addToCart({ productId: p.id, productName: p.name, price: p.livePrice, imageUrl: p.imageUrl ?? '' })
+    router.push('/cart?checkout=1')
   }
 
   function ProductCard({ product, idx, live }: { product: LiveProduct; idx: number; live: boolean }) {
@@ -147,6 +159,59 @@ export default function ShopPage() {
             </div>
           ) : (
             <>
+              {/* 선택한 상품 (메인에서 눌러 넘어온 상품) 상단 노출 */}
+              {focused && (
+                <section className="px-4 pt-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="text-base">👀</span>
+                    <h2 className="text-sm font-extrabold text-gray-800">선택하신 상품</h2>
+                  </div>
+                  <div className="rounded-2xl overflow-hidden border-2 border-orange-300 shadow-md shadow-orange-100 bg-white flex">
+                    <button
+                      onClick={() => router.push(`/product/${focused.id}`)}
+                      className="relative w-32 flex-shrink-0 bg-gray-50 flex items-center justify-center overflow-hidden active:opacity-90"
+                    >
+                      {focused.imageUrl
+                        ? <img src={focused.imageUrl} alt={focused.name} className="w-full h-full object-cover" />
+                        : <span className="text-5xl">🛍</span>}
+                      {focused.isLive && (
+                        <span className="live-pulse absolute top-1.5 left-1.5 text-[9px] bg-red-500 text-white px-1.5 py-0.5 rounded font-black">● LIVE</span>
+                      )}
+                    </button>
+                    <div className="flex-1 px-3 py-3 flex flex-col min-w-0">
+                      <button onClick={() => router.push(`/product/${focused.id}`)} className="text-left">
+                        <p className="text-sm font-bold text-gray-900 leading-tight line-clamp-2">{focused.name}</p>
+                      </button>
+                      <div className="flex items-end gap-2 mt-1.5">
+                        <span className="text-lg font-black text-red-500">₩{focused.livePrice.toLocaleString()}</span>
+                        {focused.originalPrice > focused.livePrice && (
+                          <span className="text-xs text-gray-400 line-through mb-0.5">₩{focused.originalPrice.toLocaleString()}</span>
+                        )}
+                      </div>
+                      <div className="flex gap-2 mt-auto pt-2">
+                        <button
+                          onClick={() => quickAdd(focused)}
+                          className={`flex-1 py-2 rounded-xl text-[12px] font-black active:scale-95 transition-all border-2 ${
+                            addedId === focused.id
+                              ? 'bg-green-50 border-green-400 text-green-600'
+                              : 'bg-white border-orange-300 text-orange-500 hover:bg-orange-50'
+                          }`}
+                        >
+                          {addedId === focused.id ? '✓ 담겼어요!' : '🛒 담기'}
+                        </button>
+                        <button
+                          onClick={() => orderNow(focused)}
+                          className="flex-1 py-2 rounded-xl text-[12px] font-black text-white active:scale-95 transition-all shadow"
+                          style={{ background: 'linear-gradient(135deg,#ff6a00,#e53935)' }}
+                        >
+                          바로 주문
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+              )}
+
               {/* 라이브 상품 */}
               {liveProducts.length > 0 && (
                 <section className="px-4 pt-4">
