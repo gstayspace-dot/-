@@ -112,6 +112,7 @@ export default function LivePage() {
   const schedulerRef   = useRef<ReturnType<typeof setInterval> | null>(null)
   const nextPhraseRef  = useRef(0)
   const nextChordRef   = useRef(0)
+  const wasPlayingRef  = useRef(false)  // music playing when page was hidden?
 
   // ── Cart count ────────────────────────────────────────────────────────────
   const [cartCount, setCartCount] = useState(0)
@@ -387,6 +388,23 @@ export default function LivePage() {
     if (schedulerRef.current) clearInterval(schedulerRef.current)
     audioCtxRef.current?.close()
   }, [])
+
+  // ── Pause music when screen/tab is hidden, resume when visible ────────────
+  // Stops audio when the device screen turns off or the page is backgrounded,
+  // then resumes only if music was actually playing before it was hidden.
+  useEffect(() => {
+    const onVisibility = () => {
+      if (document.hidden) {
+        wasPlayingRef.current = schedulerRef.current !== null
+        if (schedulerRef.current) { clearInterval(schedulerRef.current); schedulerRef.current = null }
+        audioCtxRef.current?.suspend?.()
+      } else if (wasPlayingRef.current) {
+        startMusic()
+      }
+    }
+    document.addEventListener('visibilitychange', onVisibility)
+    return () => document.removeEventListener('visibilitychange', onVisibility)
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Non-passive touchmove for draggable music button ─────────────────────
   useEffect(() => {
