@@ -22,66 +22,6 @@ const PRODUCT_EMOJIS = ['🍳', '🥘', '🫕', '🥄', '🔪', '🥗']
 
 type LiveProduct = Product & { isLive: boolean }
 
-// ── Web Audio music engine ────────────────────────────────────────────────────
-// Lo-Fi × Bossa Nova  |  Am7 – D7 – Gmaj7 – Cmaj7  |  90 BPM
-
-const M_BEAT   = 60 / 90          // 0.667s per beat
-const M_PHRASE = 8                 // beats per chord (2 bars)
-const M_AHEAD  = 0.3               // look-ahead window (seconds)
-
-const M_CHORDS = [
-  { bass: 110.00, notes: [164.81, 196.00, 261.63, 329.63] }, // Am7
-  { bass: 146.83, notes: [220.00, 261.63, 369.99, 440.00] }, // D7
-  { bass:  98.00, notes: [146.83, 184.99, 246.94, 293.66] }, // Gmaj7
-  { bass: 130.81, notes: [196.00, 246.94, 329.63, 493.88] }, // Cmaj7
-]
-
-// Bossa nova syncopation: hit offsets in beats within the 8-beat phrase
-const M_HITS = [0, 1.5, 2, 2.5, 3.5, 4, 5.5, 6, 6.5, 7.5]
-
-function musicHit(
-  ctx: AudioContext,
-  dest: AudioNode,
-  notes: number[],
-  bass: number,
-  t: number,
-  downbeat: boolean,
-) {
-  const vol = downbeat ? 0.09 : 0.05
-  const dur = downbeat ? 1.3 : 0.7
-
-  // Strum: slight time-spread between notes for a guitar-like feel
-  notes.forEach((freq, i) => {
-    const osc = ctx.createOscillator()
-    const env = ctx.createGain()
-    const st  = t + i * 0.009
-    osc.type = 'triangle'
-    osc.frequency.value = freq
-    osc.detune.value = (Math.random() - 0.5) * 7
-    const v = vol * Math.pow(0.80, i)
-    env.gain.setValueAtTime(0, st)
-    env.gain.linearRampToValueAtTime(v, st + 0.013)
-    env.gain.exponentialRampToValueAtTime(v * 0.32, st + 0.2)
-    env.gain.exponentialRampToValueAtTime(0.0001, st + dur)
-    osc.connect(env); env.connect(dest)
-    osc.start(st); osc.stop(st + dur + 0.05)
-  })
-
-  // Warm sine bass on every downbeat
-  if (downbeat) {
-    const b  = ctx.createOscillator()
-    const bg = ctx.createGain()
-    b.type = 'sine'
-    b.frequency.value = bass
-    bg.gain.setValueAtTime(0, t)
-    bg.gain.linearRampToValueAtTime(0.22, t + 0.02)
-    bg.gain.exponentialRampToValueAtTime(0.06, t + 0.55)
-    bg.gain.exponentialRampToValueAtTime(0.0001, t + 1.5)
-    b.connect(bg); bg.connect(dest)
-    b.start(t); b.stop(t + 1.6)
-  }
-}
-
 export default function LivePage() {
   const router = useRouter()
 
@@ -105,15 +45,6 @@ export default function LivePage() {
   const carouselRef = useRef<HTMLDivElement>(null)
   const carouselPausedRef = useRef(false)
 
-  // ── Music state ────────────────────────────────────────────────────────────
-  const [musicOn, setMusicOn] = useState(false)
-  const audioCtxRef    = useRef<AudioContext | null>(null)
-  const masterGainRef  = useRef<GainNode | null>(null)
-  const schedulerRef   = useRef<ReturnType<typeof setInterval> | null>(null)
-  const nextPhraseRef  = useRef(0)
-  const nextChordRef   = useRef(0)
-  const wasPlayingRef  = useRef(false)  // music playing when page was hidden?
-
   // ── Cart count ────────────────────────────────────────────────────────────
   const [cartCount, setCartCount] = useState(0)
 
@@ -132,11 +63,6 @@ export default function LivePage() {
       }, 400)
     }
   }, [])
-
-  // ── Draggable music button ─────────────────────────────────────────────────
-  const [dragPos, setDragPos] = useState<{ x: number; y: number } | null>(null)
-  const musicBtnRef = useRef<HTMLButtonElement>(null)
-  const btnDrag = useRef({ active: false, moved: false, startX: 0, startY: 0, startBtnX: 0, startBtnY: 0 })
 
   // ── Draggable cart button ──────────────────────────────────────────────────
   const [cartDragPos, setCartDragPos] = useState<{ x: number; y: number } | null>(null)
@@ -316,117 +242,6 @@ export default function LivePage() {
     return () => clearInterval(t)
   }, [])
 
-  // ── Music start / stop ────────────────────────────────────────────────────
-
-  function startMusic() {
-    if (!audioCtxRef.current) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const Ctx = window.AudioContext || (window as any).webkitAudioContext
-      if (!Ctx) return
-      audioCtxRef.current = new Ctx()
-    }
-    const ctx = audioCtxRef.current
-    if (ctx.state === 'suspended') ctx.resume()
-
-    if (!masterGainRef.current) {
-      const master = ctx.createGain()
-      const lpf    = ctx.createBiquadFilter()
-      const comp   = ctx.createDynamicsCompressor()
-      master.gain.value   = 0.85
-      lpf.type            = 'lowpass'
-      lpf.frequency.value = 1750
-      lpf.Q.value         = 0.7
-      comp.threshold.value = -16
-      comp.knee.value      = 8
-      comp.ratio.value     = 3
-      comp.attack.value    = 0.004
-      comp.release.value   = 0.3
-      master.connect(lpf); lpf.connect(comp); comp.connect(ctx.destination)
-      masterGainRef.current = master
-    } else {
-      masterGainRef.current.gain.cancelScheduledValues(ctx.currentTime)
-      masterGainRef.current.gain.setValueAtTime(0.85, ctx.currentTime)
-    }
-
-    nextPhraseRef.current = ctx.currentTime + 0.05
-    nextChordRef.current  = 0
-
-    const tick = () => {
-      const c = audioCtxRef.current
-      const m = masterGainRef.current
-      if (!c || !m) return
-      while (nextPhraseRef.current < c.currentTime + M_AHEAD) {
-        const chord = M_CHORDS[nextChordRef.current % M_CHORDS.length]
-        M_HITS.forEach(beat => {
-          musicHit(c, m, chord.notes, chord.bass,
-            nextPhraseRef.current + beat * M_BEAT,
-            beat === 0 || beat === 4)
-        })
-        nextPhraseRef.current += M_PHRASE * M_BEAT
-        nextChordRef.current++
-      }
-    }
-
-    tick()
-    schedulerRef.current = setInterval(tick, 80)
-    setMusicOn(true)
-  }
-
-  function stopMusic() {
-    if (schedulerRef.current) { clearInterval(schedulerRef.current); schedulerRef.current = null }
-    const ctx = audioCtxRef.current
-    const m   = masterGainRef.current
-    if (ctx && m) {
-      m.gain.setValueAtTime(m.gain.value, ctx.currentTime)
-      m.gain.linearRampToValueAtTime(0.0001, ctx.currentTime + 0.5)
-    }
-    setMusicOn(false)
-  }
-
-  // Cleanup on unmount
-  useEffect(() => () => {
-    if (schedulerRef.current) clearInterval(schedulerRef.current)
-    audioCtxRef.current?.close()
-  }, [])
-
-  // ── Pause music when screen/tab is hidden, resume when visible ────────────
-  // Stops audio when the device screen turns off or the page is backgrounded,
-  // then resumes only if music was actually playing before it was hidden.
-  useEffect(() => {
-    const onVisibility = () => {
-      if (document.hidden) {
-        wasPlayingRef.current = schedulerRef.current !== null
-        if (schedulerRef.current) { clearInterval(schedulerRef.current); schedulerRef.current = null }
-        audioCtxRef.current?.suspend?.()
-      } else if (wasPlayingRef.current) {
-        startMusic()
-      }
-    }
-    document.addEventListener('visibilitychange', onVisibility)
-    return () => document.removeEventListener('visibilitychange', onVisibility)
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
-
-  // ── Non-passive touchmove for draggable music button ─────────────────────
-  useEffect(() => {
-    const el = musicBtnRef.current
-    if (!el) return
-    const onMove = (e: TouchEvent) => {
-      if (!btnDrag.current.active) return
-      const t = e.touches[0]
-      const dx = t.clientX - btnDrag.current.startX
-      const dy = t.clientY - btnDrag.current.startY
-      if (Math.abs(dx) < 4 && Math.abs(dy) < 4) return
-      e.preventDefault()
-      btnDrag.current.moved = true
-      setDragPos({
-        x: Math.max(8, Math.min(window.innerWidth  - 64, btnDrag.current.startBtnX + dx)),
-        y: Math.max(8, Math.min(window.innerHeight - 64, btnDrag.current.startBtnY + dy)),
-      })
-    }
-    el.addEventListener('touchmove', onMove, { passive: false })
-    return () => el.removeEventListener('touchmove', onMove)
-  }, [])
-
   // ── Non-passive touchmove for draggable cart button ───────────────────────
   useEffect(() => {
     const el = cartBtnRef.current
@@ -447,31 +262,6 @@ export default function LivePage() {
     el.addEventListener('touchmove', onMove, { passive: false })
     return () => el.removeEventListener('touchmove', onMove)
   }, [])
-
-  // ── Auto-start music on page load ─────────────────────────────────────────
-  // Browsers block AudioContext until a user gesture; if blocked, we resume
-  // on the first touch/click so music begins with no extra action needed.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => {
-    startMusic()
-
-    const resumeOnGesture = () => {
-      const ctx = audioCtxRef.current
-      if (ctx && ctx.state === 'suspended') {
-        ctx.resume().then(() => {
-          nextPhraseRef.current = ctx.currentTime + 0.05
-          nextChordRef.current  = 0
-        })
-      }
-    }
-
-    document.addEventListener('touchstart', resumeOnGesture, { once: true })
-    document.addEventListener('click',      resumeOnGesture, { once: true })
-    return () => {
-      document.removeEventListener('touchstart', resumeOnGesture)
-      document.removeEventListener('click',      resumeOnGesture)
-    }
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Send chat message ─────────────────────────────────────────────────────
   async function sendMessage() {
@@ -811,33 +601,6 @@ export default function LivePage() {
             {cartCount > 9 ? '9+' : cartCount}
           </span>
         )}
-      </button>
-
-      {/* ── Draggable Music Button ── */}
-      <button
-        ref={musicBtnRef}
-        style={dragPos ? { left: dragPos.x, top: dragPos.y } : undefined}
-        className={`${dragPos ? 'fixed' : 'fixed top-20 right-4'} z-50 w-14 h-14 rounded-full flex flex-col items-center justify-center select-none transition-colors duration-300 shadow-xl cursor-grab active:cursor-grabbing ${
-          musicOn
-            ? 'bg-orange-500 text-white music-pulse'
-            : 'bg-white border-2 border-orange-200 text-orange-400'
-        }`}
-        onTouchStart={(e) => {
-          const t = e.touches[0]
-          const rect = e.currentTarget.getBoundingClientRect()
-          btnDrag.current = { active: true, moved: false, startX: t.clientX, startY: t.clientY, startBtnX: rect.left, startBtnY: rect.top }
-        }}
-        onTouchEnd={() => { btnDrag.current.active = false }}
-        onClick={() => {
-          if (btnDrag.current.moved) { btnDrag.current.moved = false; return }
-          if (musicOn) { stopMusic() } else { startMusic() }
-        }}
-        aria-label={musicOn ? '배경음악 끄기' : '배경음악 켜기'}
-      >
-        <span className="text-[22px] leading-none">🎵</span>
-        <span className={`text-[9px] font-black mt-0.5 tracking-wider ${musicOn ? 'text-white' : 'text-orange-400'}`}>
-          {musicOn ? 'ON' : 'OFF'}
-        </span>
       </button>
 
     </div>
