@@ -191,9 +191,8 @@ export default function MyOrdersPage() {
                             </div>
                           </div>
 
-                          {/* 입금 계좌 안내 — 입금대기 상태일 때만 */}
-                          {order.status === '입금대기' && (
-                            <div className="bg-amber-50 border border-amber-200 rounded-xl p-3.5">
+                          {/* 입금 계좌 안내 */}
+                          <div className="bg-amber-50 border border-amber-200 rounded-xl p-3.5">
                               <p className="text-[11px] font-bold text-amber-600 mb-2 flex items-center gap-1">🏦 입금 계좌 안내</p>
                               <div className="space-y-1">
                                 <div className="flex items-center gap-2">
@@ -217,7 +216,6 @@ export default function MyOrdersPage() {
                                 ※ 입금 확인 후 배송이 시작됩니다. 입금자명을 주문자명과 동일하게 입력해 주세요.
                               </p>
                             </div>
-                          )}
 
                           {/* Address / request — edit mode */}
                           {isEditing ? (
