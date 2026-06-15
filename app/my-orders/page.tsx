@@ -9,6 +9,10 @@ const db = supabase as any
 
 type OrderWithItems = DbOrder & { items: DbOrderItem[] }
 
+const BANK_NAME    = '국민은행'
+const BANK_ACCOUNT = '233001-04-329449'
+const BANK_HOLDER  = '최영진(영진상사)'
+
 const STATUS_STYLE: Record<string, string> = {
   '입금대기': 'bg-amber-100 text-amber-700',
   '결제완료': 'bg-green-100 text-green-700',
@@ -186,6 +190,34 @@ export default function MyOrdersPage() {
                               </div>
                             </div>
                           </div>
+
+                          {/* 입금 계좌 안내 — 입금대기 상태일 때만 */}
+                          {order.status === '입금대기' && (
+                            <div className="bg-amber-50 border border-amber-200 rounded-xl p-3.5">
+                              <p className="text-[11px] font-bold text-amber-600 mb-2 flex items-center gap-1">🏦 입금 계좌 안내</p>
+                              <div className="space-y-1">
+                                <div className="flex items-center gap-2">
+                                  <span className="text-[11px] text-amber-600 w-14 flex-shrink-0">은행</span>
+                                  <span className="text-sm font-black text-gray-900">{BANK_NAME}</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-[11px] text-amber-600 w-14 flex-shrink-0">계좌번호</span>
+                                  <span className="text-sm font-black text-gray-900 tracking-wide">{BANK_ACCOUNT}</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-[11px] text-amber-600 w-14 flex-shrink-0">예금주</span>
+                                  <span className="text-sm font-bold text-gray-900">{BANK_HOLDER}</span>
+                                </div>
+                              </div>
+                              <div className="pt-2 mt-2 border-t border-amber-200 flex justify-between items-center">
+                                <span className="text-xs text-gray-600 font-medium">입금 금액</span>
+                                <span className="text-sm font-black text-red-500">₩{order.total_price.toLocaleString()}</span>
+                              </div>
+                              <p className="text-[11px] text-amber-600 mt-2 leading-snug">
+                                ※ 입금 확인 후 배송이 시작됩니다. 입금자명을 주문자명과 동일하게 입력해 주세요.
+                              </p>
+                            </div>
+                          )}
 
                           {/* Address / request — edit mode */}
                           {isEditing ? (
