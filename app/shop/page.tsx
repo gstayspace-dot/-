@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { supabase, rowToProduct, type DbProduct } from '@/lib/supabaseClient'
+import { supabase, rowToProduct, compareProducts, type DbProduct } from '@/lib/supabaseClient'
 import { addToCart, getCart, getCartCount } from '@/lib/cart-store'
 import type { Product } from '@/lib/types'
 
@@ -29,6 +29,7 @@ export default function ShopPage() {
     supabase
       .from('products')
       .select('*')
+      .order('sort_order', { ascending: true, nullsFirst: false })
       .order('created_at', { ascending: false })
       .then(({ data }) => {
         if (data) setProducts(data.map(rowToProduct))
@@ -39,10 +40,10 @@ export default function ShopPage() {
       .channel('products-shop-page')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, (payload) => {
         if (payload.eventType === 'INSERT') {
-          setProducts(prev => [rowToProduct(payload.new as DbProduct), ...prev])
+          setProducts(prev => [rowToProduct(payload.new as DbProduct), ...prev].sort(compareProducts))
         } else if (payload.eventType === 'UPDATE') {
           const u = rowToProduct(payload.new as DbProduct)
-          setProducts(prev => prev.map(p => p.id === u.id ? u : p))
+          setProducts(prev => prev.map(p => p.id === u.id ? u : p).sort(compareProducts))
         } else if (payload.eventType === 'DELETE') {
           const id = (payload.old as { id: string }).id
           setProducts(prev => prev.filter(p => p.id !== id))

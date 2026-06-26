@@ -8,4 +8,5 @@ export type Product = {
   specs: string
   createdAt: string
   isLive?: boolean
+  sortOrder?: number | null
 }

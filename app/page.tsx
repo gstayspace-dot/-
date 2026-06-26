@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import type { Product } from '@/lib/types'
 import { getCart, getCartCount } from '@/lib/cart-store'
-import { supabase, type DbProduct, type DbChatMessage, rowToProduct } from '@/lib/supabaseClient'
+import { supabase, type DbProduct, type DbChatMessage, rowToProduct, compareProducts } from '@/lib/supabaseClient'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const db = supabase as any
@@ -130,6 +130,7 @@ export default function LivePage() {
     supabase
       .from('products')
       .select('*')
+      .order('sort_order', { ascending: true, nullsFirst: false })
       .order('created_at', { ascending: false })
       .then(({ data }) => {
         if (!data) return
@@ -149,10 +150,10 @@ export default function LivePage() {
         { event: '*', schema: 'public', table: 'products' },
         (payload) => {
           if (payload.eventType === 'INSERT') {
-            setAllProducts(prev => [rowToProduct(payload.new as DbProduct), ...prev])
+            setAllProducts(prev => [rowToProduct(payload.new as DbProduct), ...prev].sort(compareProducts))
           } else if (payload.eventType === 'UPDATE') {
             const updated = rowToProduct(payload.new as DbProduct)
-            setAllProducts(prev => prev.map(p => p.id === updated.id ? updated : p))
+            setAllProducts(prev => prev.map(p => p.id === updated.id ? updated : p).sort(compareProducts))
           } else if (payload.eventType === 'DELETE') {
             const id = (payload.old as { id: string }).id
             setAllProducts(prev => prev.filter(p => p.id !== id))

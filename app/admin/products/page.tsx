@@ -22,6 +22,7 @@ export default function AdminProductsPage() {
   const [toast, setToast] = useState<{ msg: string; type: 'success' | 'error' } | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [livingId, setLivingId] = useState<string | null>(null)
+  const [isReordering, setIsReordering] = useState(false)
   const [fileName, setFileName] = useState('')
   const fileInputRef = useRef<HTMLInputElement>(null)
   const formRef = useRef<HTMLDivElement>(null)
@@ -184,6 +185,30 @@ export default function AdminProductsPage() {
       showToast('전체 송출이 중단되었습니다.')
     } catch {
       showToast('오류가 발생했습니다.', 'error')
+    }
+  }
+
+  async function moveProduct(index: number, dir: -1 | 1) {
+    if (isReordering) return
+    const target = index + dir
+    if (target < 0 || target >= products.length) return
+
+    const next = [...products]
+    ;[next[index], next[target]] = [next[target], next[index]]
+    setProducts(next) // 낙관적 업데이트
+    setIsReordering(true)
+    try {
+      const res = await fetch('/api/products/reorder', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderedIds: next.map(p => p.id) }),
+      })
+      if (!res.ok) throw new Error()
+    } catch {
+      showToast('순서 저장 실패. 다시 시도해주세요.', 'error')
+      await fetchData() // 서버 기준으로 되돌림
+    } finally {
+      setIsReordering(false)
     }
   }
 
@@ -476,7 +501,7 @@ export default function AdminProductsPage() {
             <div className="text-center py-16 text-gray-400 text-sm">
               등록된 상품이 없습니다.<br />왼쪽 폼에서 첫 상품을 등록해보세요!
             </div>
-          ) : products.map(product => {
+          ) : products.map((product, index) => {
             const isActive = activeIds.includes(product.id)
             const isEditing = product.id === editingId
             const discount = Math.round((1 - product.livePrice / product.originalPrice) * 100)
@@ -492,6 +517,27 @@ export default function AdminProductsPage() {
                 }`}
               >
                 <div className="flex items-stretch">
+                  {/* Reorder controls */}
+                  <div className="flex flex-col items-center justify-center gap-1 px-2 bg-gray-50 border-r border-gray-100">
+                    <button
+                      onClick={() => moveProduct(index, -1)}
+                      disabled={index === 0 || isReordering}
+                      title="위로"
+                      className="w-7 h-7 flex items-center justify-center rounded-lg text-gray-500 hover:bg-white hover:text-orange-500 border border-gray-200 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                    >
+                      ▲
+                    </button>
+                    <span className="text-[10px] font-bold text-gray-400 tabular-nums">{index + 1}</span>
+                    <button
+                      onClick={() => moveProduct(index, 1)}
+                      disabled={index === products.length - 1 || isReordering}
+                      title="아래로"
+                      className="w-7 h-7 flex items-center justify-center rounded-lg text-gray-500 hover:bg-white hover:text-orange-500 border border-gray-200 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                    >
+                      ▼
+                    </button>
+                  </div>
+
                   {/* Thumbnail */}
                   <div className="w-24 flex-shrink-0 bg-orange-50 flex items-center justify-center overflow-hidden">
                     {product.imageUrl ? (

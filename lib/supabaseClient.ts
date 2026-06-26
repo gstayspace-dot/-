@@ -13,6 +13,7 @@ export type DbProduct = {
   specs: string
   is_live: boolean
   created_at: string
+  sort_order: number | null
 }
 
 export type DbChatCustomer = {
@@ -74,7 +75,16 @@ export function rowToProduct(row: DbProduct): Product & { isLive: boolean } {
     specs: row.specs,
     createdAt: row.created_at,
     isLive: row.is_live,
+    sortOrder: row.sort_order,
   }
+}
+
+// 노출 순서 정렬 비교자: sort_order 오름차순(미지정은 뒤로), 동률이면 최신 등록순
+export function compareProducts(a: Product, b: Product): number {
+  const ax = a.sortOrder ?? Number.POSITIVE_INFINITY
+  const bx = b.sortOrder ?? Number.POSITIVE_INFINITY
+  if (ax !== bx) return ax - bx
+  return b.createdAt.localeCompare(a.createdAt)
 }
 
 export function productBodyToRow(body: Record<string, unknown>) {
