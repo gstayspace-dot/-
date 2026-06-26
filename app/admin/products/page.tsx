@@ -517,27 +517,6 @@ export default function AdminProductsPage() {
                 }`}
               >
                 <div className="flex items-stretch">
-                  {/* Reorder controls */}
-                  <div className="flex flex-col items-center justify-center gap-1 px-2 bg-gray-50 border-r border-gray-100">
-                    <button
-                      onClick={() => moveProduct(index, -1)}
-                      disabled={index === 0 || isReordering}
-                      title="위로"
-                      className="w-7 h-7 flex items-center justify-center rounded-lg text-gray-500 hover:bg-white hover:text-orange-500 border border-gray-200 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                    >
-                      ▲
-                    </button>
-                    <span className="text-[10px] font-bold text-gray-400 tabular-nums">{index + 1}</span>
-                    <button
-                      onClick={() => moveProduct(index, 1)}
-                      disabled={index === products.length - 1 || isReordering}
-                      title="아래로"
-                      className="w-7 h-7 flex items-center justify-center rounded-lg text-gray-500 hover:bg-white hover:text-orange-500 border border-gray-200 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                    >
-                      ▼
-                    </button>
-                  </div>
-
                   {/* Thumbnail */}
                   <div className="w-24 flex-shrink-0 bg-orange-50 flex items-center justify-center overflow-hidden">
                     {product.imageUrl ? (
@@ -607,6 +586,27 @@ export default function AdminProductsPage() {
                       className="text-xs bg-white border border-gray-200 text-gray-400 hover:text-red-500 hover:border-red-300 font-semibold px-3 py-2 rounded-xl transition-colors disabled:opacity-50"
                     >
                       삭제
+                    </button>
+                  </div>
+
+                  {/* Reorder controls */}
+                  <div className="flex flex-col items-center justify-center gap-1 px-2 bg-gray-50 border-l border-gray-100">
+                    <button
+                      onClick={() => moveProduct(index, -1)}
+                      disabled={index === 0 || isReordering}
+                      title="위로"
+                      className="w-7 h-7 flex items-center justify-center rounded-lg text-gray-500 hover:bg-white hover:text-orange-500 border border-gray-200 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                    >
+                      ▲
+                    </button>
+                    <span className="text-[10px] font-bold text-gray-400 tabular-nums">{index + 1}</span>
+                    <button
+                      onClick={() => moveProduct(index, 1)}
+                      disabled={index === products.length - 1 || isReordering}
+                      title="아래로"
+                      className="w-7 h-7 flex items-center justify-center rounded-lg text-gray-500 hover:bg-white hover:text-orange-500 border border-gray-200 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                    >
+                      ▼
                     </button>
                   </div>
                 </div>
