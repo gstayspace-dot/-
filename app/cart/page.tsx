@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabaseClient'
+import AddressSearchInput from '@/app/components/AddressSearchInput'
 import {
   getCart, setItemQuantity, removeFromCart, clearCart,
   getCartTotal, type CartItem,
@@ -65,7 +66,7 @@ export default function CartPage() {
 
   async function handleSubmit() {
     if (!name.trim() || !phone.trim() || !address.trim()) {
-      setSubmitError('이름, 전화번호, 주소는 필수 입력 항목입니다.')
+      setSubmitError('이름, 전화번호, 배송 주소는 필수 입력 항목입니다.')
       return
     }
     if (!agreePrivacy) {
@@ -344,13 +345,9 @@ export default function CartPage() {
                 <label className="block text-xs font-bold text-gray-600 mb-1.5">
                   배송 주소 <span className="text-red-400">*</span>
                 </label>
-                <textarea
-                  rows={2}
+                <AddressSearchInput
                   value={address}
-                  onChange={e => setAddress(e.target.value)}
-                  onFocus={e => setTimeout(() => e.target.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300)}
-                  placeholder="서울시 강남구 테헤란로 123, 456호"
-                  className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent transition resize-none"
+                  onChange={setAddress}
                 />
               </div>
 
@@ -524,4 +521,3 @@ export default function CartPage() {
     </div>
   )
 }
-

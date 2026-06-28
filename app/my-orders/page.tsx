@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import AddressSearchInput from '@/app/components/AddressSearchInput'
 import { supabase, type DbOrder, type DbOrderItem } from '@/lib/supabaseClient'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -223,11 +224,11 @@ export default function MyOrdersPage() {
                               <p className="text-[11px] font-bold text-orange-500">✏️ 배송 정보 수정</p>
                               <div>
                                 <label className="block text-[11px] font-bold text-gray-500 mb-1">배송 주소 *</label>
-                                <textarea
-                                  rows={2}
+                                <AddressSearchInput
                                   value={editAddress}
-                                  onChange={e => setEditAddress(e.target.value)}
-                                  className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 transition resize-none"
+                                  onChange={setEditAddress}
+                                  compact
+                                  inputClassName="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 transition"
                                 />
                               </div>
                               <div>

@@ -71,6 +71,10 @@ export default function LivePage() {
 
   // ── Derived ───────────────────────────────────────────────────────────────
   const activeProducts = allProducts.filter(p => p.isLive)
+  const activeProductColumns = Array.from(
+    { length: Math.ceil(activeProducts.length / 2) },
+    (_, idx) => activeProducts.slice(idx * 2, idx * 2 + 2),
+  )
   const displayProduct = activeProducts.length > 0
     ? activeProducts[autoIdx % activeProducts.length]
     : null
@@ -435,51 +439,63 @@ export default function LivePage() {
               </button>
             </div>
 
-            <div ref={carouselRef} className="flex gap-3 overflow-x-auto no-scrollbar" style={{ scrollSnapType: 'x mandatory' }}>
-              {activeProducts.map((product, idx) => {
-                const disc = Math.round((1 - product.livePrice / product.originalPrice) * 100)
-                const fallbackEmoji = PRODUCT_EMOJIS[idx % PRODUCT_EMOJIS.length]
+            <div
+              ref={carouselRef}
+              className="flex gap-3 overflow-x-auto no-scrollbar"
+              style={{ scrollSnapType: 'x mandatory' }}
+            >
+              {activeProductColumns.map((column, columnIdx) => (
+                <div
+                  key={column.map(product => product.id).join('-')}
+                  className="flex flex-col gap-3 flex-shrink-0 w-[134px]"
+                  style={{ scrollSnapAlign: 'start' }}
+                >
+                  {column.map((product, rowIdx) => {
+                    const productIdx = columnIdx * 2 + rowIdx
+                    const disc = Math.round((1 - product.livePrice / product.originalPrice) * 100)
+                    const fallbackEmoji = PRODUCT_EMOJIS[productIdx % PRODUCT_EMOJIS.length]
 
-                return (
-                  <button
-                    key={product.id}
-                    onClick={() => router.push(`/shop?focus=${product.id}`)}
-                    style={{ scrollSnapAlign: 'start' }}
-                    className="flex-shrink-0 w-[134px] rounded-2xl overflow-hidden border-2 border-gray-200 hover:border-orange-200 transition-all active:scale-95"
-                  >
-                    <div className="h-[88px] relative flex items-center justify-center overflow-hidden bg-gray-50">
-                      {product.imageUrl ? (
-                        <img src={product.imageUrl} alt={product.name} loading="lazy" className="w-full h-full object-cover" />
-                      ) : (
-                        <span className="text-4xl">{fallbackEmoji}</span>
-                      )}
-                      <span className="live-pulse absolute top-1.5 left-1.5 text-[9px] bg-red-500 text-white px-1.5 py-0.5 rounded font-black">
-                        ● LIVE
-                      </span>
-                    </div>
+                    return (
+                      <button
+                        key={product.id}
+                        onClick={() => router.push(`/shop?focus=${product.id}`)}
+                        className="w-[134px] rounded-2xl overflow-hidden border-2 border-gray-200 hover:border-orange-200 transition-all active:scale-95"
+                      >
+                        <div className="h-[88px] relative flex items-center justify-center overflow-hidden bg-gray-50">
+                          {product.imageUrl ? (
+                            <img src={product.imageUrl} alt={product.name} loading="lazy" className="w-full h-full object-cover" />
+                          ) : (
+                            <span className="text-4xl">{fallbackEmoji}</span>
+                          )}
+                          <span className="live-pulse absolute top-1.5 left-1.5 text-[9px] bg-red-500 text-white px-1.5 py-0.5 rounded font-black">
+                            ● LIVE
+                          </span>
+                        </div>
 
-                    <div className="px-2 py-2 text-left bg-white">
-                      <p className="text-[11px] font-bold text-gray-800 leading-tight line-clamp-2 min-h-[28px]">
-                        {product.name}
-                      </p>
-                      <div className="flex items-center justify-between mt-1.5">
-                        <span className="text-[12px] font-black text-red-500">
-                          ₩{product.livePrice.toLocaleString()}
-                        </span>
-                        <span className="text-[10px] font-bold text-orange-500 bg-orange-100 px-1.5 py-0.5 rounded-md">
-                          -{disc}%
-                        </span>
-                      </div>
-                    </div>
-                  </button>
-                )
-              })}
+                        <div className="px-2 py-2 text-left bg-white">
+                          <p className="text-[11px] font-bold text-gray-800 leading-tight line-clamp-2 min-h-[28px]">
+                            {product.name}
+                          </p>
+                          <div className="flex items-center justify-between mt-1.5">
+                            <span className="text-[12px] font-black text-red-500">
+                              ₩{product.livePrice.toLocaleString()}
+                            </span>
+                            <span className="text-[10px] font-bold text-orange-500 bg-orange-100 px-1.5 py-0.5 rounded-md">
+                              -{disc}%
+                            </span>
+                          </div>
+                        </div>
+                      </button>
+                    )
+                  })}
+                </div>
+              ))}
             </div>
           </section>
         )}
 
         {/* ══ REAL-TIME CHAT ══ */}
-        <section id="chat-section" className="flex flex-col flex-1 border-t-8 border-gray-100">
+        <section id="chat-section" className="flex flex-col flex-1 mt-2 border-t-8 border-gray-100">
           <div className="px-4 py-3 bg-white border-b border-gray-100 flex items-center justify-between flex-shrink-0">
             <div className="flex items-center gap-2">
               <span className="text-sm font-extrabold text-gray-800">💬 관리자 1:1 상담</span>
