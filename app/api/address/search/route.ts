@@ -1,13 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-type NaverAddress = {
-  roadAddress?: string
-  jibunAddress?: string
+type JusoAddress = {
+  roadAddr?: string
+  roadAddrPart1?: string
+  roadAddrPart2?: string
+  jibunAddr?: string
+  zipNo?: string
 }
 
-type NaverGeocodeResponse = {
-  addresses?: NaverAddress[]
-  errorMessage?: string
+type JusoSearchResponse = {
+  results?: {
+    common?: {
+      errorCode?: string
+      errorMessage?: string
+    }
+    juso?: JusoAddress[]
+  }
 }
 
 export const dynamic = 'force-dynamic'
@@ -19,52 +27,44 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ results: [] })
   }
 
-  const keyId = process.env.NAVER_MAPS_CLIENT_ID ?? process.env.NAVER_MAPS_API_KEY_ID
-  const key = process.env.NAVER_MAPS_CLIENT_SECRET ?? process.env.NAVER_MAPS_API_KEY
+  const key = process.env.JUSO_API_KEY ?? process.env.ROAD_ADDRESS_API_KEY ?? 'TESTJUSOGOKR'
 
-  if (!keyId || !key) {
-    return NextResponse.json(
-      { message: '네이버 주소검색 API 키가 설정되지 않았습니다.' },
-      { status: 500 },
-    )
-  }
-
-  const url = new URL('https://maps.apigw.ntruss.com/map-geocode/v2/geocode')
-  url.searchParams.set('query', query)
-  url.searchParams.set('count', '10')
+  const url = new URL('https://business.juso.go.kr/addrlink/addrLinkApi.do')
+  url.searchParams.set('confmKey', key)
+  url.searchParams.set('currentPage', '1')
+  url.searchParams.set('countPerPage', '10')
+  url.searchParams.set('keyword', query)
+  url.searchParams.set('resultType', 'json')
 
   try {
-    const res = await fetch(url, {
-      headers: {
-        'X-NCP-APIGW-API-KEY-ID': keyId,
-        'X-NCP-APIGW-API-KEY': key,
-      },
-      cache: 'no-store',
-    })
+    const res = await fetch(url, { cache: 'no-store' })
+    const body = await res.json() as JusoSearchResponse
+    const errorCode = body.results?.common?.errorCode ?? ''
+    const errorMessage = body.results?.common?.errorMessage ?? ''
 
-    const body = await res.json() as NaverGeocodeResponse
-
-    if (!res.ok) {
+    if (!res.ok || errorCode !== '0') {
       return NextResponse.json(
-        { message: body.errorMessage ?? '네이버 주소검색 요청에 실패했습니다.' },
-        { status: res.status },
+        { message: errorMessage || '도로명주소 검색 요청에 실패했습니다.' },
+        { status: res.ok ? 400 : res.status },
       )
     }
 
-    const results = (body.addresses ?? [])
+    const results = (body.results?.juso ?? [])
       .map(address => {
-        const roadAddress = address.roadAddress ?? ''
-        const jibunAddress = address.jibunAddress ?? ''
-        const displayAddress = roadAddress || jibunAddress
+        const roadAddress = address.roadAddrPart1 || address.roadAddr || ''
+        const extraAddress = address.roadAddrPart2 ?? ''
+        const jibunAddress = address.jibunAddr ?? ''
+        const zipNo = address.zipNo ?? ''
+        const displayAddress = roadAddress || address.roadAddr || jibunAddress
 
-        return { roadAddress, jibunAddress, displayAddress }
+        return { roadAddress, extraAddress, jibunAddress, zipNo, displayAddress }
       })
       .filter(address => address.displayAddress)
 
     return NextResponse.json({ results })
   } catch {
     return NextResponse.json(
-      { message: '네이버 주소검색 서버에 연결하지 못했습니다.' },
+      { message: '도로명주소 검색 서버에 연결하지 못했습니다.' },
       { status: 502 },
     )
   }

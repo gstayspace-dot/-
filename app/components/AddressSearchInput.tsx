@@ -4,7 +4,9 @@ import { FormEvent, useEffect, useRef, useState } from 'react'
 
 type AddressResult = {
   roadAddress: string
+  extraAddress?: string
   jibunAddress: string
+  zipNo?: string
   displayAddress: string
 }
 
@@ -15,9 +17,10 @@ type Props = {
   compact?: boolean
 }
 
-function formatAddress(baseAddress: string, detailAddress: string) {
+function formatAddress(baseAddress: string, detailAddress: string, zipNo = '') {
+  const prefix = zipNo ? `[${zipNo}] ` : ''
   const detail = detailAddress.trim()
-  return `${baseAddress.trim()}${detail ? `, ${detail}` : ''}`.trim()
+  return `${prefix}${baseAddress.trim()}${detail ? `, ${detail}` : ''}`.trim()
 }
 
 function parseSavedAddress(value: string) {
@@ -38,6 +41,7 @@ export default function AddressSearchInput({ value, onChange, inputClassName, co
   const [searchOpen, setSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState(parsedValue.baseAddress)
   const [searchResults, setSearchResults] = useState<AddressResult[]>([])
+  const [selectedZipNo, setSelectedZipNo] = useState('')
   const [hasSearched, setHasSearched] = useState(false)
   const [searching, setSearching] = useState(false)
   const [error, setError] = useState('')
@@ -49,6 +53,7 @@ export default function AddressSearchInput({ value, onChange, inputClassName, co
       setBaseAddress('')
       setDetailAddress('')
       setManualAddress('')
+      setSelectedZipNo('')
       setManualMode(false)
       return
     }
@@ -58,6 +63,7 @@ export default function AddressSearchInput({ value, onChange, inputClassName, co
       setBaseAddress(parsed.baseAddress)
       setDetailAddress(parsed.detailAddress)
       setManualAddress(value)
+      setSelectedZipNo(value.match(/^\[(\d{5})\]/)?.[1] ?? '')
       setSearchQuery(parsed.baseAddress)
       setManualMode(false)
     }
@@ -100,12 +106,14 @@ export default function AddressSearchInput({ value, onChange, inputClassName, co
 
   function selectAddress(result: AddressResult) {
     const nextBaseAddress = result.roadAddress || result.jibunAddress || result.displayAddress
+    const nextZipNo = result.zipNo ?? ''
     setBaseAddress(nextBaseAddress)
     setDetailAddress('')
     setManualAddress('')
+    setSelectedZipNo(nextZipNo)
     setManualMode(false)
     setSearchOpen(false)
-    onChange(formatAddress(nextBaseAddress, ''))
+    onChange(formatAddress(nextBaseAddress, '', nextZipNo))
 
     window.setTimeout(() => {
       detailRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
@@ -115,7 +123,7 @@ export default function AddressSearchInput({ value, onChange, inputClassName, co
 
   function updateDetail(nextDetail: string) {
     setDetailAddress(nextDetail)
-    onChange(formatAddress(baseAddress, nextDetail))
+    onChange(formatAddress(baseAddress, nextDetail, selectedZipNo))
   }
 
   function updateManual(nextAddress: string) {
@@ -139,7 +147,7 @@ export default function AddressSearchInput({ value, onChange, inputClassName, co
           className="flex-1 text-white font-black py-3 rounded-xl text-sm active:scale-95 transition-all"
           style={{ background: 'linear-gradient(135deg,#ff6a00,#e53935)' }}
         >
-          네이버 주소검색
+          도로명주소 검색
         </button>
         <button
           type="button"
@@ -191,6 +199,18 @@ export default function AddressSearchInput({ value, onChange, inputClassName, co
                   className="w-full rounded-xl border border-gray-200 bg-white px-3 py-3 text-left active:scale-[0.99] transition-all"
                 >
                   <p className="text-sm font-bold text-gray-900 leading-snug">{result.displayAddress}</p>
+                  <div className="flex flex-wrap gap-1.5 mt-1">
+                    {result.zipNo && (
+                      <span className="text-[10px] font-bold text-orange-500 bg-orange-50 border border-orange-100 rounded px-1.5 py-0.5">
+                        우편번호 {result.zipNo}
+                      </span>
+                    )}
+                    {result.extraAddress && (
+                      <span className="text-[10px] font-bold text-gray-500 bg-gray-50 border border-gray-100 rounded px-1.5 py-0.5">
+                        {result.extraAddress}
+                      </span>
+                    )}
+                  </div>
                   {result.jibunAddress && result.jibunAddress !== result.displayAddress && (
                     <p className="text-[11px] text-gray-400 leading-snug mt-1">지번 {result.jibunAddress}</p>
                   )}
@@ -232,7 +252,7 @@ export default function AddressSearchInput({ value, onChange, inputClassName, co
       )}
 
       <p className={`${smallTextClass} text-gray-400 leading-relaxed`}>
-        네이버 주소검색에서 기본주소를 선택한 뒤, 동·호수 같은 상세주소만 직접 입력해 주세요.
+        도로명주소 검색에서 기본주소를 선택한 뒤, 동·호수 같은 상세주소만 직접 입력해 주세요.
       </p>
     </div>
   )
