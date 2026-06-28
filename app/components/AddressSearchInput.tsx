@@ -14,11 +14,15 @@ type DaumPostcodeData = {
 }
 
 type DaumPostcode = {
+  embed: (element: HTMLElement) => void
   open: () => void
 }
 
 type DaumPostcodeConstructor = new (options: {
   oncomplete: (data: DaumPostcodeData) => void
+  onresize?: (size: { height: number }) => void
+  width?: string
+  height?: string
 }) => DaumPostcode
 
 declare global {
@@ -74,8 +78,11 @@ export default function AddressSearchInput({ value, onChange, inputClassName, co
   const [detailAddress, setDetailAddress] = useState('')
   const [manualAddress, setManualAddress] = useState(value)
   const [manualMode, setManualMode] = useState(Boolean(value))
+  const [searchOpen, setSearchOpen] = useState(false)
+  const [searchHeight, setSearchHeight] = useState(520)
   const [error, setError] = useState('')
   const detailRef = useRef<HTMLInputElement>(null)
+  const searchLayerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (!value) {
@@ -102,37 +109,67 @@ export default function AddressSearchInput({ value, onChange, inputClassName, co
     }
   }, [baseAddress, postcode, value])
 
+  useEffect(() => {
+    if (!searchOpen) return
+
+    let cancelled = false
+
+    async function embedAddressSearch() {
+      setError('')
+      try {
+        await loadPostcodeScript()
+        if (cancelled) return
+
+        const Postcode = window.daum?.Postcode
+        const searchLayer = searchLayerRef.current
+        if (!Postcode || !searchLayer) throw new Error('주소 검색을 시작하지 못했습니다.')
+
+        searchLayer.innerHTML = ''
+        new Postcode({
+          width: '100%',
+          height: '100%',
+          onresize: size => setSearchHeight(Math.max(440, Math.min(size.height, 620))),
+          oncomplete: data => {
+            const extraParts = []
+            if (data.addressType === 'R' && data.bname) extraParts.push(data.bname)
+            if (data.addressType === 'R' && data.buildingName && data.apartment === 'Y') {
+              extraParts.push(data.buildingName)
+            }
+
+            const base = data.roadAddress || data.address || data.jibunAddress
+            const addressWithExtra = extraParts.length ? `${base} (${extraParts.join(', ')})` : base
+
+            setPostcode(data.zonecode)
+            setBaseAddress(addressWithExtra)
+            setDetailAddress('')
+            setManualAddress('')
+            setManualMode(false)
+            setSearchOpen(false)
+            onChange(formatAddress(data.zonecode, addressWithExtra, ''))
+
+            window.setTimeout(() => {
+              detailRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+              detailRef.current?.focus()
+            }, 150)
+          },
+        }).embed(searchLayer)
+      } catch (e) {
+        setSearchOpen(false)
+        setError(e instanceof Error ? e.message : '주소 검색 중 오류가 발생했습니다.')
+        setManualMode(true)
+      }
+    }
+
+    embedAddressSearch()
+
+    return () => {
+      cancelled = true
+    }
+  }, [onChange, searchOpen])
+
   async function openAddressSearch() {
     setError('')
-    try {
-      await loadPostcodeScript()
-      const Postcode = window.daum?.Postcode
-      if (!Postcode) throw new Error('주소 검색을 시작하지 못했습니다.')
-
-      new Postcode({
-        oncomplete: data => {
-          const extraParts = []
-          if (data.addressType === 'R' && data.bname) extraParts.push(data.bname)
-          if (data.addressType === 'R' && data.buildingName && data.apartment === 'Y') {
-            extraParts.push(data.buildingName)
-          }
-
-          const base = data.roadAddress || data.address || data.jibunAddress
-          const addressWithExtra = extraParts.length ? `${base} (${extraParts.join(', ')})` : base
-
-          setPostcode(data.zonecode)
-          setBaseAddress(addressWithExtra)
-          setDetailAddress('')
-          setManualAddress('')
-          setManualMode(false)
-          onChange(formatAddress(data.zonecode, addressWithExtra, ''))
-          window.setTimeout(() => detailRef.current?.focus(), 100)
-        },
-      }).open()
-    } catch (e) {
-      setError(e instanceof Error ? e.message : '주소 검색 중 오류가 발생했습니다.')
-      setManualMode(true)
-    }
+    setSearchOpen(true)
   }
 
   function updateDetail(nextDetail: string) {
@@ -205,6 +242,29 @@ export default function AddressSearchInput({ value, onChange, inputClassName, co
         도로명/지번 주소는 검색으로 선택하고, 동·호수 같은 상세주소만 직접 입력하면 배송 오류를 줄일 수 있습니다.
       </p>
       {error && <p className={`${smallTextClass} text-red-500`}>{error}</p>}
+
+      {searchOpen && (
+        <div className="fixed inset-0 z-[80] bg-black/45 flex items-end sm:items-center justify-center px-0 sm:px-4">
+          <div className="w-full sm:max-w-[480px] bg-white rounded-t-2xl sm:rounded-2xl overflow-hidden shadow-2xl">
+            <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+              <p className="text-sm font-black text-gray-900">주소 검색</p>
+              <button
+                type="button"
+                onClick={() => setSearchOpen(false)}
+                className="w-9 h-9 rounded-full bg-gray-100 text-gray-600 font-black active:scale-95 transition-all"
+                aria-label="주소 검색 닫기"
+              >
+                ×
+              </button>
+            </div>
+            <div
+              ref={searchLayerRef}
+              style={{ height: `${searchHeight}px` }}
+              className="w-full bg-white"
+            />
+          </div>
+        </div>
+      )}
     </div>
   )
 }
