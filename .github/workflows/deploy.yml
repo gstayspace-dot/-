@@ -27,8 +27,16 @@ jobs:
         uses: google-github-actions/setup-gcloud@v2
 
       - name: Deploy to Cloud Run
+        env:
+          JUSO_API_KEY: ${{ secrets.JUSO_API_KEY }}
         run: |
+          if [ -z "$JUSO_API_KEY" ]; then
+            echo "::error::GitHub Secret JUSO_API_KEY is not set"
+            exit 1
+          fi
+
           gcloud run deploy yeongjinsangsa \
             --source . \
             --region asia-northeast3 \
+            --update-env-vars JUSO_API_KEY="$JUSO_API_KEY" \
             --quiet
