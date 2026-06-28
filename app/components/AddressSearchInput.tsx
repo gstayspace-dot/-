@@ -1,36 +1,11 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { FormEvent, useEffect, useRef, useState } from 'react'
 
-type DaumPostcodeData = {
-  zonecode: string
-  address: string
+type AddressResult = {
   roadAddress: string
   jibunAddress: string
-  addressType: 'R' | 'J'
-  bname: string
-  buildingName: string
-  apartment: 'Y' | 'N'
-}
-
-type DaumPostcode = {
-  embed: (element: HTMLElement) => void
-  open: () => void
-}
-
-type DaumPostcodeConstructor = new (options: {
-  oncomplete: (data: DaumPostcodeData) => void
-  onresize?: (size: { height: number }) => void
-  width?: string
-  height?: string
-}) => DaumPostcode
-
-declare global {
-  interface Window {
-    daum?: {
-      Postcode?: DaumPostcodeConstructor
-    }
-  }
+  displayAddress: string
 }
 
 type Props = {
@@ -40,53 +15,37 @@ type Props = {
   compact?: boolean
 }
 
-const POSTCODE_SCRIPT_ID = 'daum-postcode-script'
-const POSTCODE_SCRIPT_SRC = '//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js'
-
-function loadPostcodeScript() {
-  if (typeof window === 'undefined') return Promise.reject(new Error('주소 검색을 사용할 수 없습니다.'))
-  if (window.daum?.Postcode) return Promise.resolve()
-
-  const existing = document.getElementById(POSTCODE_SCRIPT_ID) as HTMLScriptElement | null
-  if (existing) {
-    return new Promise<void>((resolve, reject) => {
-      existing.addEventListener('load', () => resolve(), { once: true })
-      existing.addEventListener('error', () => reject(new Error('주소 검색 스크립트를 불러오지 못했습니다.')), { once: true })
-    })
-  }
-
-  return new Promise<void>((resolve, reject) => {
-    const script = document.createElement('script')
-    script.id = POSTCODE_SCRIPT_ID
-    script.src = POSTCODE_SCRIPT_SRC
-    script.async = true
-    script.onload = () => resolve()
-    script.onerror = () => reject(new Error('주소 검색 스크립트를 불러오지 못했습니다.'))
-    document.head.appendChild(script)
-  })
+function formatAddress(baseAddress: string, detailAddress: string) {
+  const detail = detailAddress.trim()
+  return `${baseAddress.trim()}${detail ? `, ${detail}` : ''}`.trim()
 }
 
-function formatAddress(postcode: string, baseAddress: string, detailAddress: string) {
-  const prefix = postcode ? `[${postcode}] ` : ''
-  const detail = detailAddress.trim()
-  return `${prefix}${baseAddress.trim()}${detail ? `, ${detail}` : ''}`.trim()
+function parseSavedAddress(value: string) {
+  const withoutPostcode = value.replace(/^\[\d{5}\]\s*/, '')
+  const [base = '', ...detailParts] = withoutPostcode.split(', ')
+  return {
+    baseAddress: base,
+    detailAddress: detailParts.join(', '),
+  }
 }
 
 export default function AddressSearchInput({ value, onChange, inputClassName, compact = false }: Props) {
-  const [postcode, setPostcode] = useState('')
+  const parsedValue = parseSavedAddress(value)
   const [baseAddress, setBaseAddress] = useState('')
   const [detailAddress, setDetailAddress] = useState('')
   const [manualAddress, setManualAddress] = useState(value)
   const [manualMode, setManualMode] = useState(Boolean(value))
   const [searchOpen, setSearchOpen] = useState(false)
-  const [searchHeight, setSearchHeight] = useState(520)
+  const [searchQuery, setSearchQuery] = useState(parsedValue.baseAddress)
+  const [searchResults, setSearchResults] = useState<AddressResult[]>([])
+  const [hasSearched, setHasSearched] = useState(false)
+  const [searching, setSearching] = useState(false)
   const [error, setError] = useState('')
   const detailRef = useRef<HTMLInputElement>(null)
-  const searchLayerRef = useRef<HTMLDivElement>(null)
+  const searchInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     if (!value) {
-      setPostcode('')
       setBaseAddress('')
       setDetailAddress('')
       setManualAddress('')
@@ -94,87 +53,69 @@ export default function AddressSearchInput({ value, onChange, inputClassName, co
       return
     }
 
-    const parsed = value.match(/^\[(\d{5})\]\s*([^,]+)(?:,\s*(.*))?$/)
-    if (parsed) {
-      setPostcode(parsed[1])
-      setBaseAddress(parsed[2])
-      setDetailAddress(parsed[3] ?? '')
-      setManualMode(false)
-      return
-    }
-
-    if (!postcode && !baseAddress) {
+    if (!baseAddress) {
+      const parsed = parseSavedAddress(value)
+      setBaseAddress(parsed.baseAddress)
+      setDetailAddress(parsed.detailAddress)
       setManualAddress(value)
-      setManualMode(true)
+      setSearchQuery(parsed.baseAddress)
+      setManualMode(false)
     }
-  }, [baseAddress, postcode, value])
+  }, [baseAddress, value])
 
   useEffect(() => {
     if (!searchOpen) return
+    window.setTimeout(() => searchInputRef.current?.focus(), 80)
+  }, [searchOpen])
 
-    let cancelled = false
+  async function searchAddress(e?: FormEvent) {
+    e?.preventDefault()
 
-    async function embedAddressSearch() {
-      setError('')
-      try {
-        await loadPostcodeScript()
-        if (cancelled) return
-
-        const Postcode = window.daum?.Postcode
-        const searchLayer = searchLayerRef.current
-        if (!Postcode || !searchLayer) throw new Error('주소 검색을 시작하지 못했습니다.')
-
-        searchLayer.innerHTML = ''
-        new Postcode({
-          width: '100%',
-          height: '100%',
-          onresize: size => setSearchHeight(Math.max(440, Math.min(size.height, 620))),
-          oncomplete: data => {
-            const extraParts = []
-            if (data.addressType === 'R' && data.bname) extraParts.push(data.bname)
-            if (data.addressType === 'R' && data.buildingName && data.apartment === 'Y') {
-              extraParts.push(data.buildingName)
-            }
-
-            const base = data.roadAddress || data.address || data.jibunAddress
-            const addressWithExtra = extraParts.length ? `${base} (${extraParts.join(', ')})` : base
-
-            setPostcode(data.zonecode)
-            setBaseAddress(addressWithExtra)
-            setDetailAddress('')
-            setManualAddress('')
-            setManualMode(false)
-            setSearchOpen(false)
-            onChange(formatAddress(data.zonecode, addressWithExtra, ''))
-
-            window.setTimeout(() => {
-              detailRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-              detailRef.current?.focus()
-            }, 150)
-          },
-        }).embed(searchLayer)
-      } catch (e) {
-        setSearchOpen(false)
-        setError(e instanceof Error ? e.message : '주소 검색 중 오류가 발생했습니다.')
-        setManualMode(true)
-      }
+    const query = searchQuery.trim()
+    if (query.length < 2) {
+      setError('주소를 두 글자 이상 입력해 주세요.')
+      return
     }
 
-    embedAddressSearch()
-
-    return () => {
-      cancelled = true
-    }
-  }, [onChange, searchOpen])
-
-  async function openAddressSearch() {
+    setSearching(true)
+    setHasSearched(false)
     setError('')
-    setSearchOpen(true)
+
+    try {
+      const res = await fetch(`/api/address/search?q=${encodeURIComponent(query)}`)
+      const body = await res.json() as { results?: AddressResult[]; message?: string }
+
+      if (!res.ok) throw new Error(body.message ?? '주소 검색 중 오류가 발생했습니다.')
+
+      setSearchResults(body.results ?? [])
+      setHasSearched(true)
+    } catch (err) {
+      setSearchResults([])
+      setHasSearched(true)
+      setError(err instanceof Error ? err.message : '주소 검색 중 오류가 발생했습니다.')
+    } finally {
+      setSearching(false)
+    }
+  }
+
+  function selectAddress(result: AddressResult) {
+    const nextBaseAddress = result.roadAddress || result.jibunAddress || result.displayAddress
+    setBaseAddress(nextBaseAddress)
+    setDetailAddress('')
+    setManualAddress('')
+    setManualMode(false)
+    setSearchOpen(false)
+    onChange(formatAddress(nextBaseAddress, ''))
+
+    window.setTimeout(() => {
+      detailRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      detailRef.current?.focus()
+    }, 120)
   }
 
   function updateDetail(nextDetail: string) {
     setDetailAddress(nextDetail)
-    onChange(formatAddress(postcode, baseAddress, nextDetail))
+    onChange(formatAddress(baseAddress, nextDetail))
   }
 
   function updateManual(nextAddress: string) {
@@ -190,15 +131,20 @@ export default function AddressSearchInput({ value, onChange, inputClassName, co
       <div className="flex gap-2">
         <button
           type="button"
-          onClick={openAddressSearch}
+          onClick={() => {
+            setManualMode(false)
+            setSearchOpen(prev => !prev)
+            setError('')
+          }}
           className="flex-1 text-white font-black py-3 rounded-xl text-sm active:scale-95 transition-all"
           style={{ background: 'linear-gradient(135deg,#ff6a00,#e53935)' }}
         >
-          주소 검색
+          네이버 주소검색
         </button>
         <button
           type="button"
           onClick={() => {
+            setSearchOpen(false)
             setManualMode(true)
             setManualAddress(value)
           }}
@@ -207,6 +153,53 @@ export default function AddressSearchInput({ value, onChange, inputClassName, co
           직접 입력
         </button>
       </div>
+
+      {searchOpen && (
+        <div className="rounded-xl border border-orange-200 bg-orange-50/40 p-3 space-y-2">
+          <form onSubmit={searchAddress} className="flex gap-2">
+            <input
+              ref={searchInputRef}
+              type="search"
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              placeholder="도로명, 건물명, 지번을 입력하세요"
+              className="min-w-0 flex-1 border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 bg-white"
+            />
+            <button
+              type="submit"
+              disabled={searching}
+              className="px-4 py-2.5 rounded-xl text-sm font-black text-white disabled:opacity-50 active:scale-95 transition-all"
+              style={{ background: 'linear-gradient(135deg,#ff6a00,#e53935)' }}
+            >
+              {searching ? '검색중' : '검색'}
+            </button>
+          </form>
+
+          {error && <p className={`${smallTextClass} text-red-500`}>{error}</p>}
+
+          {hasSearched && !error && searchResults.length === 0 && (
+            <p className={`${smallTextClass} text-gray-500`}>검색 결과가 없습니다. 도로명이나 건물명을 조금 더 자세히 입력해 주세요.</p>
+          )}
+
+          {searchResults.length > 0 && (
+            <div className="max-h-64 overflow-y-auto space-y-2 pr-1">
+              {searchResults.map((result, idx) => (
+                <button
+                  key={`${result.displayAddress}-${idx}`}
+                  type="button"
+                  onClick={() => selectAddress(result)}
+                  className="w-full rounded-xl border border-gray-200 bg-white px-3 py-3 text-left active:scale-[0.99] transition-all"
+                >
+                  <p className="text-sm font-bold text-gray-900 leading-snug">{result.displayAddress}</p>
+                  {result.jibunAddress && result.jibunAddress !== result.displayAddress && (
+                    <p className="text-[11px] text-gray-400 leading-snug mt-1">지번 {result.jibunAddress}</p>
+                  )}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {manualMode ? (
         <textarea
@@ -221,9 +214,9 @@ export default function AddressSearchInput({ value, onChange, inputClassName, co
         <div className="space-y-2">
           <input
             type="text"
-            value={baseAddress ? `${postcode ? `[${postcode}] ` : ''}${baseAddress}` : ''}
+            value={baseAddress}
             readOnly
-            placeholder="주소 검색 버튼으로 도로명/지번 주소를 찾아주세요"
+            placeholder="주소 검색으로 배송지를 선택해 주세요"
             className={`${fieldClassName} bg-gray-50 text-gray-700`}
           />
           <input
@@ -239,32 +232,8 @@ export default function AddressSearchInput({ value, onChange, inputClassName, co
       )}
 
       <p className={`${smallTextClass} text-gray-400 leading-relaxed`}>
-        도로명/지번 주소는 검색으로 선택하고, 동·호수 같은 상세주소만 직접 입력하면 배송 오류를 줄일 수 있습니다.
+        네이버 주소검색에서 기본주소를 선택한 뒤, 동·호수 같은 상세주소만 직접 입력해 주세요.
       </p>
-      {error && <p className={`${smallTextClass} text-red-500`}>{error}</p>}
-
-      {searchOpen && (
-        <div className="fixed inset-0 z-[80] bg-black/45 flex items-end sm:items-center justify-center px-0 sm:px-4">
-          <div className="w-full sm:max-w-[480px] bg-white rounded-t-2xl sm:rounded-2xl overflow-hidden shadow-2xl">
-            <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
-              <p className="text-sm font-black text-gray-900">주소 검색</p>
-              <button
-                type="button"
-                onClick={() => setSearchOpen(false)}
-                className="w-9 h-9 rounded-full bg-gray-100 text-gray-600 font-black active:scale-95 transition-all"
-                aria-label="주소 검색 닫기"
-              >
-                ×
-              </button>
-            </div>
-            <div
-              ref={searchLayerRef}
-              style={{ height: `${searchHeight}px` }}
-              className="w-full bg-white"
-            />
-          </div>
-        </div>
-      )}
     </div>
   )
 }
