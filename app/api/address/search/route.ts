@@ -6,6 +6,8 @@ type JusoAddress = {
   roadAddrPart2?: string
   jibunAddr?: string
   zipNo?: string
+  bdNm?: string
+  detBdNmList?: string
 }
 
 type JusoSearchResponse = {
@@ -55,9 +57,15 @@ export async function GET(req: NextRequest) {
         const extraAddress = address.roadAddrPart2 ?? ''
         const jibunAddress = address.jibunAddr ?? ''
         const zipNo = address.zipNo ?? ''
-        const displayAddress = roadAddress || address.roadAddr || jibunAddress
+        const fullRoadAddress = address.roadAddr
+          || [address.roadAddrPart1, address.roadAddrPart2].filter(Boolean).join(' ').replace(/\s+/g, ' ').trim()
+        const buildingName = [address.bdNm, address.detBdNmList]
+          .filter((name): name is string => Boolean(name?.trim()))
+          .filter((name, idx, names) => names.indexOf(name) === idx)
+          .join(', ')
+        const displayAddress = fullRoadAddress || roadAddress || jibunAddress
 
-        return { roadAddress, extraAddress, jibunAddress, zipNo, displayAddress }
+        return { roadAddress, fullRoadAddress, extraAddress, jibunAddress, zipNo, displayAddress, buildingName }
       })
       .filter(address => address.displayAddress)
 

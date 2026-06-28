@@ -4,10 +4,12 @@ import { FormEvent, useEffect, useRef, useState } from 'react'
 
 type AddressResult = {
   roadAddress: string
+  fullRoadAddress?: string
   extraAddress?: string
   jibunAddress: string
   zipNo?: string
   displayAddress: string
+  buildingName?: string
 }
 
 type Props = {
@@ -105,7 +107,7 @@ export default function AddressSearchInput({ value, onChange, inputClassName, co
   }
 
   function selectAddress(result: AddressResult) {
-    const nextBaseAddress = result.roadAddress || result.jibunAddress || result.displayAddress
+    const nextBaseAddress = result.fullRoadAddress || result.displayAddress || result.roadAddress || result.jibunAddress
     const nextZipNo = result.zipNo ?? ''
     setBaseAddress(nextBaseAddress)
     setDetailAddress('')
