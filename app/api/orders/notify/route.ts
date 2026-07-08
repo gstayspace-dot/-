@@ -13,7 +13,7 @@ function shortOrderId(id: string) {
 }
 
 function money(value: number) {
-  return `₩${value.toLocaleString('ko-KR')}`
+  return `${value.toLocaleString('ko-KR')}원`
 }
 
 function itemLines(items: DbOrderItem[]) {
@@ -22,6 +22,17 @@ function itemLines(items: DbOrderItem[]) {
   return items
     .map(item => `- ${item.product_name} ${item.quantity}개 (${money(item.price * item.quantity)})`)
     .join('\n')
+}
+
+function priceBreakdown(order: DbOrder, items: DbOrderItem[]) {
+  const productTotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0)
+  const shippingFee = Math.max(order.total_price - productTotal, 0)
+
+  return [
+    `물건값 ${money(productTotal)}`,
+    `배송비 ${money(shippingFee)}`,
+    `결제금액 ${money(order.total_price)}`,
+  ].join('\n')
 }
 
 function isRecentlyCreated(order: DbOrder) {
@@ -82,6 +93,7 @@ export async function POST(request: Request) {
   const items = (itemRows ?? []) as DbOrderItem[]
   const orderNo = shortOrderId(order.id)
   const itemsText = itemLines(items)
+  const pricesText = priceBreakdown(order, items)
   const messages: SmsMessage[] = [
     {
       to: order.customer_phone,
@@ -94,7 +106,7 @@ export async function POST(request: Request) {
         '',
         '[주문 상품]',
         itemsText,
-        `결제금액: ${money(order.total_price)}`,
+        pricesText,
         `상태: ${order.status}`,
         '',
         '입금계좌: 국민은행 233001-04-329449 최영진(영진상사)',
@@ -118,7 +130,7 @@ export async function POST(request: Request) {
         '',
         '[상품]',
         itemsText,
-        `금액: ${money(order.total_price)}`,
+        pricesText,
       ].filter(Boolean).join('\n'),
     })
   }
