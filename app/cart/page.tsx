@@ -32,7 +32,6 @@ export default function CartPage() {
   const [doneCart, setDoneCart] = useState<CartItem[]>([])
   const [doneTotal, setDoneTotal] = useState(0)
   const [payMethod, setPayMethod] = useState<'bank' | 'card'>('bank')
-  const [agreePrivacy, setAgreePrivacy] = useState(false)
 
   useEffect(() => {
     setCart(getCart())
@@ -67,10 +66,6 @@ export default function CartPage() {
   async function handleSubmit() {
     if (!name.trim() || !phone.trim() || !address.trim()) {
       setSubmitError('이름, 전화번호, 배송 주소는 필수 입력 항목입니다.')
-      return
-    }
-    if (!agreePrivacy) {
-      setSubmitError('개인정보 수집·이용에 동의해주세요.')
       return
     }
     setSubmitError('')
@@ -124,7 +119,6 @@ export default function CartPage() {
     }
   }
 
-  // ── STEP: DONE ───────────────────────────────────────────────────────────
   if (step === 'done') {
     const doneSubtotal = getCartTotal(doneCart)
     const doneShipping = doneTotal - doneSubtotal
@@ -138,7 +132,6 @@ export default function CartPage() {
             <h1 className="text-xl font-black text-gray-900 mb-1">주문이 완료되었습니다!</h1>
             <p className="text-sm text-gray-500 mb-6">주문번호: <span className="font-bold text-gray-700">#{orderId}</span></p>
 
-            {/* 계좌 이체 안내 */}
             <div className="w-full bg-amber-50 border-2 border-amber-300 rounded-2xl p-5 mb-5 text-left">
               <p className="text-xs font-bold text-amber-600 mb-3 flex items-center gap-1">🏦 입금 계좌 안내</p>
               <div className="space-y-1 mb-3">
@@ -164,7 +157,6 @@ export default function CartPage() {
               </p>
             </div>
 
-            {/* 주문 상품 요약 */}
             <div className="w-full bg-gray-50 rounded-2xl p-4 text-left mb-6">
               <p className="text-xs font-bold text-gray-500 mb-3">주문 상품</p>
               <div className="space-y-2">
@@ -214,12 +206,10 @@ export default function CartPage() {
     )
   }
 
-  // ── STEP: ORDER FORM ──────────────────────────────────────────────────────
   if (step === 'form') {
     return (
       <div className="min-h-screen-safe bg-gray-50 flex justify-center">
         <div className="w-full max-w-[480px] bg-white min-h-screen-safe flex flex-col">
-
           <header className="sticky top-0 z-20 bg-white border-b border-gray-100 px-4 py-3 pt-[calc(0.75rem_+_env(safe-area-inset-top))] flex items-center gap-3 flex-shrink-0">
             <button
               onClick={() => setStep('cart')}
@@ -230,7 +220,6 @@ export default function CartPage() {
             <h1 className="font-extrabold text-gray-900 text-sm flex-1">주문서 작성</h1>
           </header>
 
-          {/* Progress */}
           <div className="flex items-center justify-center gap-2 py-3 border-b border-gray-100 bg-white flex-shrink-0">
             {['장바구니', '주문서', '완료'].map((label, i) => (
               <div key={label} className="flex items-center gap-2">
@@ -244,8 +233,6 @@ export default function CartPage() {
           </div>
 
           <div className="flex-1 overflow-y-auto">
-
-            {/* Order summary */}
             <div className="px-5 py-4 bg-gray-50 border-b border-gray-100">
               <p className="text-xs font-bold text-gray-500 mb-2">주문 상품 ({cart.length}종)</p>
               <div className="space-y-1">
@@ -274,7 +261,6 @@ export default function CartPage() {
               </div>
             </div>
 
-            {/* Payment method */}
             <div className="px-5 py-4 bg-white border-b border-gray-100">
               <p className="text-xs font-bold text-gray-600 mb-3">결제 수단</p>
               <div className="flex gap-2">
@@ -311,7 +297,6 @@ export default function CartPage() {
               )}
             </div>
 
-            {/* Form fields */}
             <div className="px-5 py-5 space-y-4 bg-white">
               {submitError && (
                 <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-sm text-red-600 font-medium">
@@ -371,7 +356,6 @@ export default function CartPage() {
                 />
               </div>
 
-              {/* 개인정보 수집·이용 안내 */}
               <div className="border border-gray-200 rounded-xl p-4 bg-gray-50">
                 <p className="text-xs font-bold text-gray-700 mb-2">개인정보 수집·이용 안내</p>
                 <div className="text-[11px] text-gray-500 leading-relaxed space-y-0.5 max-h-32 overflow-y-auto pr-1">
@@ -379,34 +363,22 @@ export default function CartPage() {
                   <p>• <span className="font-semibold text-gray-600">수집 목적:</span> 주문 상품 배송 및 주문·결제 관련 상담</p>
                   <p>• <span className="font-semibold text-gray-600">보유·이용 기간:</span> 관련 법령(전자상거래법)에 따라 거래기록은 5년간 보관 후 파기하며, 그 외 정보는 목적 달성 시 지체 없이 파기합니다.</p>
                   <p>• <span className="font-semibold text-gray-600">개인정보 관리책임자:</span> 영진상사 대표 최영진 (☎ 032-327-1116)</p>
-                  <p className="text-gray-400 mt-1">※ 동의를 거부하실 권리가 있으나, 미동의 시 상품 주문 및 배송이 불가능합니다.</p>
+                  <p className="text-gray-400 mt-1">※ 주문하기 버튼을 누르면 개인정보 수집·이용에 동의한 것으로 처리됩니다.</p>
                 </div>
               </div>
             </div>
 
-            <div className="h-28" />
+            <div className="h-24" />
           </div>
 
-          <div className="flex-shrink-0 bg-white border-t border-gray-100 px-5 py-3 pb-[calc(0.75rem_+_env(safe-area-inset-bottom))] space-y-2">
-            <label className="flex items-start gap-2 cursor-pointer select-none rounded-xl bg-gray-50 border border-gray-200 px-3 py-2">
-              <input
-                type="checkbox"
-                checked={agreePrivacy}
-                onChange={e => setAgreePrivacy(e.target.checked)}
-                className="mt-0.5 w-4 h-4 accent-orange-500 flex-shrink-0"
-              />
-              <span className="text-[11px] leading-relaxed text-gray-600">
-                <span className="font-bold text-gray-800">개인정보 수집·이용에 동의합니다.</span><br />
-                주문 상품 배송 및 결제 상담을 위해 이름, 연락처, 배송 주소를 사용합니다.
-              </span>
-            </label>
+          <div className="flex-shrink-0 bg-white border-t border-gray-100 px-5 py-3 pb-[calc(0.75rem_+_env(safe-area-inset-bottom))]">
             <button
               onClick={handleSubmit}
-              disabled={submitting || !agreePrivacy}
+              disabled={submitting}
               className="w-full text-white font-black py-4 rounded-2xl text-sm shadow-lg active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               style={{ background: 'linear-gradient(135deg,#ff6a00,#e53935)' }}
             >
-              {submitting ? '주문 처리 중...' : `주문하기 · ₩${total.toLocaleString()}`}
+              {submitting ? '주문 처리 중...' : `개인정보 동의하고 주문하기 · ₩${total.toLocaleString()}`}
             </button>
           </div>
         </div>
@@ -414,11 +386,9 @@ export default function CartPage() {
     )
   }
 
-  // ── STEP: CART ───────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen-safe bg-gray-50 flex justify-center">
       <div className="w-full max-w-[480px] bg-white min-h-screen-safe flex flex-col">
-
         <header className="sticky top-0 z-20 bg-white border-b border-gray-100 px-4 py-3 flex items-center gap-3 flex-shrink-0">
           <button
             onClick={() => router.back()}
@@ -525,7 +495,6 @@ export default function CartPage() {
             주문서 작성 →
           </button>
         </div>
-
       </div>
     </div>
   )
