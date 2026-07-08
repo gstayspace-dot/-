@@ -289,6 +289,11 @@ export default function LivePage() {
       is_admin: false,
       created_at: msg.ts,
     })
+    fetch('/api/chat/notify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ customerName: mySession.name, message: text }),
+    }).catch(() => {})
   }
 
   // ── Render ────────────────────────────────────────────────────────────────
