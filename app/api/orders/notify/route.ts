@@ -4,6 +4,8 @@ import { supabase, type DbOrder, type DbOrderItem } from '@/lib/supabaseClient'
 
 export const runtime = 'nodejs'
 
+const MANAGER_PHONE = '01033328459'
+
 type NotifyRequest = {
   orderId?: string
 }
@@ -108,6 +110,7 @@ export async function POST(request: Request) {
         itemsText,
         pricesText,
         `상태: ${order.status}`,
+        `담당자: ${MANAGER_PHONE}`,
         '',
         '입금계좌: 국민은행 233001-04-329449 최영진(영진상사)',
         '입금 확인 후 배송 준비가 진행됩니다. 감사합니다.',
@@ -125,6 +128,7 @@ export async function POST(request: Request) {
         `주문번호: #${orderNo}`,
         `주문자: ${order.customer_name}`,
         `연락처: ${normalizePhone(order.customer_phone)}`,
+        `담당자: ${MANAGER_PHONE}`,
         `주소: ${order.customer_address}`,
         order.customer_request ? `요청: ${order.customer_request}` : '',
         '',
