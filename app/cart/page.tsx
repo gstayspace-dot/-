@@ -105,6 +105,12 @@ export default function CartPage() {
       const { error: iErr } = await db.from('order_items').insert(items)
       if (iErr) throw new Error(iErr.message)
 
+      fetch('/api/orders/notify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId: order.id }),
+      }).catch(() => {})
+
       setDoneCart([...cart])
       setDoneTotal(total)
       setOrderId((order.id as string).slice(0, 8).toUpperCase())
@@ -118,7 +124,7 @@ export default function CartPage() {
     }
   }
 
-  // ── STEP: DONE ────────────────────────────────────────────────────────────
+  // ── STEP: DONE ───────────────────────────────────────────────────────────
   if (step === 'done') {
     const doneSubtotal = getCartTotal(doneCart)
     const doneShipping = doneTotal - doneSubtotal
@@ -405,7 +411,7 @@ export default function CartPage() {
     )
   }
 
-  // ── STEP: CART ────────────────────────────────────────────────────────────
+  // ── STEP: CART ───────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen-safe bg-gray-50 flex justify-center">
       <div className="w-full max-w-[480px] bg-white min-h-screen-safe flex flex-col">
