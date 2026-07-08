@@ -29,14 +29,22 @@ jobs:
       - name: Deploy to Cloud Run
         env:
           JUSO_API_KEY: ${{ secrets.JUSO_API_KEY }}
+          KSHOT_API_KEY: ${{ secrets.KSHOT_API_KEY }}
         run: |
           if [ -z "$JUSO_API_KEY" ]; then
-            echo "::error::GitHub Secret JUSO_API_KEY is not set"
+            echo '::error::GitHub Secret JUSO_API_KEY is not set'
             exit 1
+          fi
+
+          ENV_VARS="JUSO_API_KEY=$JUSO_API_KEY,KSHOT_USER_ID=cyj_001,KSHOT_SENDER=01091058444,KSHOT_TEST_MODE=N,ADMIN_PHONE=01033328459"
+          if [ -n "$KSHOT_API_KEY" ]; then
+            ENV_VARS="$ENV_VARS,KSHOT_API_KEY=$KSHOT_API_KEY"
+          else
+            echo '::warning::GitHub Secret KSHOT_API_KEY is not set; preserving existing Cloud Run KSHOT_API_KEY if any'
           fi
 
           gcloud run deploy yeongjinsangsa \
             --source . \
             --region asia-northeast3 \
-            --update-env-vars JUSO_API_KEY="$JUSO_API_KEY" \
+            --update-env-vars "$ENV_VARS" \
             --quiet
