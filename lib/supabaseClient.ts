@@ -54,7 +54,18 @@ export type DbOrderItem = {
 }
 
 export const PRODUCT_PUBLIC_SELECT =
-  'id,name,image_url,original_price,live_price,quantity,specs,description,is_live,created_at,sort_order'
+  'id,name,image_url,original_price,live_price,quantity,specs,is_live,created_at,sort_order'
+
+const DESCRIPTION_MARKER = '\n\n[[PRODUCT_DESCRIPTION]]\n'
+
+function splitSpecsAndDescription(value: string) {
+  const markerIndex = value.indexOf(DESCRIPTION_MARKER)
+  if (markerIndex < 0) return { specs: value, description: '' }
+  return {
+    specs: value.slice(0, markerIndex),
+    description: value.slice(markerIndex + DESCRIPTION_MARKER.length),
+  }
+}
 
 // ── Singleton client ──────────────────────────────────────────────────────────
 // Fallback placeholders prevent build-time crashes when env vars are absent
@@ -69,6 +80,7 @@ export const supabase = createClient(supabaseUrl, supabaseKey)
 // ── Mapping helpers ───────────────────────────────────────────────────────────
 
 export function rowToProduct(row: DbProduct): Product & { isLive: boolean } {
+  const parsed = splitSpecsAndDescription(row.specs ?? '')
   return {
     id: row.id,
     name: row.name,
@@ -76,8 +88,8 @@ export function rowToProduct(row: DbProduct): Product & { isLive: boolean } {
     originalPrice: row.original_price,
     livePrice: row.live_price,
     quantity: row.quantity,
-    specs: row.specs,
-    description: row.description ?? '',
+    specs: parsed.specs,
+    description: row.description ?? parsed.description,
     createdAt: row.created_at,
     isLive: row.is_live,
     sortOrder: row.sort_order,
@@ -94,6 +106,8 @@ export function compareProducts(a: Product, b: Product): number {
 
 export function productBodyToRow(body: Record<string, unknown>) {
   const imageUrl = String(body.imageUrl ?? '').trim()
+  const specs = String(body.specs ?? '')
+  const description = String(body.description ?? '').trim()
 
   return {
     name:           String(body.name ?? ''),
@@ -101,8 +115,7 @@ export function productBodyToRow(body: Record<string, unknown>) {
     original_price: Number(body.originalPrice) || 0,
     live_price:     Number(body.livePrice) || 0,
     quantity:       Number(body.quantity) || 0,
-    specs:          String(body.specs ?? ''),
-    description:    String(body.description ?? ''),
+    specs:          description ? `${specs}${DESCRIPTION_MARKER}${description}` : specs,
     is_live:        Boolean(body.isLive),
   }
 }
