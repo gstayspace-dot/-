@@ -26,17 +26,16 @@ export default function ShopPage() {
   }, [])
 
   useEffect(() => {
-    supabase
-      .from('products')
-      .select('*')
-      .order('sort_order', { ascending: true, nullsFirst: false })
-      .order('created_at', { ascending: false })
-      .then(({ data }) => {
-        if (data) setProducts(data.map(rowToProduct))
+    fetch('/api/products')
+      .then(res => res.json())
+      .then((data: LiveProduct[]) => {
+        setProducts(data)
         setLoading(false)
       })
+      .catch(() => setLoading(false))
 
-    const channel = supabase
+    if (process.env.NEXT_PUBLIC_ENABLE_PRODUCT_REALTIME === 'true') {
+      const channel = supabase
       .channel('products-shop-page')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, (payload) => {
         if (payload.eventType === 'INSERT') {
@@ -51,7 +50,8 @@ export default function ShopPage() {
       })
       .subscribe()
 
-    return () => { supabase.removeChannel(channel) }
+      return () => { supabase.removeChannel(channel) }
+    }
   }, [])
 
   const focused = focusId ? products.find(p => p.id === focusId) ?? null : null
@@ -128,7 +128,7 @@ export default function ShopPage() {
         {/* ── Header ── */}
         <header className="sticky top-0 z-20 bg-white/95 backdrop-blur-sm border-b border-gray-100 px-4 py-3 pt-[calc(0.75rem_+_env(safe-area-inset-top))] flex items-center gap-3 flex-shrink-0">
           <button
-            onClick={() => router.push('/')}
+            onClick={() => router.push('/living-live')}
             className="w-9 h-9 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition-colors text-gray-700 font-bold text-lg flex-shrink-0"
           >
             ←
@@ -247,7 +247,7 @@ export default function ShopPage() {
         {/* ── Sticky CTA: 구매 유도 ── */}
         <div className="fixed bottom-0 w-full max-w-[480px] bg-white border-t border-gray-100 px-4 py-3 pb-[calc(0.75rem_+_env(safe-area-inset-bottom))] flex gap-2 z-20">
           <button
-            onClick={() => router.push('/?chat=1')}
+            onClick={() => router.push('/living-live?chat=1')}
             className="flex-1 bg-white border-2 border-gray-200 text-gray-700 font-black py-3.5 rounded-2xl text-sm active:scale-95 transition-all hover:border-gray-300"
           >
             💬 채팅 상담

@@ -88,8 +88,13 @@ export default function AdminChatPage() {
   const chatEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const selectedIdRef = useRef<string | null>(null)
+  const linkedCustomerIdRef = useRef<string | null>(null)
 
   useEffect(() => { selectedIdRef.current = selectedId }, [selectedId])
+
+  useEffect(() => {
+    linkedCustomerIdRef.current = new URLSearchParams(window.location.search).get('customer')
+  }, [])
 
   const selectedMessages = selectedId ? (msgMap[selectedId] ?? []) : []
   const selectedCustomer = [...customers, ...deletedCustomers].find(c => c.id === selectedId) ?? null
@@ -153,6 +158,12 @@ export default function AdminChatPage() {
       const trashed = live.filter(c => c.deleted_at).map(toAdmin)
       setCustomers(initial)
       setDeletedCustomers(trashed)
+      const linkedCustomerId = linkedCustomerIdRef.current
+      if (linkedCustomerId && live.some(c => c.id === linkedCustomerId)) {
+        setShowTrash(trashed.some(c => c.id === linkedCustomerId))
+        setSelectedId(linkedCustomerId)
+        return
+      }
       // 데스크톱(2단 레이아웃)에서만 첫 채팅 자동 선택. 모바일은 목록을 먼저 보여준다.
       if (initial.length > 0 && window.matchMedia('(min-width: 768px)').matches) {
         setSelectedId(initial[0].id)
@@ -176,6 +187,10 @@ export default function AdminChatPage() {
             }, ...prev]
           })
           setMsgMap(prev => ({ ...prev, [c.id]: prev[c.id] ?? [] }))
+          if (linkedCustomerIdRef.current === c.id) {
+            setShowTrash(false)
+            setSelectedId(c.id)
+          }
         },
       )
       .on(
@@ -344,7 +359,7 @@ export default function AdminChatPage() {
           <a href="/admin/products" className="text-gray-400 hover:text-gray-700 transition-colors">📦 상품 관리</a>
           <a href="/admin/orders" className="text-gray-400 hover:text-gray-700 transition-colors">📋 주문 관리</a>
           <a href="/admin/qr" className="text-gray-400 hover:text-gray-700 transition-colors">📱 QR</a>
-          <a href="/" target="_blank" rel="noopener noreferrer" className="text-orange-500 hover:text-orange-600 font-semibold transition-colors">
+          <a href="/living-live" target="_blank" rel="noopener noreferrer" className="text-orange-500 hover:text-orange-600 font-semibold transition-colors">
             📺 라이브 페이지 →
           </a>
           <button

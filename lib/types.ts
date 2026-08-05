@@ -6,6 +6,7 @@ export type Product = {
   livePrice: number
   quantity: number
   specs: string
+  description: string
   createdAt: string
   isLive?: boolean
   sortOrder?: number | null

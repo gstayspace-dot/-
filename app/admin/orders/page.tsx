@@ -27,10 +27,105 @@ function daysLeft(deletedAt: string): number {
   return Math.max(0, Math.ceil((RETENTION_MS - elapsed) / (24 * 60 * 60 * 1000)))
 }
 
+function escapeExcelText(value: unknown): string {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+}
+
+function formatOrderDate(value: string): string {
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return ''
+  return date.toLocaleDateString('ko-KR', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).replace(/\. /g, '-').replace('.', '')
+}
+
+function parseOrderRequest(raw: string): { payment: string; request: string } {
+  const parts = (raw ?? '').split(' | ')
+  const payment = (parts.find(part => part.startsWith('[')) ?? '').replace(/^\[|\]$/g, '')
+  const request = parts.filter(part => !part.startsWith('[')).join(' | ').trim()
+  return { payment, request }
+}
+
+function buildOrderSheetHtml(orders: OrderWithItems[]): string {
+  const rows = orders.flatMap(order => {
+    const { request } = parseOrderRequest(order.customer_request)
+    const items = order.items.length > 0
+      ? order.items
+      : [{ id: `${order.id}-empty`, product_name: '', quantity: 0 }] as Array<Pick<DbOrderItem, 'id' | 'product_name' | 'quantity'>>
+
+    return items.map(item => [
+      '',
+      order.customer_name,
+      formatOrderDate(order.created_at),
+      item.product_name,
+      item.quantity || '',
+      order.customer_name,
+      order.customer_address,
+      order.customer_phone,
+      request,
+    ])
+  })
+
+  const bodyRows = rows.map(row => `
+    <tr>
+      ${row.map(value => `<td>${escapeExcelText(value)}</td>`).join('')}
+    </tr>
+  `).join('')
+
+  return `<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <style>
+    table { border-collapse: collapse; font-family: "Malgun Gothic", Arial, sans-serif; font-size: 11pt; }
+    th, td { border: 1px solid #b7b7b7; padding: 6px 8px; vertical-align: middle; white-space: nowrap; }
+    th { background: #f2f2f2; font-weight: 700; text-align: center; }
+    td:nth-child(4), td:nth-child(7), td:nth-child(9) { white-space: normal; }
+    .shop-md { width: 90px; }
+    .orderer { width: 90px; }
+    .date { width: 100px; }
+    .product { width: 320px; }
+    .qty { width: 70px; text-align: center; }
+    .receiver { width: 110px; }
+    .address { width: 420px; }
+    .phone { width: 150px; }
+    .memo { width: 240px; }
+  </style>
+</head>
+<body>
+  <table>
+    <thead>
+      <tr>
+        <th class="shop-md">쇼핑MD</th>
+        <th class="orderer">주문자</th>
+        <th class="date">날짜</th>
+        <th class="product">품명</th>
+        <th class="qty">수량</th>
+        <th class="receiver">받는사람</th>
+        <th class="address">배송 주소</th>
+        <th class="phone">연락처</th>
+        <th class="memo">배송메모</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${bodyRows}
+    </tbody>
+  </table>
+</body>
+</html>`
+}
+
 export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<OrderWithItems[]>([])
   const [loading, setLoading] = useState(true)
   const [showTrash, setShowTrash] = useState(false)
+  const [selectedOrderIds, setSelectedOrderIds] = useState<Set<string>>(new Set())
   const [updatingId, setUpdatingId] = useState<string | null>(null)
   const [toast, setToast] = useState<{ name: string; total: number } | null>(null)
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -116,18 +211,50 @@ export default function AdminOrdersPage() {
     setUpdatingId(null)
   }
 
+  function toggleOrderSelection(orderId: string) {
+    setSelectedOrderIds(prev => {
+      const next = new Set(prev)
+      if (next.has(orderId)) next.delete(orderId)
+      else next.add(orderId)
+      return next
+    })
+  }
+
+  function toggleAllDisplayedOrders() {
+    setSelectedOrderIds(prev => {
+      const displayIds = displayOrders.map(order => order.id)
+      const allSelected = displayIds.length > 0 && displayIds.every(id => prev.has(id))
+      const next = new Set(prev)
+
+      if (allSelected) displayIds.forEach(id => next.delete(id))
+      else displayIds.forEach(id => next.add(id))
+
+      return next
+    })
+  }
+
   // 소프트 삭제: 보관함으로 이동 (30일 후 자동 영구삭제)
   async function deleteOrder(orderId: string) {
     if (!confirm(`이 주문을 삭제하시겠습니까?\n삭제 보관함에서 ${RETENTION_DAYS}일간 복원할 수 있습니다.`)) return
     const ts = new Date().toISOString()
     await db.from('orders').update({ deleted_at: ts }).eq('id', orderId)
     setOrders(prev => prev.map(o => o.id === orderId ? { ...o, deleted_at: ts } : o))
+    setSelectedOrderIds(prev => {
+      const next = new Set(prev)
+      next.delete(orderId)
+      return next
+    })
   }
 
   // 보관함에서 복원
   async function restoreOrder(orderId: string) {
     await db.from('orders').update({ deleted_at: null }).eq('id', orderId)
     setOrders(prev => prev.map(o => o.id === orderId ? { ...o, deleted_at: null } : o))
+    setSelectedOrderIds(prev => {
+      const next = new Set(prev)
+      next.delete(orderId)
+      return next
+    })
   }
 
   // 영구 삭제 (복원 불가)
@@ -136,6 +263,11 @@ export default function AdminOrdersPage() {
     await db.from('order_items').delete().eq('order_id', orderId)
     await db.from('orders').delete().eq('id', orderId)
     setOrders(prev => prev.filter(o => o.id !== orderId))
+    setSelectedOrderIds(prev => {
+      const next = new Set(prev)
+      next.delete(orderId)
+      return next
+    })
   }
 
   async function handleLogout() {
@@ -143,9 +275,31 @@ export default function AdminOrdersPage() {
     window.location.href = '/admin/login'
   }
 
+  function downloadOrderSheet() {
+    const exportOrders = selectedDisplayOrders
+    if (exportOrders.length === 0) {
+      alert('엑셀로 다운로드할 주문을 먼저 체크해 주세요.')
+      return
+    }
+
+    const html = buildOrderSheetHtml(exportOrders)
+    const blob = new Blob(['\ufeff', html], { type: 'application/vnd.ms-excel;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const today = new Date().toISOString().slice(0, 10)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `발주서-${today}.xls`
+    document.body.appendChild(a)
+    a.click()
+    a.remove()
+    URL.revokeObjectURL(url)
+  }
+
   const activeOrders  = orders.filter(o => !o.deleted_at)
   const trashedOrders = orders.filter(o => o.deleted_at)
   const displayOrders = showTrash ? trashedOrders : activeOrders
+  const selectedDisplayOrders = displayOrders.filter(o => selectedOrderIds.has(o.id))
+  const allDisplayedSelected = displayOrders.length > 0 && displayOrders.every(o => selectedOrderIds.has(o.id))
   const totalRevenue = activeOrders.reduce((s, o) => s + o.total_price, 0)
   const pending = activeOrders.filter(o => o.status === '입금대기').length
 
@@ -203,7 +357,10 @@ export default function AdminOrdersPage() {
           </h2>
           <div className="flex items-center gap-2">
             <button
-              onClick={() => setShowTrash(v => !v)}
+              onClick={() => {
+                setShowTrash(v => !v)
+                setSelectedOrderIds(new Set())
+              }}
               className={`text-xs font-bold border rounded-lg px-3 py-1.5 transition-colors ${
                 showTrash
                   ? 'text-gray-600 border-gray-300 hover:bg-gray-100'
@@ -211,6 +368,23 @@ export default function AdminOrdersPage() {
               }`}
             >
               {showTrash ? '← 주문 목록' : `🗑 보관함${trashedOrders.length > 0 ? ` (${trashedOrders.length})` : ''}`}
+            </button>
+            <label className="flex items-center gap-1.5 text-xs font-bold text-gray-500 border border-gray-200 rounded-lg px-3 py-1.5 bg-white">
+              <input
+                type="checkbox"
+                checked={allDisplayedSelected}
+                disabled={displayOrders.length === 0}
+                onChange={toggleAllDisplayedOrders}
+                className="h-3.5 w-3.5 accent-green-600 disabled:opacity-40"
+              />
+              전체선택
+            </label>
+            <button
+              onClick={downloadOrderSheet}
+              disabled={selectedDisplayOrders.length === 0}
+              className="text-xs text-green-600 hover:text-green-700 font-bold border border-green-200 rounded-lg px-3 py-1.5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              발주서 다운로드 ({selectedDisplayOrders.length})
             </button>
             <button
               onClick={fetchOrders}
@@ -239,6 +413,13 @@ export default function AdminOrdersPage() {
                 {/* Order header */}
                 <div className="px-5 py-3 bg-gray-50 border-b border-gray-100 flex items-center justify-between flex-wrap gap-2">
                   <div className="flex items-center gap-3">
+                    <input
+                      type="checkbox"
+                      checked={selectedOrderIds.has(order.id)}
+                      onChange={() => toggleOrderSelection(order.id)}
+                      aria-label={`${order.customer_name} 주문 선택`}
+                      className="h-4 w-4 accent-green-600"
+                    />
                     <span className="text-xs font-black text-gray-500">#{order.id.slice(0, 8).toUpperCase()}</span>
                     <span className="text-xs text-gray-400">
                       {new Date(order.created_at).toLocaleString('ko-KR', {

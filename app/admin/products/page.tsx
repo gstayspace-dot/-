@@ -10,6 +10,7 @@ const EMPTY_FORM = {
   livePrice: '',
   quantity: '',
   specs: '',
+  description: '',
 }
 
 export default function AdminProductsPage() {
@@ -93,6 +94,7 @@ export default function AdminProductsPage() {
       livePrice: String(product.livePrice),
       quantity: String(product.quantity),
       specs: product.specs,
+      description: product.description,
     })
     formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
@@ -433,6 +435,20 @@ export default function AdminProductsPage() {
                   onChange={(e) => setForm({ ...form, specs: e.target.value })}
                   className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent transition resize-none"
                 />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-gray-600 mb-1">상세 설명</label>
+                <textarea
+                  rows={7}
+                  placeholder={'상품 상세 설명을 입력하세요.\n\n이미지: ![상품 이미지](https://...)\n링크: [구매 안내](https://...)\n또는 URL을 한 줄에 하나씩 입력하세요.'}
+                  value={form.description}
+                  onChange={(e) => setForm({ ...form, description: e.target.value })}
+                  className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent transition resize-y"
+                />
+                <p className="text-[11px] text-gray-400 mt-1.5 leading-relaxed">
+                  이미지 URL은 이미지로, 일반 URL은 클릭 가능한 링크로 고객 화면에 표시됩니다.
+                </p>
               </div>
 
               <div className="flex gap-2">

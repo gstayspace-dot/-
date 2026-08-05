@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { supabase, rowToProduct, productBodyToRow, type DbProduct } from '@/lib/supabaseClient'
+import { supabase, rowToProduct, productBodyToRow, PRODUCT_PUBLIC_SELECT, type DbProduct } from '@/lib/supabaseClient'
 
 export async function PATCH(
   request: Request,
@@ -10,7 +10,7 @@ export async function PATCH(
     .from('products')
     .update(productBodyToRow(body) as Record<string, unknown>)
     .eq('id', params.id)
-    .select()
+    .select(PRODUCT_PUBLIC_SELECT)
     .single()
 
   if (error) return NextResponse.json({ error: error.message }, { status: error.code === 'PGRST116' ? 404 : 500 })

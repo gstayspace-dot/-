@@ -6,11 +6,12 @@ import type { Product } from './types'
 export type DbProduct = {
   id: string
   name: string
-  image_url: string
+  image_url?: string | null
   original_price: number
   live_price: number
   quantity: number
   specs: string
+  description?: string | null
   is_live: boolean
   created_at: string
   sort_order: number | null
@@ -52,6 +53,9 @@ export type DbOrderItem = {
   price: number
 }
 
+export const PRODUCT_PUBLIC_SELECT =
+  'id,name,image_url,original_price,live_price,quantity,specs,description,is_live,created_at,sort_order'
+
 // ── Singleton client ──────────────────────────────────────────────────────────
 // Fallback placeholders prevent build-time crashes when env vars are absent
 // (e.g. Google Cloud Build without Secret Manager injection).
@@ -68,11 +72,12 @@ export function rowToProduct(row: DbProduct): Product & { isLive: boolean } {
   return {
     id: row.id,
     name: row.name,
-    imageUrl: row.image_url,
+    imageUrl: row.image_url ?? '',
     originalPrice: row.original_price,
     livePrice: row.live_price,
     quantity: row.quantity,
     specs: row.specs,
+    description: row.description ?? '',
     createdAt: row.created_at,
     isLive: row.is_live,
     sortOrder: row.sort_order,
@@ -88,12 +93,16 @@ export function compareProducts(a: Product, b: Product): number {
 }
 
 export function productBodyToRow(body: Record<string, unknown>) {
+  const imageUrl = String(body.imageUrl ?? '').trim()
+
   return {
     name:           String(body.name ?? ''),
-    image_url:      String(body.imageUrl ?? ''),
+    image_url:      imageUrl.startsWith('data:') ? '' : imageUrl,
     original_price: Number(body.originalPrice) || 0,
     live_price:     Number(body.livePrice) || 0,
     quantity:       Number(body.quantity) || 0,
     specs:          String(body.specs ?? ''),
+    description:    String(body.description ?? ''),
+    is_live:        Boolean(body.isLive),
   }
 }

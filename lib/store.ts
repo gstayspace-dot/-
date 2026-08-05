@@ -21,6 +21,7 @@ const SEED: Product[] = [
     quantity: 15,
     specs:
       '재질: 316L 스테인리스\n인덕션·가스·하이라이트 전기레인지 호환\n구성: 16 · 18 · 20 · 22 · 24cm 냄비 각 1개\n식기세척기 사용 가능 | 오븐 사용 불가',
+    description: '',
     createdAt: new Date(Date.now() - 60_000).toISOString(),
   },
   {
@@ -32,6 +33,7 @@ const SEED: Product[] = [
     quantity: 8,
     specs:
       '재질: 무쇠(Cast Iron)\n사이즈: 직경 28cm · 높이 5cm\n인덕션·가스·캠핑 불꽃 모두 호환\n오깊은 시즈닝 처리로 즉시 사용 가능',
+    description: '',
     createdAt: new Date(Date.now() - 30_000).toISOString(),
   },
 ]

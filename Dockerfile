@@ -35,6 +35,7 @@ RUN addgroup --system --gid 1001 nodejs \
 
 # Copy only the standalone bundle and the static assets it needs
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/public/product-images ./public/product-images
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 

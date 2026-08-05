@@ -1,13 +1,15 @@
 import { NextResponse } from 'next/server'
-import { supabase, rowToProduct, type DbProduct } from '@/lib/supabaseClient'
+import { supabase, rowToProduct, PRODUCT_PUBLIC_SELECT, type DbProduct } from '@/lib/supabaseClient'
+import { fallbackProducts } from '@/lib/fallbackProducts'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const db = supabase as any
 
 export async function GET() {
-  const { data, error } = await db.from('products').select('*').eq('is_live', true)
-  if (error) return NextResponse.json({ products: [] })
-  return NextResponse.json({ products: ((data ?? []) as DbProduct[]).map(rowToProduct) })
+  const { data, error } = await db.from('products').select(PRODUCT_PUBLIC_SELECT).eq('is_live', true)
+  if (error) return NextResponse.json({ products: fallbackProducts.filter(product => product.isLive) })
+  const products = ((data ?? []) as DbProduct[]).map(rowToProduct)
+  return NextResponse.json({ products: products.length > 0 ? products : fallbackProducts.filter(product => product.isLive) })
 }
 
 export async function POST(request: Request) {

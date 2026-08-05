@@ -120,7 +120,7 @@ function LoginForm() {
       </div>
 
       <p className="text-center text-xs text-gray-600 mt-6">
-        <a href="/" className="hover:text-gray-400 transition-colors">← 라이브 페이지로 돌아가기</a>
+        <a href="/living-live" className="hover:text-gray-400 transition-colors">← 라이브 페이지로 돌아가기</a>
       </p>
     </div>
   )

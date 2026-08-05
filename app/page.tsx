@@ -131,14 +131,9 @@ export default function LivePage() {
   // ── Supabase: products realtime subscription ──────────────────────────────
   useEffect(() => {
     // Initial load
-    supabase
-      .from('products')
-      .select('*')
-      .order('sort_order', { ascending: true, nullsFirst: false })
-      .order('created_at', { ascending: false })
-      .then(({ data }) => {
-        if (!data) return
-        const products = data.map(rowToProduct)
+    fetch('/api/products')
+      .then(res => res.json())
+      .then((products: LiveProduct[]) => {
         setAllProducts(products)
         const firstLive = products.find(p => p.isLive)
         if (firstLive) {
@@ -146,8 +141,10 @@ export default function LivePage() {
           setIsUrgent(firstLive.quantity <= 5)
         }
       })
+      .catch(() => {})
 
-    const channel = supabase
+    if (process.env.NEXT_PUBLIC_ENABLE_PRODUCT_REALTIME === 'true') {
+      const channel = supabase
       .channel('products-live-page')
       .on(
         'postgres_changes',
@@ -166,7 +163,8 @@ export default function LivePage() {
       )
       .subscribe()
 
-    return () => { supabase.removeChannel(channel) }
+      return () => { supabase.removeChannel(channel) }
+    }
   }, [])
 
   // ── Supabase: chat init + realtime subscription ───────────────────────────
@@ -289,11 +287,16 @@ export default function LivePage() {
       is_admin: false,
       created_at: msg.ts,
     })
-    fetch('/api/chat/notify', {
+
+    fetch('/api/notifications/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ customerName: mySession.name, message: text }),
-    }).catch(() => {})
+      body: JSON.stringify({
+        customerId: mySession.id,
+        customerName: mySession.name,
+        text: msg.text,
+      }),
+    }).catch(error => console.error('chat notification request failed', error))
   }
 
   // ── Render ────────────────────────────────────────────────────────────────

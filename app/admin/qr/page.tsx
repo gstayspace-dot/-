@@ -10,8 +10,9 @@ export default function AdminQrPage() {
 
   useEffect(() => {
     const origin = window.location.origin
-    setUrl(origin)
-    QRCode.toDataURL(origin, {
+    const liveUrl = `${origin}/living-live`
+    setUrl(liveUrl)
+    QRCode.toDataURL(liveUrl, {
       width: 720,
       margin: 2,
       color: { dark: '#111111', light: '#ffffff' },
@@ -74,7 +75,7 @@ export default function AdminQrPage() {
           <a href="/admin/products" className="text-sm text-gray-500 hover:text-gray-700 font-medium transition-colors">📦 상품</a>
           <a href="/admin/orders" className="text-sm text-gray-500 hover:text-gray-700 font-medium transition-colors">📋 주문</a>
           <a href="/admin/chat" className="text-sm text-gray-500 hover:text-gray-700 font-medium transition-colors">💬 채팅</a>
-          <a href="/" target="_blank" rel="noopener noreferrer" className="text-sm text-orange-500 hover:text-orange-600 font-semibold transition-colors">📺 라이브 →</a>
+          <a href="/living-live" target="_blank" rel="noopener noreferrer" className="text-sm text-orange-500 hover:text-orange-600 font-semibold transition-colors">📺 라이브 →</a>
         </div>
       </nav>
 

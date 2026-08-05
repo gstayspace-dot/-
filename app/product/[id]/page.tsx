@@ -2,11 +2,50 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { supabase, rowToProduct, type DbProduct } from '@/lib/supabaseClient'
+import { supabase, rowToProduct, PRODUCT_PUBLIC_SELECT, type DbProduct } from '@/lib/supabaseClient'
 import { addToCart, getCart, getCartCount } from '@/lib/cart-store'
 import type { Product } from '@/lib/types'
 
 type LiveProduct = Product & { isLive: boolean }
+
+const IMAGE_URL_PATTERN = /\.(?:avif|gif|jpe?g|png|webp)(?:[?#].*)?$/i
+
+function isSafeUrl(value: string) {
+  try {
+    const parsed = new URL(value)
+    return parsed.protocol === 'http:' || parsed.protocol === 'https:'
+  } catch {
+    return false
+  }
+}
+
+function renderDescription(description: string) {
+  return description.split(/\r?\n/).map((line, index) => {
+    const trimmed = line.trim()
+    if (!trimmed) return <div key={index} className="h-2" />
+
+    const imageMatch = trimmed.match(/^!\[([^\]]*)\]\((https?:\/\/[^)]+)\)$/)
+    if (imageMatch && isSafeUrl(imageMatch[2])) {
+      return (
+        <img key={index} src={imageMatch[2]} alt={imageMatch[1] || '상품 상세 이미지'} className="w-full rounded-xl object-contain" loading="lazy" />
+      )
+    }
+
+    const linkMatch = trimmed.match(/^\[([^\]]+)\]\((https?:\/\/[^)]+)\)$/)
+    if (linkMatch && isSafeUrl(linkMatch[2])) {
+      return <a key={index} href={linkMatch[2]} target="_blank" rel="noreferrer" className="block text-orange-600 underline underline-offset-2 break-all">{linkMatch[1]}</a>
+    }
+
+    if (isSafeUrl(trimmed)) {
+      if (IMAGE_URL_PATTERN.test(trimmed)) {
+        return <img key={index} src={trimmed} alt="상품 상세 이미지" className="w-full rounded-xl object-contain" loading="lazy" />
+      }
+      return <a key={index} href={trimmed} target="_blank" rel="noreferrer" className="block text-orange-600 underline underline-offset-2 break-all">{trimmed}</a>
+    }
+
+    return <p key={index} className="text-gray-700 leading-relaxed whitespace-pre-wrap">{line}</p>
+  })
+}
 
 export default function ProductDetailPage({ params }: { params: { id: string } }) {
   const router = useRouter()
@@ -23,7 +62,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ;(supabase as any)
       .from('products')
-      .select('*')
+      .select(PRODUCT_PUBLIC_SELECT)
       .eq('id', params.id)
       .single()
       .then(({ data, error }: { data: unknown; error: unknown }) => {
@@ -190,6 +229,18 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                       <span className="text-gray-700 leading-relaxed">{line}</span>
                     </div>
                   ))}
+                </div>
+              </div>
+              <div className="h-2 bg-gray-100" />
+            </>
+          )}
+
+          {product.description?.trim() && (
+            <>
+              <div className="px-5 py-5 bg-white">
+                <h3 className="text-sm font-extrabold text-gray-800 mb-3">상품 상세 설명</h3>
+                <div className="space-y-3 text-sm overflow-hidden">
+                  {renderDescription(product.description)}
                 </div>
               </div>
               <div className="h-2 bg-gray-100" />
