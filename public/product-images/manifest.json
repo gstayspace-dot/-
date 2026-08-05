@@ -1,0 +1,511 @@
+{
+  "createdAt": "2026-07-07T03:02:29.946Z",
+  "count": 84,
+  "totalBytes": 3864565,
+  "images": [
+    {
+      "id": "1cbcafda-7c90-410d-8669-750ee60e2f32",
+      "path": "/product-images/1cbcafda-7c90-410d-8669-750ee60e2f32.jpg",
+      "bytes": 33422,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "196e53ef-8d41-441d-b6fb-b865c9fd656c",
+      "path": "/product-images/196e53ef-8d41-441d-b6fb-b865c9fd656c.jpg",
+      "bytes": 44473,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "8f8facd0-5d22-4a4a-babd-f2542a43ac82",
+      "path": "/product-images/8f8facd0-5d22-4a4a-babd-f2542a43ac82.jpg",
+      "bytes": 29788,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "8dfa31d3-1694-4e1a-b900-cbb483bcb784",
+      "path": "/product-images/8dfa31d3-1694-4e1a-b900-cbb483bcb784.jpg",
+      "bytes": 80853,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "3b0c618f-a7d1-4ff2-8345-b3928d5e3cf7",
+      "path": "/product-images/3b0c618f-a7d1-4ff2-8345-b3928d5e3cf7.jpg",
+      "bytes": 80853,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "125ffc6a-2832-4976-bf9a-3436ac99a949",
+      "path": "/product-images/125ffc6a-2832-4976-bf9a-3436ac99a949.jpg",
+      "bytes": 41687,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "5cfbaa08-1c1d-493b-b309-9c1df43a8bf6",
+      "path": "/product-images/5cfbaa08-1c1d-493b-b309-9c1df43a8bf6.jpg",
+      "bytes": 41687,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "c209ce61-dd2a-4a31-b36b-26ec5e6e4028",
+      "path": "/product-images/c209ce61-dd2a-4a31-b36b-26ec5e6e4028.jpg",
+      "bytes": 42382,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "f1828a9f-ed79-4b89-93c6-71a8f8078b58",
+      "path": "/product-images/f1828a9f-ed79-4b89-93c6-71a8f8078b58.jpg",
+      "bytes": 80853,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "db42aeeb-0b90-4a7b-9860-7fbeefd758e3",
+      "path": "/product-images/db42aeeb-0b90-4a7b-9860-7fbeefd758e3.jpg",
+      "bytes": 41141,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "3b0622be-2693-4135-beb5-047ef1c9856e",
+      "path": "/product-images/3b0622be-2693-4135-beb5-047ef1c9856e.jpg",
+      "bytes": 30531,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "a5f3d1f3-65f8-47c4-99a9-28003cafab87",
+      "path": "/product-images/a5f3d1f3-65f8-47c4-99a9-28003cafab87.jpg",
+      "bytes": 32292,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "a828ed1a-d542-490c-9fce-4726a7ab2666",
+      "path": "/product-images/a828ed1a-d542-490c-9fce-4726a7ab2666.jpg",
+      "bytes": 30256,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "18c8f10d-5c61-4b02-8ef8-153d49f972cb",
+      "path": "/product-images/18c8f10d-5c61-4b02-8ef8-153d49f972cb.jpg",
+      "bytes": 33854,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "a79adc9c-34ca-4689-a1cb-575539fcd0c7",
+      "path": "/product-images/a79adc9c-34ca-4689-a1cb-575539fcd0c7.jpg",
+      "bytes": 49399,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "62c412d7-1b4d-41d9-8f6c-11b9487ac6c8",
+      "path": "/product-images/62c412d7-1b4d-41d9-8f6c-11b9487ac6c8.jpg",
+      "bytes": 26203,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "3be75008-a21a-4ae8-bb59-dc31ae4f4d8c",
+      "path": "/product-images/3be75008-a21a-4ae8-bb59-dc31ae4f4d8c.jpg",
+      "bytes": 52153,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "bfcdc41d-a6b9-4d5c-abfd-0b7fb87a8511",
+      "path": "/product-images/bfcdc41d-a6b9-4d5c-abfd-0b7fb87a8511.jpg",
+      "bytes": 52153,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "e4600dc0-b763-4957-9fe9-e94a37dfb261",
+      "path": "/product-images/e4600dc0-b763-4957-9fe9-e94a37dfb261.jpg",
+      "bytes": 52153,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "9a71d049-24e4-44e1-8709-53fb5584f543",
+      "path": "/product-images/9a71d049-24e4-44e1-8709-53fb5584f543.jpg",
+      "bytes": 9655,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "f84bbc28-3457-4243-b343-6bbc37fa9768",
+      "path": "/product-images/f84bbc28-3457-4243-b343-6bbc37fa9768.jpg",
+      "bytes": 13286,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "54149679-862a-4fce-9d56-fec0820e8bcf",
+      "path": "/product-images/54149679-862a-4fce-9d56-fec0820e8bcf.jpg",
+      "bytes": 65986,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "0e6b8d74-be4b-4114-bafd-de9fdcd6508d",
+      "path": "/product-images/0e6b8d74-be4b-4114-bafd-de9fdcd6508d.jpg",
+      "bytes": 65986,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "456181ff-b5a1-4f4c-9cd5-5ee04785c350",
+      "path": "/product-images/456181ff-b5a1-4f4c-9cd5-5ee04785c350.jpg",
+      "bytes": 27574,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "bca99397-74d6-46fc-83f8-9081a97f70b5",
+      "path": "/product-images/bca99397-74d6-46fc-83f8-9081a97f70b5.jpg",
+      "bytes": 33529,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "619c9521-7681-49af-9fbe-0f6e50852e51",
+      "path": "/product-images/619c9521-7681-49af-9fbe-0f6e50852e51.jpg",
+      "bytes": 36600,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "7a220567-5719-4c9a-97c1-5d769e8a642b",
+      "path": "/product-images/7a220567-5719-4c9a-97c1-5d769e8a642b.jpg",
+      "bytes": 9857,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "8a60bc97-d389-41d1-9ecf-90c746972c5b",
+      "path": "/product-images/8a60bc97-d389-41d1-9ecf-90c746972c5b.jpg",
+      "bytes": 10040,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "cffd79b5-ba12-41ef-93c8-840060f0ca9c",
+      "path": "/product-images/cffd79b5-ba12-41ef-93c8-840060f0ca9c.jpg",
+      "bytes": 73057,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "08c8136c-1aa3-4898-8d97-e22081b7e5b8",
+      "path": "/product-images/08c8136c-1aa3-4898-8d97-e22081b7e5b8.jpg",
+      "bytes": 64732,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "14151960-1329-4a49-8c21-836443b1528b",
+      "path": "/product-images/14151960-1329-4a49-8c21-836443b1528b.jpg",
+      "bytes": 56074,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "9cc2a226-5ec0-48d6-b2ce-fd918b20a327",
+      "path": "/product-images/9cc2a226-5ec0-48d6-b2ce-fd918b20a327.jpg",
+      "bytes": 36885,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "533f26f9-befa-48f5-b2b7-08942131ce16",
+      "path": "/product-images/533f26f9-befa-48f5-b2b7-08942131ce16.jpg",
+      "bytes": 34749,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "e82e470c-3809-45f6-9125-3a6f6b0b0689",
+      "path": "/product-images/e82e470c-3809-45f6-9125-3a6f6b0b0689.jpg",
+      "bytes": 86472,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "0ddfde28-c243-40ec-9a61-798828fe57cc",
+      "path": "/product-images/0ddfde28-c243-40ec-9a61-798828fe57cc.jpg",
+      "bytes": 52995,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "b7294cab-183a-40b4-b39f-fd0e1d089e3b",
+      "path": "/product-images/b7294cab-183a-40b4-b39f-fd0e1d089e3b.jpg",
+      "bytes": 45184,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "a2acbedd-57f5-4317-8c9b-6cbf83e7340f",
+      "path": "/product-images/a2acbedd-57f5-4317-8c9b-6cbf83e7340f.jpg",
+      "bytes": 47119,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "ab593b74-6063-41a7-9517-38054678db9f",
+      "path": "/product-images/ab593b74-6063-41a7-9517-38054678db9f.jpg",
+      "bytes": 45755,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "c29084c2-65bd-4fee-8526-5a9904f1f9f4",
+      "path": "/product-images/c29084c2-65bd-4fee-8526-5a9904f1f9f4.jpg",
+      "bytes": 53071,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "815e068d-5c06-4985-b476-9dea7090400e",
+      "path": "/product-images/815e068d-5c06-4985-b476-9dea7090400e.jpg",
+      "bytes": 56150,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "05f8df33-3bdb-4ce8-9eb1-da5f9fef4afe",
+      "path": "/product-images/05f8df33-3bdb-4ce8-9eb1-da5f9fef4afe.jpg",
+      "bytes": 54921,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "264a5a80-a2b6-430b-856d-ecc2c67040cf",
+      "path": "/product-images/264a5a80-a2b6-430b-856d-ecc2c67040cf.jpg",
+      "bytes": 56880,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "c0afdfcb-c283-4482-b455-f9b234698a6b",
+      "path": "/product-images/c0afdfcb-c283-4482-b455-f9b234698a6b.jpg",
+      "bytes": 38521,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "c0d84964-0012-419b-92a1-1af5d9f3be54",
+      "path": "/product-images/c0d84964-0012-419b-92a1-1af5d9f3be54.jpg",
+      "bytes": 33779,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "4bc3cf11-61d4-4b5f-a0d7-0dc404cdfb16",
+      "path": "/product-images/4bc3cf11-61d4-4b5f-a0d7-0dc404cdfb16.jpg",
+      "bytes": 67952,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "47fd6ff7-a01c-491e-9882-8d329dbffe64",
+      "path": "/product-images/47fd6ff7-a01c-491e-9882-8d329dbffe64.jpg",
+      "bytes": 35373,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "68db18fb-6282-48be-af07-ed5e7e8759a7",
+      "path": "/product-images/68db18fb-6282-48be-af07-ed5e7e8759a7.jpg",
+      "bytes": 60822,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "c9b91ec9-28a9-4729-a9f1-e97748fd4c67",
+      "path": "/product-images/c9b91ec9-28a9-4729-a9f1-e97748fd4c67.jpg",
+      "bytes": 129663,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "38220d71-1b67-4060-b111-321335c7ad42",
+      "path": "/product-images/38220d71-1b67-4060-b111-321335c7ad42.jpg",
+      "bytes": 147713,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "5e46516f-c7f1-4747-9cf4-9677ff7926c3",
+      "path": "/product-images/5e46516f-c7f1-4747-9cf4-9677ff7926c3.jpg",
+      "bytes": 66751,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "65259f67-0605-47d2-ac2c-a94ded09fd33",
+      "path": "/product-images/65259f67-0605-47d2-ac2c-a94ded09fd33.jpg",
+      "bytes": 68030,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "72cd651c-e9c1-4b69-84ea-58177e9b830c",
+      "path": "/product-images/72cd651c-e9c1-4b69-84ea-58177e9b830c.jpg",
+      "bytes": 131456,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "b5afa460-0744-4024-9e43-56eee4b555aa",
+      "path": "/product-images/b5afa460-0744-4024-9e43-56eee4b555aa.jpg",
+      "bytes": 122441,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "67a1d953-7d2a-4b59-8290-20fa6e30146f",
+      "path": "/product-images/67a1d953-7d2a-4b59-8290-20fa6e30146f.jpg",
+      "bytes": 12616,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "8744234c-7116-4323-b381-97509d58d855",
+      "path": "/product-images/8744234c-7116-4323-b381-97509d58d855.jpg",
+      "bytes": 13571,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "babb8092-e3f4-4c4b-887a-6287511eb24b",
+      "path": "/product-images/babb8092-e3f4-4c4b-887a-6287511eb24b.jpg",
+      "bytes": 14783,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "a1185234-d21f-4f94-977a-552e4b931281",
+      "path": "/product-images/a1185234-d21f-4f94-977a-552e4b931281.jpg",
+      "bytes": 40224,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "c2221daa-d99e-4a14-858d-510776b8a6cf",
+      "path": "/product-images/c2221daa-d99e-4a14-858d-510776b8a6cf.jpg",
+      "bytes": 73057,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "419862ab-f3e3-4715-a4d6-565cc2910b37",
+      "path": "/product-images/419862ab-f3e3-4715-a4d6-565cc2910b37.jpg",
+      "bytes": 31814,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "daaebf0d-2474-4af1-80e3-e788c81c4cec",
+      "path": "/product-images/daaebf0d-2474-4af1-80e3-e788c81c4cec.jpg",
+      "bytes": 40133,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "09e77d33-b882-4757-815b-cbf57a0bf677",
+      "path": "/product-images/09e77d33-b882-4757-815b-cbf57a0bf677.jpg",
+      "bytes": 33601,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "0cb31bd4-10f7-4c3c-a7a6-bc5ae6cef273",
+      "path": "/product-images/0cb31bd4-10f7-4c3c-a7a6-bc5ae6cef273.jpg",
+      "bytes": 6576,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "a8762513-8345-4018-ba8c-437dd0b3b25f",
+      "path": "/product-images/a8762513-8345-4018-ba8c-437dd0b3b25f.jpg",
+      "bytes": 6881,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "4c77b4e0-43f3-4574-97f4-efcbc2648fd8",
+      "path": "/product-images/4c77b4e0-43f3-4574-97f4-efcbc2648fd8.jpg",
+      "bytes": 8112,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "dec26998-11f4-4476-863f-2d95560238e6",
+      "path": "/product-images/dec26998-11f4-4476-863f-2d95560238e6.jpg",
+      "bytes": 19149,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "dfe973e9-6800-45d3-aeb3-d33b109f7535",
+      "path": "/product-images/dfe973e9-6800-45d3-aeb3-d33b109f7535.jpg",
+      "bytes": 20460,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "c5a0d9b5-5f66-4195-9e1a-12a61a88c49c",
+      "path": "/product-images/c5a0d9b5-5f66-4195-9e1a-12a61a88c49c.jpg",
+      "bytes": 23061,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "bf669cd5-8986-4b9b-b70e-a80543f98ec1",
+      "path": "/product-images/bf669cd5-8986-4b9b-b70e-a80543f98ec1.jpg",
+      "bytes": 47084,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "6cdf5507-d167-4214-ab66-f10073a749ee",
+      "path": "/product-images/6cdf5507-d167-4214-ab66-f10073a749ee.jpg",
+      "bytes": 35829,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "63780734-951a-4ece-840a-f5c93f2bfd3d",
+      "path": "/product-images/63780734-951a-4ece-840a-f5c93f2bfd3d.jpg",
+      "bytes": 69868,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "156b634c-7fcc-4a03-b859-50489bc41389",
+      "path": "/product-images/156b634c-7fcc-4a03-b859-50489bc41389.jpg",
+      "bytes": 48260,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "b4ce7e72-97ab-412f-a006-318121e80ad1",
+      "path": "/product-images/b4ce7e72-97ab-412f-a006-318121e80ad1.jpg",
+      "bytes": 33352,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "2eae4758-6edd-4bda-974f-3e10d11ac823",
+      "path": "/product-images/2eae4758-6edd-4bda-974f-3e10d11ac823.jpg",
+      "bytes": 29231,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "b6e8ae46-31df-4631-a77f-03800eeeb91a",
+      "path": "/product-images/b6e8ae46-31df-4631-a77f-03800eeeb91a.jpg",
+      "bytes": 49034,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "eb43d7cb-5701-47db-b067-3b3ad97981f6",
+      "path": "/product-images/eb43d7cb-5701-47db-b067-3b3ad97981f6.jpg",
+      "bytes": 33243,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "0fd181ec-55a8-4140-8680-f3127aea4a00",
+      "path": "/product-images/0fd181ec-55a8-4140-8680-f3127aea4a00.jpg",
+      "bytes": 31724,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "603c8520-2eae-499a-8ca6-71de9ddda5c9",
+      "path": "/product-images/603c8520-2eae-499a-8ca6-71de9ddda5c9.jpg",
+      "bytes": 31724,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "1b62c7e7-7473-4c7e-b9dd-31e607b15488",
+      "path": "/product-images/1b62c7e7-7473-4c7e-b9dd-31e607b15488.jpg",
+      "bytes": 29861,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "e31e8c8f-b9db-42de-b578-d53db047ad4d",
+      "path": "/product-images/e31e8c8f-b9db-42de-b578-d53db047ad4d.jpg",
+      "bytes": 39509,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "75ae11d7-93b2-4676-af7f-7a1737d271f2",
+      "path": "/product-images/75ae11d7-93b2-4676-af7f-7a1737d271f2.jpg",
+      "bytes": 44892,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "c56c39bf-9724-4377-ab3e-b3b81260d95c",
+      "path": "/product-images/c56c39bf-9724-4377-ab3e-b3b81260d95c.jpg",
+      "bytes": 61150,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "3df84a25-8aa4-4037-a2d1-7ea820fadee7",
+      "path": "/product-images/3df84a25-8aa4-4037-a2d1-7ea820fadee7.jpg",
+      "bytes": 40375,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "6c13fe15-84c6-4427-a64d-c6cda2daa3ce",
+      "path": "/product-images/6c13fe15-84c6-4427-a64d-c6cda2daa3ce.jpg",
+      "bytes": 35956,
+      "mime": "image/jpeg"
+    },
+    {
+      "id": "78759a95-b259-4e48-9a51-ec07f4752c8b",
+      "path": "/product-images/78759a95-b259-4e48-9a51-ec07f4752c8b.jpg",
+      "bytes": 44244,
+      "mime": "image/jpeg"
+    }
+  ]
+}
