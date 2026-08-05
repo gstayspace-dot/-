@@ -260,7 +260,7 @@ export default function AdminProductsPage() {
           <a href="/admin/qr" className="text-sm text-gray-500 hover:text-gray-700 font-medium transition-colors">
             📱 QR
           </a>
-          <a href="/" target="_blank" rel="noopener noreferrer" className="text-sm text-orange-500 hover:text-orange-600 font-semibold transition-colors">
+          <a href="/living-live" target="_blank" rel="noopener noreferrer" className="text-sm text-orange-500 hover:text-orange-600 font-semibold transition-colors">
             📺 라이브 보기 →
           </a>
           <button
