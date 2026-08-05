@@ -1,0 +1,16 @@
+.git
+.github
+node_modules
+.next
+.claude
+.agents
+*.zip
+*-before-image-restore.json
+aside-mcp
+aside-prototype
+tiktok-bot
+.tmp-order-template
+.deploy-kshot-20260707
+.codex-deploy-order-excel-f12bc55
+orders-current-before-image-restore.json
+products-current-before-image-restore.json
