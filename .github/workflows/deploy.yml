@@ -1,50 +1,27 @@
-name: Deploy to Cloud Run
+name: Inspect current production source
 
-# main 브랜치에 push되면 자동 배포. 수동 실행도 가능(Actions 탭 → Run workflow).
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      id-token: write        # Workload Identity Federation에 필요
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+permissions:
+  contents: read
+  id-token: write
 
-      - name: Authenticate to Google Cloud (키 없는 WIF)
-        uses: google-github-actions/auth@v2
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: google-github-actions/auth@v2
         with:
           project_id: primeval-falcon-491105-i9
           workload_identity_provider: projects/865821327055/locations/global/workloadIdentityPools/github-pool/providers/github-provider
           service_account: github-deployer@primeval-falcon-491105-i9.iam.gserviceaccount.com
-
-      - name: Set up gcloud
-        uses: google-github-actions/setup-gcloud@v2
-
-      - name: Deploy to Cloud Run
-        env:
-          JUSO_API_KEY: ${{ secrets.JUSO_API_KEY }}
-          KSHOT_API_KEY: ${{ secrets.KSHOT_API_KEY }}
-        run: |
-          if [ -z "$JUSO_API_KEY" ]; then
-            echo '::error::GitHub Secret JUSO_API_KEY is not set'
-            exit 1
-          fi
-
-          ENV_VARS="JUSO_API_KEY=$JUSO_API_KEY,KSHOT_USER_ID=cyj_001,KSHOT_SENDER=01091058444,KSHOT_TEST_MODE=N,ADMIN_PHONE=01033328459"
-          if [ -n "$KSHOT_API_KEY" ]; then
-            ENV_VARS="$ENV_VARS,KSHOT_API_KEY=$KSHOT_API_KEY"
-          else
-            echo '::warning::GitHub Secret KSHOT_API_KEY is not set; preserving existing Cloud Run KSHOT_API_KEY if any'
-          fi
-
-          gcloud run deploy yeongjinsangsa \
-            --source . \
-            --region asia-northeast3 \
-            --update-env-vars "$ENV_VARS" \
-            --quiet
+      - uses: google-github-actions/setup-gcloud@v2
+      - name: Read deployment metadata without environment values
+        run: python3 scripts/inspect-current-source.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: current-source-metadata
+          path: inspection/current-source.json
+          retention-days: 1
