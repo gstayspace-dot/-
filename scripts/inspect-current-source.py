@@ -43,20 +43,3 @@ for location in [REGION, "global"]:
 pathlib.Path("inspection").mkdir(exist_ok=True)
 pathlib.Path("inspection/current-source.json").write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
 print(json.dumps(report, ensure_ascii=False, indent=2))
-
-import zipfile
-uri = json.loads(annotations["run.googleapis.com/build-source-location"])
-assert len(uri) == 1
-source_uri = next(iter(uri.values()))
-archive = pathlib.Path("current-source.zip")
-result = subprocess.run(["gcloud", "storage", "cp", source_uri, str(archive), "--quiet"], capture_output=True, text=True)
-if result.returncode:
-    raise RuntimeError("Current source download unavailable")
-with zipfile.ZipFile(archive) as z:
-    selected = [n for n in z.namelist() if n.endswith(("live/overlay/overlay.css","live/overlay/page.tsx")) or n in ["Dockerfile", "next.config.js", "next.config.mjs", "package.json"]]
-    for name in selected:
-        content = z.read(name).decode("utf-8")
-        print("SOURCE_FILE_BEGIN " + name)
-        print(content)
-        print("SOURCE_FILE_END " + name)
-    assert any(n.endswith("live/overlay/overlay.css") for n in selected)

@@ -1,5 +1,5 @@
 /* 리빙라방 반복 모션 + 정상가/할인가 강조. OBS 사용자 지정 CSS 또는 운영 overlay.css 끝에 적용. */
-html,body{background:transparent!important;margin:0;overflow:hidden}
+html:has(.live-overlay),body:has(.live-overlay){background:transparent!important;margin:0;overflow:hidden}
 .live-banner{
   position:relative;isolation:isolate;gap:18px;
   background:radial-gradient(ellipse at 75% 5%,#542c37 0,transparent 58%),linear-gradient(115deg,#24252b,#101014);

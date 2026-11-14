@@ -1,15 +1,16 @@
-name: Inspect current production source
-
+name: Apply looping overlay to current production
 on:
   workflow_dispatch:
-
 permissions:
   contents: read
   id-token: write
-
+concurrency:
+  group: living-overlay-production
+  cancel-in-progress: false
 jobs:
-  inspect:
+  apply-motion:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - uses: google-github-actions/auth@v2
@@ -18,10 +19,11 @@ jobs:
           workload_identity_provider: projects/865821327055/locations/global/workloadIdentityPools/github-pool/providers/github-provider
           service_account: github-deployer@primeval-falcon-491105-i9.iam.gserviceaccount.com
       - uses: google-github-actions/setup-gcloud@v2
-      - name: Read deployment metadata without environment values
-        run: python3 scripts/inspect-current-source.py
+      - name: Recover current source and apply only overlay CSS
+        run: python3 scripts/deploy-current-motion.py
       - uses: actions/upload-artifact@v4
+        if: success()
         with:
-          name: current-source-metadata
-          path: inspection/current-source.json
-          retention-days: 1
+          name: motion-deployment-result
+          path: inspection/motion-deployment.json
+          retention-days: 7
