@@ -1,7 +1,5 @@
 name: Fix administrator login origins
 on:
-  push:
-    branches: [fix/admin-login-origins]
   workflow_dispatch:
 permissions:
   contents: read
@@ -21,5 +19,5 @@ jobs:
           workload_identity_provider: projects/865821327055/locations/global/workloadIdentityPools/github-pool/providers/github-provider
           service_account: github-deployer@primeval-falcon-491105-i9.iam.gserviceaccount.com
       - uses: google-github-actions/setup-gcloud@v2
-      - name: Inspect current login origin policy
+      - name: Apply and verify owned administrator login origins
         run: python3 scripts/inspect-login-origin.py
