@@ -17,6 +17,7 @@ def routing(s):return {x["revisionName"]:x["percent"] for x in s["status"]["traf
 def runtime(s):
     d=copy.deepcopy(s["spec"]["template"]["spec"])
     for c in d["containers"]:
+        c.pop("name",None)  # Cloud Run assigns a name in revision records for a single unnamed container.
         c["env"]=sorted([x for x in c.get("env",[]) if x["name"]!="ADMIN_ALLOWED_ORIGINS"],key=lambda x:x["name"])
     return d
 def call(url,origin=None,body=None,site="same-origin",opener=None):
@@ -75,13 +76,6 @@ candidate=service()
 new_revision=candidate["status"]["latestReadyRevisionName"]
 assert new_revision!=EXPECTED
 assert routing(candidate)=={EXPECTED:100},"Traffic changed unexpectedly"
-def differences(a,b,path=""):
-    if isinstance(a,dict) and isinstance(b,dict):
-        return sum([differences(a.get(k),b.get(k),path+"."+k) for k in set(a)|set(b)],[])
-    if isinstance(a,list) and isinstance(b,list) and len(a)==len(b):
-        return sum([differences(x,y,path+"."+str(i)) for i,(x,y) in enumerate(zip(a,b))],[])
-    return [] if a==b else [path+(" "+repr(a)+" vs "+repr(b) if ".env" not in path else " [values hidden]")]
-print("RUNTIME_DIFFERENCES",differences(runtime(candidate),runtime(before)),flush=True)
 assert runtime(candidate)==runtime(before),"Unrelated runtime setting changed"
 def runtime_annotations(value):
     return {k:v for k,v in value["spec"]["template"]["metadata"].get("annotations",{}).items() if k not in ["run.googleapis.com/client-name","run.googleapis.com/client-version","run.googleapis.com/operation-id"]}
@@ -110,4 +104,4 @@ except Exception:
         print("Restored previous production traffic",flush=True)
     raise
 finally:
-    cloud("run","services","update-traffic",SERVICE,"--region",REGION,"--remove-tags",",".join([TAG]+[x["tag"] for x in before["status"]["traffic"] if x.get("tag") in ["login-22056052","login-22195985"]]))
+    cloud("run","services","update-traffic",SERVICE,"--region",REGION,"--remove-tags",",".join([TAG]+[x["tag"] for x in before["status"]["traffic"] if x.get("tag") in ["login-22056052","login-22195985","login-22605034","login-22851533"]]))
