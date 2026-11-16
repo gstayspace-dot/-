@@ -1,4 +1,4 @@
-import json,pathlib,subprocess,zipfile,re
+import json,pathlib,subprocess,zipfile,re,tarfile
 PROJECT="primeval-falcon-491105-i9"
 REGION="asia-northeast3"
 SERVICE="yeongjinsangsa"
@@ -25,11 +25,20 @@ sources=json.loads(uri)
 assert len(sources)==1
 cloud("storage","cp",next(iter(sources.values())),"/tmp/living-current.zip")
 print("METADATA "+json.dumps({"revision":name,"source_uri":next(iter(sources.values())),"image":r["spec"]["containers"][0]["image"]}),flush=True)
-with zipfile.ZipFile("/tmp/living-current.zip") as z:
- for name in ["app/admin/live-control/page.tsx","app/api/live/current/route.ts","lib/live-overlay-server.ts","lib/use-live-current.ts","middleware.ts","lib/admin-auth.ts","app/api/admin/login/route.ts"]:
-  if name not in z.namelist():continue
-  content=z.read(name).decode("utf-8")
-  content=re.sub(r'((?:PASSWORD|SECRET|TOKEN|PRIVATE_KEY)\s*=\s*)[\'"][^\'"]+[\'"]',r'\1"[REDACTED]"',content,flags=re.I)
-  print("SOURCE_FILE_BEGIN "+name,flush=True)
-  print(content,flush=True)
-  print("SOURCE_FILE_END "+name,flush=True)
+archive="/tmp/living-current.zip"
+if zipfile.is_zipfile(archive):
+ z=zipfile.ZipFile(archive)
+ names=z.namelist()
+ read_file=lambda n:z.read(n)
+else:
+ z=tarfile.open(archive,"r:*")
+ names=z.getnames()
+ read_file=lambda n:z.extractfile(n).read()
+for name in ["app/admin/live-control/page.tsx","app/api/live/current/route.ts","lib/live-overlay-server.ts","lib/use-live-current.ts","middleware.ts","lib/admin-auth.ts","app/api/admin/login/route.ts"]:
+ matches=[n for n in names if n.lstrip("./")==name]
+ if not matches:continue
+ content=read_file(matches[0]).decode("utf-8")
+ content=re.sub(r'((?:PASSWORD|SECRET|TOKEN|PRIVATE_KEY)\s*=\s*)[\'"][^\'"]+[\'"]',r'\1"[REDACTED]"',content,flags=re.I)
+ print("SOURCE_FILE_BEGIN "+name,flush=True)
+ print(content,flush=True)
+ print("SOURCE_FILE_END "+name,flush=True)
