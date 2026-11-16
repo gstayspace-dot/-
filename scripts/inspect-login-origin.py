@@ -75,6 +75,13 @@ candidate=service()
 new_revision=candidate["status"]["latestReadyRevisionName"]
 assert new_revision!=EXPECTED
 assert routing(candidate)=={EXPECTED:100},"Traffic changed unexpectedly"
+def differences(a,b,path=""):
+    if isinstance(a,dict) and isinstance(b,dict):
+        return sum([differences(a.get(k),b.get(k),path+"."+k) for k in set(a)|set(b)],[])
+    if isinstance(a,list) and isinstance(b,list) and len(a)==len(b):
+        return sum([differences(x,y,path+"."+str(i)) for i,(x,y) in enumerate(zip(a,b))],[])
+    return [] if a==b else [path+(" "+repr(a)+" vs "+repr(b) if ".env" not in path else " [values hidden]")]
+print("RUNTIME_DIFFERENCES",differences(runtime(candidate),runtime(before)),flush=True)
 assert runtime(candidate)==runtime(before),"Unrelated runtime setting changed"
 def runtime_annotations(value):
     return {k:v for k,v in value["spec"]["template"]["metadata"].get("annotations",{}).items() if k not in ["run.googleapis.com/client-name","run.googleapis.com/client-version","run.googleapis.com/operation-id"]}
