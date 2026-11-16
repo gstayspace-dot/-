@@ -1,5 +1,5 @@
 """Apply the scoped broadcast-origin fix to the exact serving source."""
-import copy,hashlib,http.cookiejar,json,os,pathlib,stat,subprocess,tarfile,tempfile,time,urllib.error,urllib.request,zipfile
+import copy,hashlib,http.cookiejar,json,os,pathlib,re,stat,subprocess,tarfile,tempfile,time,urllib.error,urllib.request,zipfile
 PROJECT="primeval-falcon-491105-i9"; REGION="asia-northeast3"; SERVICE="yeongjinsangsa"
 EXPECTED="yeongjinsangsa-00215-buf"
 IMAGE="sha256:3c9d919fdf88a34a55ce8a0cf99b804d1b7a4bff113dc9e6ca36a8e7dfdca383"
@@ -91,7 +91,44 @@ with tempfile.TemporaryDirectory(prefix="living-pc-control-") as td:
  assert service()["metadata"]["generation"]==before["metadata"]["generation"],"Concurrent deployment"
  print("Verified exact serving source; only "+TARGET+" changes",flush=True)
  stage="build candidate"
- cloud("run","deploy",SERVICE,"--source",str(source),"--region",REGION,"--no-traffic","--tag",TAG)
+ # Reproduce the currently serving image's public Docker build arguments.
+ # They are intentionally browser-visible; never read server secrets into build args.
+ builds=read("builds","list","--region",REGION,"--limit","40")
+ matches=[b for b in builds if any(x.get("digest")==IMAGE for x in b.get("results",{}).get("images",[]))]
+ assert matches,"Original build provenance unavailable"
+ original_build=read("builds","describe",matches[0]["id"],"--region",REGION)
+ substitutions={**original_build.get("substitutions",{}),"PROJECT_ID":PROJECT}
+ def resolve(value):
+  value=re.sub(r"\$\{([A-Za-z0-9_]+)\}",lambda m:substitutions.get(m[1],m[0]),value)
+  value=re.sub(r"\$([A-Za-z0-9_]+)",lambda m:substitutions.get(m[1],m[0]),value)
+  assert "$" not in value,"Unresolved original public build argument"
+  return value
+ dockerfile=(source/"Dockerfile").read_text(encoding="utf-8")
+ declared=dict((key,default or "") for key,default in re.findall(r"^ARG (NEXT_PUBLIC_[A-Z0-9_]+)(?:=([^\n]*))?$",dockerfile,re.M))
+ public_args=dict(declared)
+ for step in original_build["steps"]:
+  args=step.get("args",[])
+  step_env={x.split("=",1)[0]:resolve(x.split("=",1)[1]) for x in step.get("env",[]) if "=" in x and x.startswith("NEXT_PUBLIC_")}
+  for i,arg in enumerate(args):
+   value=args[i+1] if arg=="--build-arg" and i+1<len(args) else arg.split("=",1)[1] if arg.startswith("--build-arg=") else None
+   if value:
+    key,sep,content=value.partition("=")
+    if key in declared:
+     public_args[key]=resolve(content) if sep else step_env.get(key,"")
+ assert public_args.get("NEXT_PUBLIC_SUPABASE_URL") and public_args.get("NEXT_PUBLIC_SUPABASE_ANON_KEY"),"Original public Supabase build settings unavailable"
+ assert all(key.startswith("NEXT_PUBLIC_") for key in public_args)
+ image_tag="asia-northeast3-docker.pkg.dev/"+PROJECT+"/cloud-run-source-deploy/"+SERVICE+":pc-control-"+os.environ["GITHUB_RUN_ID"]
+ args=["build","-t",image_tag]
+ for key in public_args:args+=["--build-arg",key]
+ args+=["."]
+ build_config={"steps":[{"name":"gcr.io/cloud-builders/docker","args":args,"env":[key+"="+value for key,value in public_args.items()]}],"images":[image_tag],"options":{"logging":"CLOUD_LOGGING_ONLY"}}
+ if original_build.get("serviceAccount"):build_config["serviceAccount"]=original_build["serviceAccount"]
+ config_file=root/"cloudbuild.json";config_file.write_text(json.dumps(build_config),encoding="utf-8")
+ print("Preserving original public Docker argument names: "+",".join(sorted(public_args)),flush=True)
+ stage="build exact source with preserved public settings"
+ cloud("builds","submit",str(source),"--config",str(config_file),"--region",REGION)
+ stage="deploy verified-settings candidate"
+ cloud("run","deploy",SERVICE,"--image",image_tag,"--region",REGION,"--no-traffic","--tag",TAG)
  candidate=service();candidate_name=candidate["status"]["latestReadyRevisionName"]
  assert candidate_name!=EXPECTED and routing(candidate)=={EXPECTED:100}
  assert runtime(candidate)==runtime(before),"Unrelated runtime setting changed"
@@ -114,7 +151,7 @@ with tempfile.TemporaryDirectory(prefix="living-pc-control-") as td:
   final=service()
   assert routing(final)=={candidate_name:100} and runtime(final)==runtime(before)
   state=call(DOMAINS[0],"/api/live/current")[1]
-  report={"success":True,"old_revision":EXPECTED,"new_revision":candidate_name,"changed_files":[TARGET],"runtime_preserved":True,"verification_sent_no_broadcast_mutations":True,"checks":result}
+  report={"success":True,"old_revision":EXPECTED,"new_revision":candidate_name,"changed_files":[TARGET],"runtime_preserved":True,"public_build_arguments_preserved":True,"verification_sent_no_broadcast_mutations":True,"checks":result}
   print("DEPLOYMENT_RESULT "+json.dumps(report,ensure_ascii=False),flush=True)
  except Exception:
   if promoted and routing(service())=={candidate_name:100}:
@@ -122,4 +159,4 @@ with tempfile.TemporaryDirectory(prefix="living-pc-control-") as td:
    print("Restored previous traffic",flush=True)
   raise
  finally:
-  cloud("run","services","update-traffic",SERVICE,"--region",REGION,"--remove-tags",TAG)
+  cloud("run","services","update-traffic",SERVICE,"--region",REGION,"--remove-tags",TAG+",pc-control-29437936")
