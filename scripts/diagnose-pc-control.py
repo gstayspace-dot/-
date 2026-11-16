@@ -67,7 +67,7 @@ for origin in DOMAINS:
 cloud("storage","cp",SOURCE,"/tmp/live-source.tgz")
 with tarfile.open("/tmp/live-source.tgz","r:*") as z:
  for n in z.getnames():
-  if n.lstrip("./")=="lib/receipt-admin-auth.ts":
-   print("SOURCE_FILE_BEGIN lib/receipt-admin-auth.ts",flush=True)
+  if n.lstrip("./") in ["Dockerfile","next.config.mjs"]:
+   print("SOURCE_FILE_BEGIN "+n,flush=True)
    print(z.extractfile(n).read().decode(),flush=True)
-   print("SOURCE_FILE_END lib/receipt-admin-auth.ts",flush=True)
+   print("SOURCE_FILE_END "+n,flush=True)
