@@ -1,5 +1,7 @@
-name: Apply looping overlay to current production
+name: Fix administrator login origins
 on:
+  push:
+    branches: [fix/admin-login-origins]
   workflow_dispatch:
 permissions:
   contents: read
@@ -8,7 +10,7 @@ concurrency:
   group: living-overlay-production
   cancel-in-progress: false
 jobs:
-  apply-motion:
+  login-origins:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -19,11 +21,5 @@ jobs:
           workload_identity_provider: projects/865821327055/locations/global/workloadIdentityPools/github-pool/providers/github-provider
           service_account: github-deployer@primeval-falcon-491105-i9.iam.gserviceaccount.com
       - uses: google-github-actions/setup-gcloud@v2
-      - name: Recover current source and apply only overlay CSS
-        run: python3 scripts/deploy-current-motion.py
-      - uses: actions/upload-artifact@v4
-        if: success()
-        with:
-          name: motion-deployment-result
-          path: inspection/motion-deployment.json
-          retention-days: 7
+      - name: Inspect current login origin policy
+        run: python3 scripts/inspect-login-origin.py
