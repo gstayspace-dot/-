@@ -1,4 +1,4 @@
-name: Inspect PC live control
+name: Repair PC broadcast origin validation
 on:
   push:
     branches: [fix/obs-pc-control]
@@ -7,8 +7,9 @@ permissions:
   contents: read
   id-token: write
 jobs:
-  inspect:
+  deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - uses: google-github-actions/auth@v2
@@ -17,4 +18,4 @@ jobs:
           workload_identity_provider: projects/865821327055/locations/global/workloadIdentityPools/github-pool/providers/github-provider
           service_account: github-deployer@primeval-falcon-491105-i9.iam.gserviceaccount.com
       - uses: google-github-actions/setup-gcloud@v2
-      - run: python3 scripts/inspect-pc-control.py
+      - run: python3 scripts/deploy-pc-control.py
