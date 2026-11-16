@@ -34,7 +34,7 @@ else:
  z=tarfile.open(archive,"r:*")
  names=z.getnames()
  read_file=lambda n:z.extractfile(n).read()
-for name in ["app/admin/live-control/page.tsx","app/api/live/current/route.ts","lib/live-overlay-server.ts","lib/use-live-current.ts","middleware.ts","lib/admin-auth.ts","app/api/admin/login/route.ts"]:
+for name in ["app/admin/live-control/page.tsx","app/api/live/current/route.ts","lib/live-overlay-server.ts","lib/use-live-current.ts","middleware.ts","lib/admin-auth.ts","app/api/admin/login/route.ts","lib/marketing/server.ts","lib/server/auth.ts"]:
  matches=[n for n in names if n.lstrip("./")==name]
  if not matches:continue
  content=read_file(matches[0]).decode("utf-8")
