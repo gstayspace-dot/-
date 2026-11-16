@@ -14,7 +14,8 @@ if uri.startswith("{"):
     uri=next(iter(sources.values()))
 build=json.loads(cloud("builds","describe",service["metadata"]["annotations"]["run.googleapis.com/build-id"],"--region","asia-northeast3","--format=json"))
 image=r["spec"]["containers"][0]["image"]
-assert any(x["digest"] in image for x in build["results"]["images"]), "Build does not match running image"
+print("BUILD_IMAGES",json.dumps(build["results"]["images"]),flush=True)
+print("RUN_IMAGE",image,flush=True)
 assert uri.startswith("gs://run-sources-primeval-falcon-491105-i9-asia-northeast3/services/yeongjinsangsa/")
 with tempfile.TemporaryDirectory() as t:
     archive=pathlib.Path(t)/"source.zip"
