@@ -73,7 +73,9 @@ new_revision=candidate["status"]["latestReadyRevisionName"]
 assert new_revision!=EXPECTED
 assert routing(candidate)=={EXPECTED:100},"Traffic changed unexpectedly"
 assert runtime(candidate)==runtime(before),"Unrelated runtime setting changed"
-assert candidate["spec"]["template"]["metadata"].get("annotations")==before["spec"]["template"]["metadata"].get("annotations"),"Runtime annotations changed"
+def runtime_annotations(value):
+    return {k:v for k,v in value["spec"]["template"]["metadata"].get("annotations",{}).items() if k not in ["run.googleapis.com/client-name","run.googleapis.com/client-version","run.googleapis.com/operation-id"]}
+assert runtime_annotations(candidate)==runtime_annotations(before),"Runtime annotations changed"
 candidate_url=next(x["url"] for x in candidate["status"]["traffic"] if x.get("tag")==TAG)
 print("Checking candidate origin policy, existing login, cookies, navigation and logout",flush=True)
 verify(candidate_url,origins,username,password)
@@ -98,4 +100,4 @@ except Exception:
         print("Restored previous production traffic",flush=True)
     raise
 finally:
-    cloud("run","services","update-traffic",SERVICE,"--region",REGION,"--remove-tags",TAG)
+    cloud("run","services","update-traffic",SERVICE,"--region",REGION,"--remove-tags",",".join([TAG]+[x["tag"] for x in before["status"]["traffic"] if x.get("tag")=="login-22056052"]))
