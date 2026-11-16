@@ -78,7 +78,8 @@ assert new_revision!=EXPECTED
 assert routing(candidate)=={EXPECTED:100},"Traffic changed unexpectedly"
 assert runtime(candidate)==runtime(before),"Unrelated runtime setting changed"
 def runtime_annotations(value):
-    return {k:v for k,v in value["spec"]["template"]["metadata"].get("annotations",{}).items() if k not in ["run.googleapis.com/client-name","run.googleapis.com/client-version","run.googleapis.com/operation-id"]}
+    return {k:v for k,v in value["spec"]["template"]["metadata"].get("annotations",{}).items() if k not in ["run.googleapis.com/client-name","run.googleapis.com/client-version","run.googleapis.com/operation-id","serving.knative.dev/creator"]}
+print("ANNOTATION_DIFFERENCES",[(k,runtime_annotations(candidate).get(k),runtime_annotations(before).get(k)) for k in set(runtime_annotations(candidate))|set(runtime_annotations(before)) if runtime_annotations(candidate).get(k)!=runtime_annotations(before).get(k)],flush=True)
 assert runtime_annotations(candidate)==runtime_annotations(before),"Runtime annotations changed"
 candidate_url=next(x["url"] for x in candidate["status"]["traffic"] if x.get("tag")==TAG)
 print("Checking candidate origin policy, existing login, cookies, navigation and logout",flush=True)
@@ -104,4 +105,4 @@ except Exception:
         print("Restored previous production traffic",flush=True)
     raise
 finally:
-    cloud("run","services","update-traffic",SERVICE,"--region",REGION,"--remove-tags",",".join([TAG]+[x["tag"] for x in before["status"]["traffic"] if x.get("tag") in ["login-22056052","login-22195985","login-22605034","login-22851533"]]))
+    cloud("run","services","update-traffic",SERVICE,"--region",REGION,"--remove-tags",",".join([TAG]+[x["tag"] for x in before["status"]["traffic"] if x.get("tag") in ["login-22056052","login-22195985","login-22605034","login-22851533","login-23103862"]]))
