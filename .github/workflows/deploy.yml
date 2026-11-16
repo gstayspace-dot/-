@@ -1,7 +1,5 @@
 name: Verify and promote PC broadcast repair
 on:
-  push:
-    branches: [fix/obs-pc-control]
   workflow_dispatch:
 permissions:
   contents: read
