@@ -1,0 +1,17 @@
+{
+  "success": true,
+  "old_revision": "yeongjinsangsa-00226-yek",
+  "new_revision": "yeongjinsangsa-00229-tel",
+  "candidate_url": "https://shopping-00709706---yeongjinsangsa-5sundngyeq-du.a.run.app",
+  "tag": "shopping-00709706",
+  "generation": 229,
+  "changed_files": [
+    "app/cart/LegacyCartPage.tsx",
+    "app/components/ConfiguredPurchase.tsx",
+    "app/components/PurchaseConfirmDialog.tsx",
+    "app/product/[id]/LegacyProductPage.tsx"
+  ],
+  "runtime_preserved": true,
+  "public_build_arguments_preserved": true,
+  "traffic_promoted": false
+}

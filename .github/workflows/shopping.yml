@@ -1,4 +1,4 @@
-name: Stage shopping confirmation update
+name: Publish verified shopping update
 on:
   push:
     branches: [fix/product-cart-confirm]
@@ -7,7 +7,7 @@ permissions:
   contents: read
   id-token: write
 jobs:
-  stage:
+  publish:
     runs-on: ubuntu-latest
     timeout-minutes: 35
     steps:
@@ -18,9 +18,9 @@ jobs:
           workload_identity_provider: projects/865821327055/locations/global/workloadIdentityPools/github-pool/providers/github-provider
           service_account: github-deployer@primeval-falcon-491105-i9.iam.gserviceaccount.com
       - uses: google-github-actions/setup-gcloud@v2
-      - name: Build exact live source with requested shopping changes
-        run: python3 patches/shopping/stage-shopping.py
+      - name: Promote browser-verified shopping revision
+        run: python3 patches/shopping/promote-shopping.py
       - uses: actions/upload-artifact@v4
         with:
-          name: shopping-stage
-          path: shopping-stage.json
+          name: shopping-deployment
+          path: shopping-deployment.json
