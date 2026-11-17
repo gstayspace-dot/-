@@ -1,4 +1,4 @@
-name: Inspect product bundle links
+name: Stage cleared product bundle fix
 on:
   push:
     branches: [fix/product-cart-confirm]
@@ -7,58 +7,20 @@ permissions:
   contents: read
   id-token: write
 jobs:
-  inspect:
+  stage:
     runs-on: ubuntu-latest
+    timeout-minutes: 35
     steps:
+      - uses: actions/checkout@v4
       - uses: google-github-actions/auth@v2
         with:
           project_id: primeval-falcon-491105-i9
           workload_identity_provider: projects/865821327055/locations/global/workloadIdentityPools/github-pool/providers/github-provider
           service_account: github-deployer@primeval-falcon-491105-i9.iam.gserviceaccount.com
       - uses: google-github-actions/setup-gcloud@v2
-      - name: Read current bundle management source
-        run: |
-          python3 - <<'PY'
-          import json,pathlib,subprocess,tarfile,zipfile
-          P="primeval-falcon-491105-i9";R="asia-northeast3";S="yeongjinsangsa"
-          def cloud(*a):
-           p=subprocess.run(["gcloud",*a,"--project",P,"--quiet"],capture_output=True,text=True,timeout=180)
-           if p.returncode:raise RuntimeError("Cloud read failed")
-           return p.stdout
-          def read(*a):return json.loads(cloud(*a,"--format=json"))
-          s=read("run","services","describe",S,"--region",R)
-          traffic=[x for x in s["status"]["traffic"] if x.get("percent")]
-          assert len(traffic)==1 and traffic[0]["percent"]==100
-          rev=traffic[0]["revisionName"];d=read("run","revisions","describe",rev,"--region",R)
-          image=d["spec"]["containers"][0]["image"]
-          bs=read("builds","list","--region",R,"--limit","50")
-          b=next(b for b in bs if any(x.get("digest") and x["digest"] in image for x in b.get("results",{}).get("images",[])))
-          src=b["source"]["storageSource"];uri="gs://"+src["bucket"]+"/"+src["object"]+"#"+str(src["generation"])
-          cloud("storage","cp",uri,"/tmp/current-source")
-          archive="/tmp/current-source"
-          if zipfile.is_zipfile(archive):
-           z=zipfile.ZipFile(archive);names=z.namelist();extract=lambda n:z.read(n)
-          else:
-           z=tarfile.open(archive,"r:*");names=z.getnames();extract=lambda n:z.extractfile(n).read()
-          out=pathlib.Path("bundle-source");out.mkdir()
-          selected=[];matches=[]
-          for n in names:
-           p=n.lstrip("./")
-           if not p.endswith((".ts",".tsx",".sql")) or not p.startswith(("app/","lib/","supabase/")):continue
-           body=extract(n);text=body.decode("utf-8",errors="replace")
-           hits=[line.strip() for line in text.splitlines() if any(x in line for x in ["다른 대표", "기존 연결", "먼저 해제", "연결된 구성"])]
-           if hits:matches.append({"path":p,"lines":hits})
-           if hits or p == "app/components/PurchaseConfigEditor.tsx" or "purchase-config" in p or ("admin" in p and any(k in p.lower() for k in ["product","configuration"])):
-            dest=out/p;dest.parent.mkdir(parents=True,exist_ok=True);dest.write_bytes(body);selected.append(p)
-          report={"revision":rev,"image":image,"source":uri,"build_id":b["id"],"selected":selected,"matches":matches,"candidate_paths":[n for n in names if any(k in n.lower() for k in ["purchase-config","configuration","bundle"]) and n.endswith((".ts",".tsx",".sql"))]}
-          (out/"report.json").write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding="utf-8")
-          print(json.dumps(report,ensure_ascii=False,indent=2))
-          
-          PY
+      - name: Build exact live source with bundle ownership fix
+        run: python3 patches/bundles/stage-bundles.py
       - uses: actions/upload-artifact@v4
         with:
-          name: bundle-source
-          path: bundle-source
-          retention-days: 1
-
-
+          name: bundles-stage
+          path: bundles-stage.json

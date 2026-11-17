@@ -1,0 +1,17 @@
+{
+  "success": true,
+  "cases": [
+    "Cleared records do not own products; their labels and product metadata remain intact",
+    "The actual ten-choice draft can be planned against the current registry without phantom conflicts",
+    "Clearing an owned configuration succeeds even when this product belongs to a different group",
+    "Active shared components stay protected",
+    "Active representative products cannot be nested into another bundle",
+    "A real parent connection is still protected",
+    "Stale configuration versions cannot overwrite changes",
+    "Duplicate selections remain invalid",
+    "Unauthenticated saves remain rejected",
+    "A concurrent active connection is rechecked after optimistic-lock retry",
+    "Concurrent unrelated product changes survive a successful retry"
+  ],
+  "productionDatabaseWrites": 0
+}
