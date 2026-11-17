@@ -1,0 +1,24 @@
+{
+  "success": true,
+  "cases": [
+    "Cleared records do not own products; their labels and product metadata remain intact",
+    "The actual ten-choice draft can be planned against the current registry without phantom conflicts",
+    "Clearing an owned configuration succeeds even when this product belongs to a different group",
+    "The same component can be linked to multiple representatives without changing either existing configuration",
+    "A representative may also be a component and both representatives stay visible in the catalog",
+    "New group configuration does not require removing an existing parent connection",
+    "Stale configuration versions cannot overwrite changes",
+    "Duplicate selections remain invalid",
+    "Unauthenticated saves remain rejected",
+    "Concurrent shared-component saves preserve both configurations after optimistic-lock retry",
+    "Concurrent unrelated product changes survive a successful retry",
+    "Administrator-defined selection heading is saved with each product configuration",
+    "Selection headings reject invalid types and excessive length without writes",
+    "Legacy products retain color labels when no option word is configured",
+    "A new option word updates default customer titles and retains all choices",
+    "Explicit custom customer headings remain independent of the option word",
+    "Administrator option words persist with product configurations",
+    "Invalid option word types and overlong values are rejected without writes"
+  ],
+  "productionDatabaseWrites": 0
+}

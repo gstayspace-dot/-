@@ -1,0 +1,6 @@
+{
+  "lib/purchase-config.ts": "72e5dd37d6706d8da4c34f12b4c13739fc8d31c9e85dc64814c556c6c1f51c04",
+  "app/components/ConfiguredPurchase.tsx": "e53e4244817f32fe0cd4486a192423394fa4d6280b8b1e012eee34da44dd6581",
+  "app/components/PurchaseConfigEditor.tsx": "2def3e830107e6917b9c64760809fee4ca2cc3937063211c8b114e8eb06c9aac",
+  "app/api/products/[id]/configuration/route.ts": "9f96a48bdbce5257cf7c886e7db10ca7373a56af587e4d773fb86deb8d5c20d2"
+}
