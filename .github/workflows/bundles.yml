@@ -1,4 +1,4 @@
-name: Publish shared product bundles and selection labels
+name: Verify completed bundle update
 on:
   push:
     branches: [fix/product-cart-confirm]
@@ -18,9 +18,9 @@ jobs:
           workload_identity_provider: projects/865821327055/locations/global/workloadIdentityPools/github-pool/providers/github-provider
           service_account: github-deployer@primeval-falcon-491105-i9.iam.gserviceaccount.com
       - uses: google-github-actions/setup-gcloud@v2
-      - name: Publish verified shared bundles and heading settings
-        run: python3 patches/bundles/promote-bundles.py
+      - name: Verify production and remove superseded task preview
+        run: python3 patches/bundles/finalize-bundles.py
       - uses: actions/upload-artifact@v4
         with:
-          name: bundles-deployment
-          path: bundles-deployment.json
+          name: bundles-finalization
+          path: bundles-finalization.json

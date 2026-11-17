@@ -1,0 +1,31 @@
+{
+  "success": true,
+  "old_revision": "yeongjinsangsa-00229-tel",
+  "new_revision": "yeongjinsangsa-00232-kaf",
+  "candidate_url": "https://bundles-03643151---yeongjinsangsa-5sundngyeq-du.a.run.app",
+  "tag": "bundles-03643151",
+  "generation": 232,
+  "changed_files": [
+    "app/api/products/[id]/configuration/route.ts",
+    "app/components/ConfiguredPurchase.tsx",
+    "app/components/PurchaseConfigEditor.tsx",
+    "lib/purchase-config-server.ts",
+    "lib/purchase-config.ts",
+    "lib/supabaseClient.ts"
+  ],
+  "runtime_preserved": true,
+  "public_build_arguments_preserved": true,
+  "traffic_promoted": true,
+  "regression_tests_passed": 13,
+  "browser_verified_before_promotion": false,
+  "live_health_verified": true,
+  "user_requested_shared_components": true,
+  "custom_heading_property": "variantsTitle",
+  "browser_verified_after_promotion": true,
+  "admin_input_editable": true,
+  "existing_purchase_confirmation_preserved": true,
+  "production_product_configuration_writes": 0,
+  "stored_orders_unchanged": true,
+  "workflow_run": 44004321006,
+  "source_note": "Applied six scoped files to exact production source; repository root app was not deployed."
+}
