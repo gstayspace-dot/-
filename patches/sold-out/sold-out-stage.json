@@ -1,0 +1,25 @@
+{
+  "success": true,
+  "old_revision": "yeongjinsangsa-00235-mer",
+  "new_revision": "yeongjinsangsa-00238-miy",
+  "candidate_url": "https://sold-out-09381296---yeongjinsangsa-5sundngyeq-du.a.run.app",
+  "tag": "sold-out-09381296",
+  "generation": 238,
+  "changed_files": [
+    "app/api/catalog/route.ts",
+    "app/api/products/[id]/availability/route.ts",
+    "app/api/products/[id]/configuration/route.ts",
+    "app/api/products/[id]/legacy.ts",
+    "app/api/products/legacy.ts",
+    "app/components/ConfiguredPurchase.tsx",
+    "app/components/PurchaseConfigEditor.tsx",
+    "app/product/[id]/LegacyProductPage.tsx",
+    "lib/product-availability.ts",
+    "lib/shipping-server.ts",
+    "lib/supabaseClient.ts",
+    "lib/types.ts"
+  ],
+  "runtime_preserved": true,
+  "public_build_arguments_preserved": true,
+  "traffic_promoted": false
+}

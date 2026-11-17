@@ -1,4 +1,4 @@
-name: Stage shared product sold-out controls
+name: Publish shared product sold-out controls
 on:
   push:
     branches: [fix/product-cart-confirm]
@@ -7,7 +7,7 @@ permissions:
   contents: read
   id-token: write
 jobs:
-  stage:
+  publish:
     runs-on: ubuntu-latest
     timeout-minutes: 35
     steps:
@@ -18,9 +18,9 @@ jobs:
           workload_identity_provider: projects/865821327055/locations/global/workloadIdentityPools/github-pool/providers/github-provider
           service_account: github-deployer@primeval-falcon-491105-i9.iam.gserviceaccount.com
       - uses: google-github-actions/setup-gcloud@v2
-      - name: Build global sold-out controls on exact live source
-        run: python3 patches/sold-out/stage-stock.py
+      - name: Publish tested sold-out controls
+        run: python3 patches/sold-out/promote-stock.py
       - uses: actions/upload-artifact@v4
         with:
-          name: sold-out-stage
-          path: sold-out-stage.json
+          name: sold-out-deployment
+          path: sold-out-deployment.json
