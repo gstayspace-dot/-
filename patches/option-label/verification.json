@@ -1,0 +1,30 @@
+{
+  "success": true,
+  "old_revision": "yeongjinsangsa-00232-kaf",
+  "new_revision": "yeongjinsangsa-00235-mer",
+  "candidate_url": "https://option-label-06659145---yeongjinsangsa-5sundngyeq-du.a.run.app",
+  "tag": "option-label-06659145",
+  "generation": 235,
+  "changed_files": [
+    "app/api/products/[id]/configuration/route.ts",
+    "app/components/ConfiguredPurchase.tsx",
+    "app/components/PurchaseConfigEditor.tsx",
+    "lib/purchase-config.ts"
+  ],
+  "runtime_preserved": true,
+  "public_build_arguments_preserved": true,
+  "traffic_promoted": true,
+  "regression_tests_passed": 18,
+  "browser_verified_before_promotion": false,
+  "live_health_verified": true,
+  "request": "Replace the word 색상 in administrator configuration section headings",
+  "configuration_property": "optionLabel",
+  "verified_example": "구성",
+  "administrator_section_preview": "구성 옵션 · 추가 구성상품",
+  "administrator_choices_preview": "구성 / 필수 선택 옵션",
+  "customer_default_preview": "메인 상품 / 구성 선택",
+  "browser_verified_after_promotion": true,
+  "example_was_not_saved_to_products": true,
+  "original_active_editor_untouched": true,
+  "workflow_run": 44007233340
+}
