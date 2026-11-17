@@ -1,0 +1,14 @@
+{
+  "lib/product-availability.ts": null,
+  "lib/shipping-server.ts": "e179ae3289420432808b70fe155e93b39f66b0c8863cd234bb334eb929009f67",
+  "lib/supabaseClient.ts": "8eaae9928498177098b36c37565abbed5ec6c516e2a92184aedc807366775011",
+  "lib/types.ts": "3ae3e4ce229c2eb8beee52eb4a7f0b002207ab19d40909d311f195bb634430f1",
+  "app/components/ConfiguredPurchase.tsx": "e04b768159c2198e698137b00a2bc4cf1d2866b0692220585a40e90d259aea00",
+  "app/components/PurchaseConfigEditor.tsx": "c354383725d12b98e66b669ba73ae43016095e6e71242ba368a7b19fbfbd602e",
+  "app/product/[id]/LegacyProductPage.tsx": "f66f08d00e242767f2987e6fe76b9ea9b4c5d06ebe2e15ff7e852c6d15c2e65e",
+  "app/api/catalog/route.ts": "7127f1da49cf9aab92f7e8db4ab28b4f3eee007643e99f1bf7aed082291c25a8",
+  "app/api/products/legacy.ts": "ea01700763a2ee20349da1e37f8049a3bbd06977534cbcad1743af5aa572aef3",
+  "app/api/products/[id]/legacy.ts": "2303fd34c6279c7d63bed68b2835f30f90c2bd4a73484e5bba4322c242ab0801",
+  "app/api/products/[id]/availability/route.ts": null,
+  "app/api/products/[id]/configuration/route.ts": "224ab62ab4046a60328c833205e7bd6aba4b3271d39a3f0232e0e65a8a90a50b"
+}
