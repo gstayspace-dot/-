@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useId, useRef } from 'react'
+import { createPortal } from 'react-dom'
 
 export default function PurchaseConfirmDialog({ orderNow, onCancel, onConfirm }: {
   orderNow: boolean
@@ -21,7 +22,7 @@ export default function PurchaseConfirmDialog({ orderNow, onCancel, onConfirm }:
       if (previous?.isConnected) previous.focus()
     }
   }, [])
-  return <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-5" onClick={event => {
+  return createPortal(<div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-5" onClick={event => {
     if (event.target === event.currentTarget) onCancel()
   }}>
     <div role="alertdialog" aria-modal="true" aria-labelledby={titleId} className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl" onKeyDown={event => {
@@ -41,5 +42,5 @@ export default function PurchaseConfirmDialog({ orderNow, onCancel, onConfirm }:
         }} className="min-h-12 flex-1 rounded-xl bg-orange-500 px-4 py-3 text-lg font-bold text-white">예</button>
       </div>
     </div>
-  </div>
+  </div>, document.body)
 }
