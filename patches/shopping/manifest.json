@@ -1,0 +1,6 @@
+{
+  "app/cart/LegacyCartPage.tsx": "dd7092d752fb112025dd35e1bac76833acc10b062873cc5df61f49106f6d9c7e",
+  "app/components/ConfiguredPurchase.tsx": "33880b8a85c51a121dd6d33c80233ecfedf65ae91fd8416e8f7229e9ae9d22ba",
+  "app/components/PurchaseConfirmDialog.tsx": null,
+  "app/product/[id]/LegacyProductPage.tsx": "4f9b358d8a58cccae8c5bcc2393612b7625afbab846fe266a60aed4e9a016e7d"
+}
