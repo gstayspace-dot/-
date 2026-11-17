@@ -1,7 +1,5 @@
 name: Publish shared product sold-out controls
 on:
-  push:
-    branches: [fix/product-cart-confirm]
   workflow_dispatch:
 permissions:
   contents: read
