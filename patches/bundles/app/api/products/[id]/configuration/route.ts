@@ -3,7 +3,6 @@ import { receiptAdmin } from '@/lib/receipt-admin-auth'
 import { receiptDb } from '@/lib/receipt-db'
 import { supabase, rowToProduct, PRODUCT_PUBLIC_SELECT, readProductMetaRegistry, savePurchaseConfig, type DbProduct } from '@/lib/supabaseClient'
 import { type PurchaseChoice, type PurchaseConfig } from '@/lib/purchase-config'
-import { purchaseGroups } from '@/lib/purchase-config-server'
 export const dynamic = 'force-dynamic'
 const validId = (id: unknown): id is string => typeof id === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id) && !id.startsWith('00000000-')
 export async function GET(_request: Request, { params }: { params: { id: string } }) {
@@ -24,6 +23,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     const body = await request.json(), config: PurchaseConfig = body.config
     if (!config || !Array.isArray(config.variants) || !Array.isArray(config.addons) || config.variants.length + config.addons.length > 100) throw Error('구성은 최대 100개까지 등록할 수 있습니다.')
     if (config.title !== undefined && (typeof config.title !== 'string' || config.title.length > 200)) throw Error('대표 상품 표시명을 확인해주세요.')
+    if (config.variantsTitle !== undefined && (typeof config.variantsTitle !== 'string' || config.variantsTitle.length > 100)) throw Error('상품 선택 영역 제목은 100자 이내로 입력해주세요.')
     const choices: PurchaseChoice[] = [...config.variants, ...config.addons]
     if (choices.some(c => !c || !validId(c.productId) || typeof c.label !== 'string' || !c.label.trim() || c.label.length > 200) || new Set(choices.map(c => c.productId)).size !== choices.length || config.addons.some(c => c.productId === params.id)) throw Error('구성 이름과 중복 상품을 확인해주세요.')
     const db = receiptDb(); if (!db) throw Error('서버 설정을 확인해주세요.')
@@ -31,9 +31,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     if (error) throw Error('대표 상품을 찾지 못했습니다.')
     const registry = await readProductMetaRegistry()
     if (body.version !== JSON.stringify(registry[params.id]?.purchaseConfig ?? { variants: [], addons: [] })) return NextResponse.json({ error: '상품이 변경되었습니다. 다시 불러온 뒤 저장해주세요.' }, { status: 409 })
-    const { groups } = await purchaseGroups()
     const ids = choices.map(c => c.productId)
-    if (ids.length && groups.some(g => g.id !== params.id && (ids.includes(g.id) || [...g.variants, ...g.addons].some(c => c.productId === params.id || ids.includes(c.productId))))) throw Error('다른 대표 상품에 연결된 구성상품입니다. 기존 연결을 먼저 해제해주세요.')
     if (ids.length) {
       const found = await db.from('products').select('id').in('id', ids)
       if (found.error || found.data?.length !== ids.length) throw Error('존재하지 않는 구성상품입니다.')

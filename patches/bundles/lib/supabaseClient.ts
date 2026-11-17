@@ -1,5 +1,4 @@
 import type { ShippingGroup } from './shipping-quote'
-import { hasPurchaseChoices } from './purchase-config'
 import { createClient } from '@supabase/supabase-js'
 import type { Product } from './types'
 
@@ -198,12 +197,7 @@ async function mutateProductMetaRegistry(productId: string, meta: ProductMetaEnt
     const registry = parseProductMetaRegistry(current?.specs)
     if (expectedConfig !== undefined && JSON.stringify(registry[productId]?.purchaseConfig ?? { variants: [], addons: [] }) !== expectedConfig) return { message: '상품 구성이 변경되었습니다. 다시 불러와주세요.' }
     if (expectedConfig !== undefined && meta?.purchaseConfig) {
-      const selected = [...meta.purchaseConfig.variants, ...meta.purchaseConfig.addons].map(c => c.productId)
-      for (const [otherId, entry] of Object.entries(registry)) {
-        if (otherId === productId || !entry.purchaseConfig || !hasPurchaseChoices(entry.purchaseConfig)) continue
-        const others = [...entry.purchaseConfig.variants, ...entry.purchaseConfig.addons].map(c => c.productId)
-        if (selected.length && (selected.includes(otherId) || others.includes(productId) || others.some(id => selected.includes(id)))) return { message: '다른 대표 상품에서 사용하는 구성상품입니다. 다시 확인해주세요.' }
-      }
+      // Components may be reused across representative products.
       meta = { ...normalizeProductMetaEntry(registry[productId] ?? {}), purchaseConfig: meta.purchaseConfig }
     }
     if (meta && expectedConfig === undefined && registry[productId]?.purchaseConfig) meta = { ...meta, purchaseConfig: registry[productId].purchaseConfig }

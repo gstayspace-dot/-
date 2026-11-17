@@ -2,6 +2,7 @@
   "lib/purchase-config-server.ts": "32b1341a052012b609e3f1193358e3ae2574d99d53dca4cbe6dd2e2cc26b58ff",
   "lib/purchase-config.ts": "97c62f9e69070befb31667596a53d97049751450aadf9ec862cbe2807c789175",
   "lib/supabaseClient.ts": "6515363226f6a487245390efba9282ee27113552bde817a692a1720b6375b648",
+  "app/components/ConfiguredPurchase.tsx": "2eb2bd936d56fd6af8d0a9c54b8b585cca128a4e316a51a49b4b032f4d289b15",
   "app/components/PurchaseConfigEditor.tsx": "606d0d2924960af109d53d5513db868cd7b2e24dc4667ff6a1ee88dfea7f4ad9",
   "app/api/products/[id]/configuration/route.ts": "edc75cefe969bba57a1bc8d67ff91f399b9f3599d09f3a5a89a4006183dc7129"
 }
