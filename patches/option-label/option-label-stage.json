@@ -1,0 +1,17 @@
+{
+  "success": true,
+  "old_revision": "yeongjinsangsa-00232-kaf",
+  "new_revision": "yeongjinsangsa-00235-mer",
+  "candidate_url": "https://option-label-06659145---yeongjinsangsa-5sundngyeq-du.a.run.app",
+  "tag": "option-label-06659145",
+  "generation": 235,
+  "changed_files": [
+    "app/api/products/[id]/configuration/route.ts",
+    "app/components/ConfiguredPurchase.tsx",
+    "app/components/PurchaseConfigEditor.tsx",
+    "lib/purchase-config.ts"
+  ],
+  "runtime_preserved": true,
+  "public_build_arguments_preserved": true,
+  "traffic_promoted": false
+}
