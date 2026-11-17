@@ -1,7 +1,5 @@
 name: Verify completed bundle update
 on:
-  push:
-    branches: [fix/product-cart-confirm]
   workflow_dispatch:
 permissions:
   contents: read
