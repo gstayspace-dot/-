@@ -48,7 +48,7 @@ jobs:
            body=extract(n);text=body.decode("utf-8",errors="replace")
            hits=[line.strip() for line in text.splitlines() if any(x in line for x in ["다른 대표", "기존 연결", "먼저 해제", "연결된 구성"])]
            if hits:matches.append({"path":p,"lines":hits})
-           if hits or "purchaseGroups" in text or p in ["app/components/PurchaseConfigEditor.tsx", "app/components/ConfiguredPurchase.tsx"] or "purchase-config" in p or ("admin" in p and any(k in p.lower() for k in ["product","configuration"])):
+           if hits or "purchaseGroups" in text or p in ["app/components/PurchaseConfigEditor.tsx", "app/components/ConfiguredPurchase.tsx", "app/api/products/[id]/configuration/route.ts", "lib/supabaseClient.ts"] or "purchase-config" in p or ("admin" in p and any(k in p.lower() for k in ["product","configuration"])):
             dest=out/p;dest.parent.mkdir(parents=True,exist_ok=True);dest.write_bytes(body);selected.append(p)
           report={"revision":rev,"image":image,"source":uri,"build_id":b["id"],"selected":selected,"matches":matches,"candidate_paths":[n for n in names if any(k in n.lower() for k in ["purchase-config","configuration","bundle"]) and n.endswith((".ts",".tsx",".sql"))]}
           (out/"report.json").write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding="utf-8")
