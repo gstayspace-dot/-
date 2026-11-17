@@ -1,0 +1,38 @@
+{
+  "success": true,
+  "old_revision": "yeongjinsangsa-00226-yek",
+  "new_revision": "yeongjinsangsa-00229-tel",
+  "candidate_url": "https://shopping-00709706---yeongjinsangsa-5sundngyeq-du.a.run.app",
+  "tag": "shopping-00709706",
+  "generation": 229,
+  "changed_files": [
+    "app/cart/LegacyCartPage.tsx",
+    "app/components/ConfiguredPurchase.tsx",
+    "app/components/PurchaseConfirmDialog.tsx",
+    "app/product/[id]/LegacyProductPage.tsx"
+  ],
+  "runtime_preserved": true,
+  "public_build_arguments_preserved": true,
+  "traffic_promoted": true,
+  "browser_verified_before_promotion": true,
+  "live_health_verified": true,
+  "verification": {
+    "tsx_syntax": "passed",
+    "production_next_build": "passed",
+    "desktop_and_390px_mobile": "passed",
+    "cart_and_order_confirmation_titles": "passed",
+    "cancel_preserves_cart_and_selection": "passed",
+    "missing_option_validation_preserved": "passed",
+    "confirmed_cart_add_once": "passed",
+    "confirmed_order_opens_checkout_without_submitting": "passed",
+    "cart_image_and_title_open_product": "passed",
+    "quantity_controls_preserved": "passed",
+    "only_one_purchase_button_pair": "passed",
+    "supplier_shipping_preserved": "passed",
+    "production_domain_popup_checks": "passed",
+    "test_cart_items_removed": true,
+    "orders_submitted": 0
+  },
+  "implementation_note": "Patch files were applied to the exact production Cloud Build source. The repository root app is older and was not deployed.",
+  "workflow_run": 44001407898
+}

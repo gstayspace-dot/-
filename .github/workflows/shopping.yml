@@ -1,7 +1,5 @@
 name: Publish verified shopping update
 on:
-  push:
-    branches: [fix/product-cart-confirm]
   workflow_dispatch:
 permissions:
   contents: read
