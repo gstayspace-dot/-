@@ -44,7 +44,7 @@ jobs:
           selected=[]
           for n in names:
            p=n.lstrip("./")
-           if p.startswith("app/product/") and p.endswith(".tsx") or p in ["app/cart/page.tsx","app/cart/LegacyCartPage.tsx","app/components/commerce/ProductPurchasePanel.tsx"] or (p.endswith((".ts",".tsx")) and (p.startswith("app/components/") or p.startswith("lib/")) and any(t in p.lower() for t in ["cart","option"]) and not any(t in p.lower() for t in ["server","auth"])):
+           if p.startswith("app/product/") and p.endswith(".tsx") or p in ["app/cart/page.tsx","app/cart/LegacyCartPage.tsx","app/components/commerce/ProductPurchasePanel.tsx","app/components/ConfiguredPurchase.tsx"] or (p.endswith((".ts",".tsx")) and (p.startswith("app/components/") or p.startswith("lib/")) and any(t in p.lower() for t in ["cart","option"]) and not any(t in p.lower() for t in ["server","auth"])):
             dest=out/p;dest.parent.mkdir(parents=True,exist_ok=True);dest.write_bytes(extract(n));selected.append(p)
           report={"revision":rev,"image":image,"source":uri,"build_id":b["id"],"selected":selected,"candidate_paths":[n for n in names if any(t in n.lower() for t in ["option","cart"]) and n.endswith((".ts",".tsx"))]}
           (out/"report.json").write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding="utf-8")
