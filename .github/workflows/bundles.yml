@@ -1,4 +1,4 @@
-name: Stage cleared product bundle fix
+name: Publish shared product bundles and selection labels
 on:
   push:
     branches: [fix/product-cart-confirm]
@@ -7,7 +7,7 @@ permissions:
   contents: read
   id-token: write
 jobs:
-  stage:
+  publish:
     runs-on: ubuntu-latest
     timeout-minutes: 35
     steps:
@@ -18,9 +18,9 @@ jobs:
           workload_identity_provider: projects/865821327055/locations/global/workloadIdentityPools/github-pool/providers/github-provider
           service_account: github-deployer@primeval-falcon-491105-i9.iam.gserviceaccount.com
       - uses: google-github-actions/setup-gcloud@v2
-      - name: Build exact live source with bundle ownership fix
-        run: python3 patches/bundles/stage-bundles.py
+      - name: Publish verified shared bundles and heading settings
+        run: python3 patches/bundles/promote-bundles.py
       - uses: actions/upload-artifact@v4
         with:
-          name: bundles-stage
-          path: bundles-stage.json
+          name: bundles-deployment
+          path: bundles-deployment.json

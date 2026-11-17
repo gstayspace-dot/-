@@ -1,0 +1,19 @@
+{
+  "success": true,
+  "old_revision": "yeongjinsangsa-00229-tel",
+  "new_revision": "yeongjinsangsa-00232-kaf",
+  "candidate_url": "https://bundles-03643151---yeongjinsangsa-5sundngyeq-du.a.run.app",
+  "tag": "bundles-03643151",
+  "generation": 232,
+  "changed_files": [
+    "app/api/products/[id]/configuration/route.ts",
+    "app/components/ConfiguredPurchase.tsx",
+    "app/components/PurchaseConfigEditor.tsx",
+    "lib/purchase-config-server.ts",
+    "lib/purchase-config.ts",
+    "lib/supabaseClient.ts"
+  ],
+  "runtime_preserved": true,
+  "public_build_arguments_preserved": true,
+  "traffic_promoted": false
+}
