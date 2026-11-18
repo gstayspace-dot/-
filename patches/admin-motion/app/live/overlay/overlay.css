@@ -1,0 +1,138 @@
+html:has(.live-overlay), body:has(.live-overlay) { background: transparent !important; margin: 0; overflow: hidden; }
+.live-overlay { position: absolute; width: 1080px; height: 300px; transform-origin: top left; padding: 16px; box-sizing: border-box; color: white; }
+.live-banner { width: 1048px; height: 268px; display: flex; align-items: center; gap: 24px; padding: 18px; border-radius: 24px; border: 2px solid #fa343b; background: linear-gradient(115deg,#24252b,#101014); box-sizing: border-box; overflow: hidden; }
+.live-photo { width: 216px; height: 228px; flex-shrink: 0; background: #fff; border-radius: 14px; overflow: hidden; display: grid; place-items: center; color: #666; }
+.live-photo img { width: 100%; height: 100%; object-fit: contain; }
+.live-details { flex: 1; min-width: 0; }
+.live-badge { display: inline-block; padding: 4px 12px; background: #e51d32; border-radius: 6px; font-size: 17px; font-weight: 900; letter-spacing: 2px; }
+.live-details h1 { margin: 10px 0 8px; font-size: 30px; line-height: 1.15; font-weight: 800; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
+.live-prices { display: flex; flex-direction: column; line-height: 1.12; }
+.live-prices s { color: #b4b4be; font-size: 23px; }
+.live-prices strong { font-size: 51px; letter-spacing: -2px; font-weight: 950; white-space: nowrap; }
+.live-saving { width: 230px; flex-shrink: 0; align-self: stretch; display: flex; flex-direction: column; justify-content: center; align-items: center; border-left: 1px solid #555; }
+.live-saving b { color: #ff3545; font-size: 82px; line-height: 1; font-weight: 950; letter-spacing: -4px; }
+.live-saving small { font-size: 42px; }
+.live-saving > span { font-size: 21px; font-weight: 800; }
+.live-saving strong { margin-top: 16px; color: #ffdb59; font-size: 24px; white-space: nowrap; }
+
+/* 리빙라방 반복 모션 + 정상가/할인가 강조. OBS 사용자 지정 CSS 또는 운영 overlay.css 끝에 적용. */
+html:has(.live-overlay),body:has(.live-overlay){background:transparent!important;margin:0;overflow:hidden}
+.live-banner{
+  position:relative;isolation:isolate;gap:18px;
+  background:radial-gradient(ellipse at 75% 5%,#542c37 0,transparent 58%),linear-gradient(115deg,#24252b,#101014);
+  animation:living-loop-enter .42s cubic-bezier(.16,1,.3,1) both,living-loop-border 4.8s ease-in-out infinite;
+}
+.live-banner::before{
+  content:"";position:absolute;inset:-35% -65%;pointer-events:none;z-index:0;
+  background:linear-gradient(110deg,transparent 43%,rgba(255,225,170,.03) 46%,rgba(255,225,170,.13) 50%,rgba(255,225,170,.03) 54%,transparent 57%);
+  animation:living-loop-sheen 7s ease-in-out infinite;
+}
+.live-banner>*{position:relative;z-index:1}
+.live-photo{width:200px;height:224px}
+.live-details{min-width:0}
+.live-badge{font-size:12px;padding:4px 10px;letter-spacing:1.8px}
+.live-details h1{font-size:25px;line-height:1.12;margin:6px 0;font-weight:800}
+.live-prices{gap:4px;line-height:1.1}
+.live-prices s{
+  position:relative;display:block;padding-left:76px;font-size:32px;font-weight:750;
+  color:#e7edf9;text-decoration-color:#ff8797;text-decoration-thickness:2px;white-space:nowrap;
+}
+.live-prices s::before{
+  content:"정상가";position:absolute;left:0;top:50%;transform:translateY(-50%);
+  font-size:15px;font-weight:700;letter-spacing:.5px;color:#dce4f2;text-decoration:none;
+}
+.live-prices strong{
+  display:block;width:fit-content;max-width:100%;box-sizing:border-box;
+  padding:6px 12px;border:1px solid rgba(255,219,89,.55);border-radius:10px;
+  font-size:60px;line-height:1.04;letter-spacing:-2px;font-weight:950;white-space:nowrap;
+  color:#ffe77e;background:linear-gradient(110deg,rgba(255,192,46,.18),rgba(255,192,46,.045));
+  text-shadow:0 2px 0 #2b1905;transform-origin:left center;
+  animation:living-loop-price 4.8s ease-in-out infinite;
+}
+.live-prices strong::before{
+  content:"라이브 특가";display:block;margin-bottom:4px;
+  font-size:14px;line-height:1;letter-spacing:1.8px;font-weight:800;color:#fff4c8;text-shadow:none;
+}
+.live-saving{width:212px;border-left-color:rgba(255,255,255,.22)}
+.live-saving b{transform-origin:center;animation:living-loop-discount 4.8s ease-in-out infinite}
+.live-saving strong{font-size:23px;margin-top:12px}
+@keyframes living-loop-enter{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes living-loop-border{
+  0%,100%{border-color:#fa343b;box-shadow:inset 0 0 0 1px rgba(255,80,100,.08)}
+  50%{border-color:#ffb15f;box-shadow:inset 0 0 26px rgba(255,120,60,.13)}
+}
+@keyframes living-loop-sheen{
+  0%,15%{transform:translateX(-45%)}
+  65%,100%{transform:translateX(45%)}
+}
+@keyframes living-loop-price{
+  0%,5%,30%,100%{transform:scale(1);border-color:rgba(255,219,89,.55)}
+  15%{transform:scale(1.025);border-color:#ffe77e}
+}
+@keyframes living-loop-discount{
+  0%,35%,65%,100%{transform:scale(1)}
+  48%{transform:scale(1.06)}
+}
+@media(prefers-reduced-motion:reduce){
+  .live-banner,.live-banner::before,.live-prices strong,.live-saving b{animation:none!important}
+  .live-banner::before{display:none}
+}
+
+
+/* One compositor-only cycle: seven minutes on, seven minutes transparent.
+   The cycle belongs to the wrapper so continuous motion cannot override zoom. */
+.live-cycle {
+  width: 1048px;
+  height: 268px;
+  transform-origin: center center;
+  pointer-events: none;
+  animation: living-broadcast-cycle 840s linear infinite both;
+}
+@keyframes living-broadcast-cycle {
+  0% { opacity: 0; visibility: visible; transform: scale(.04); animation-timing-function: cubic-bezier(.16,1,.3,1); }
+  .11% { opacity: 1; visibility: visible; transform: scale(1); }
+  49.89% { opacity: 1; visibility: visible; transform: scale(1); animation-timing-function: cubic-bezier(.7,0,.84,0); }
+  50%,100% { opacity: 0; visibility: hidden; transform: scale(.04); }
+}
+.live-banner {
+  animation: living-motion-float 6s ease-in-out infinite, living-loop-border 3.2s ease-in-out infinite;
+}
+.live-banner::before { animation: living-loop-sheen 3.8s ease-in-out infinite; }
+.live-banner::after {
+  content: ""; position: absolute; inset: -35%; z-index: 0; pointer-events: none;
+  background: radial-gradient(ellipse at 72% 40%,rgba(255,70,95,.2),transparent 48%);
+  animation: living-motion-aura 5s ease-in-out infinite alternate;
+}
+.live-photo img { animation: living-motion-photo 5.6s ease-in-out infinite; transform-origin: center; }
+.live-badge { animation: living-motion-badge 3s ease-in-out infinite; }
+.live-prices strong { animation: living-motion-price 3.6s ease-in-out infinite; }
+.live-saving b { animation: living-motion-saving 3.2s ease-in-out infinite; }
+@keyframes living-motion-float {
+  0%,100% { transform: translateY(3px); }
+  50% { transform: translateY(-3px); }
+}
+@keyframes living-motion-aura {
+  from { transform: translate(-6%,4%) rotate(-8deg); opacity: .45; }
+  to { transform: translate(6%,-4%) rotate(8deg); opacity: 1; }
+}
+@keyframes living-motion-photo {
+  0%,100% { transform: translateY(5px) rotate(-2deg) scale(.96); }
+  50% { transform: translateY(-5px) rotate(2deg) scale(1); }
+}
+@keyframes living-motion-badge {
+  0%,100% { transform: translateX(0); box-shadow: 0 0 0 rgba(255,55,80,0); }
+  50% { transform: translateX(5px); box-shadow: 0 0 14px rgba(255,55,80,.5); }
+}
+@keyframes living-motion-price {
+  0%,65%,100% { transform: translateX(0) scale(1); border-color: rgba(255,219,89,.55); }
+  25% { transform: translateX(3px) scale(1.025); border-color: #fff1a8; }
+}
+@keyframes living-motion-saving {
+  0%,65%,100% { transform: scale(1) rotate(0); }
+  30% { transform: scale(1.08) rotate(-2deg); }
+  45% { transform: scale(1.04) rotate(1deg); }
+}
+@media(prefers-reduced-motion:reduce) {
+  .live-banner,.live-banner::after,.live-photo img,.live-badge { animation: none !important; }
+  .live-banner::after { display: none; }
+}

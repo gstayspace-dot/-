@@ -1,0 +1,10 @@
+{
+  "passed": 12,
+  "shippingRulesPreserved": true,
+  "customerHiddenRestrictionPreserved": true,
+  "realOrdersCreated": 0,
+  "realSmsSent": 0,
+  "cycleSeconds": 840,
+  "visibleSeconds": 420,
+  "hiddenSeconds": 420
+}
