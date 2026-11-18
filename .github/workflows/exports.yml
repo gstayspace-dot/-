@@ -1,7 +1,5 @@
 name: Publish native purchase-order workbooks
 on:
-  push:
-    branches: [fix/product-cart-confirm]
   workflow_dispatch:
 permissions:
   contents: read

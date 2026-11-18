@@ -1,0 +1,62 @@
+{
+  "success": true,
+  "old_revision": "yeongjinsangsa-00238-miy",
+  "new_revision": "yeongjinsangsa-00241-yac",
+  "candidate_url": "https://order-xlsx-29013484---yeongjinsangsa-5sundngyeq-du.a.run.app",
+  "tag": "order-xlsx-29013484",
+  "generation": 241,
+  "changed_files": [
+    "app/admin/orders/CommerceOrdersPage.tsx",
+    "app/admin/orders/LegacyOrdersPage.tsx",
+    "app/admin/orders/SupplierOrderExport.tsx",
+    "app/api/admin/orders/export/route.ts",
+    "lib/commerce/order-export.ts",
+    "lib/order-workbook.ts",
+    "lib/supplier-order-export.ts"
+  ],
+  "runtime_preserved": true,
+  "public_build_arguments_preserved": true,
+  "traffic_promoted": true,
+  "native_workbook_zip_xml_verified": true,
+  "synthetic_artifact_render_verified": true,
+  "browser_verified_before_promotion": false,
+  "live_health_verified": true,
+  "full_source_typescript_verified": true,
+  "es5_compatibility_verified": true,
+  "live_downloads": [
+    {
+      "file": "발주서-2026-11-18.xlsx",
+      "nativeXlsx": true,
+      "sheetCount": 1,
+      "rowsPerSheet": [
+        2
+      ],
+      "headersMatchExisting": true,
+      "phonesPreservedAsText": true
+    },
+    {
+      "file": "배송처별-발주서-2026-11-18-2026-11-18 (1).xlsx",
+      "nativeXlsx": true,
+      "sheetCount": 1,
+      "rowsPerSheet": [
+        2
+      ],
+      "headersMatchExisting": true,
+      "phonesPreservedAsText": true
+    },
+    {
+      "file": "배송처별-발주서-2026-11-17-2026-11-17.xlsx",
+      "nativeXlsx": true,
+      "sheetCount": 2,
+      "rowsPerSheet": [
+        2,
+        16
+      ],
+      "headersMatchExisting": true,
+      "phonesPreservedAsText": true
+    }
+  ],
+  "single_supplier_download_verified": true,
+  "pii_in_report": false,
+  "workflow_manual_only": true
+}
