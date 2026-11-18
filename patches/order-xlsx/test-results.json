@@ -1,0 +1,12 @@
+{
+  "syntaxFiles": 7,
+  "fixtureAssertions": 12,
+  "files": [
+    "sample-selected.xlsx",
+    "sample-suppliers.xlsx",
+    "sample-empty.xlsx",
+    "sample-names.xlsx"
+  ],
+  "productionDataUsed": false,
+  "zipXmlVerified": true
+}
