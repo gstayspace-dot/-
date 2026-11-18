@@ -1,4 +1,4 @@
-name: Diagnose native workbook TypeScript
+name: Stage native purchase-order workbooks
 on:
   push:
     branches: [fix/product-cart-confirm]
@@ -19,4 +19,9 @@ jobs:
           service_account: github-deployer@primeval-falcon-491105-i9.iam.gserviceaccount.com
       - uses: google-github-actions/setup-gcloud@v2
       - name: Build native XLSX exports on exact live source
-        run: python3 patches/order-xlsx/diagnose.py
+        run: python3 patches/order-xlsx/stage.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: order-xlsx-stage
+          path: order-xlsx-stage.json
+

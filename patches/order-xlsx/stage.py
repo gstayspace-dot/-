@@ -56,6 +56,11 @@ with tempfile.TemporaryDirectory(prefix="living-order-xlsx-") as td:
  assert {p for p in set(hashes)|set(after) if hashes.get(p)!=after.get(p)}==set(MANIFEST)
  assert service()["metadata"]["generation"]==before["metadata"]["generation"],"Concurrent deployment"
  print("Verified exact serving source; scoped changes: "+",".join(sorted(MANIFEST)),flush=True)
+ stage="validate exact source types"
+ subprocess.run(["npm","ci","--ignore-scripts","--no-audit","--no-fund"],cwd=source,stdout=subprocess.DEVNULL,check=True,timeout=300)
+ check=subprocess.run(["npx","tsc","--noEmit"],cwd=source,capture_output=True,text=True,timeout=240)
+ if check.returncode: print(check.stdout+check.stderr,flush=True); raise RuntimeError("TypeScript validation failed")
+ print("Full source TypeScript check passed",flush=True)
  stage="build candidate"
  # Reproduce the currently serving image's public Docker build arguments.
  # They are intentionally browser-visible; never read server secrets into build args.
@@ -105,3 +110,4 @@ with tempfile.TemporaryDirectory(prefix="living-order-xlsx-") as td:
  report={"success":True,"old_revision":EXPECTED,"new_revision":candidate_name,"candidate_url":candidate_url,"tag":TAG,"generation":candidate["metadata"]["generation"],"changed_files":sorted(MANIFEST),"runtime_preserved":True,"public_build_arguments_preserved":True,"traffic_promoted":False}
  pathlib.Path("order-xlsx-stage.json").write_text(json.dumps(report,ensure_ascii=False,indent=2))
  print("STAGING_RESULT "+json.dumps(report,ensure_ascii=False),flush=True)
+

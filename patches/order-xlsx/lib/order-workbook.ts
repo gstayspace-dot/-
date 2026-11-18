@@ -87,7 +87,7 @@ function styles() {
 
 // ZIP method 0 (stored) keeps the writer synchronous and portable in both runtimes.
 const CRC_TABLE = Array.from({ length: 256 }, (_, n) => { let crc = n; for (let bit = 0; bit < 8; bit++) crc = crc & 1 ? 0xedb88320 ^ (crc >>> 1) : crc >>> 1; return crc >>> 0 })
-function crc32(bytes: Uint8Array) { let crc = 0xffffffff; for (const byte of bytes) crc = CRC_TABLE[(crc ^ byte) & 255] ^ (crc >>> 8); return (crc ^ 0xffffffff) >>> 0 }
+function crc32(bytes: Uint8Array) { let crc = 0xffffffff; for (let i = 0; i < bytes.length; i++) crc = CRC_TABLE[(crc ^ bytes[i]) & 255] ^ (crc >>> 8); return (crc ^ 0xffffffff) >>> 0 }
 function zip(files: Array<[string, string]>): ArrayBuffer {
   const encoder = new TextEncoder(), local: Uint8Array[] = [], central: Uint8Array[] = []
   let offset = 0, centralLength = 0
@@ -117,3 +117,4 @@ export function createOrderWorkbook(input: OrderWorkbookSheet[]): ArrayBuffer {
     ...sheets.map((sheet,i): [string,string] => [`xl/worksheets/sheet${i+1}.xml`, worksheet(sheet.rows)]),
   ])
 }
+
