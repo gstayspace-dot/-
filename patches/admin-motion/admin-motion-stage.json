@@ -1,0 +1,23 @@
+{
+  "success": true,
+  "old_revision": "yeongjinsangsa-00241-yac",
+  "new_revision": "yeongjinsangsa-00244-taj",
+  "candidate_url": "https://admin-motion-67522578---yeongjinsangsa-5sundngyeq-du.a.run.app",
+  "tag": "admin-motion-67522578",
+  "generation": 244,
+  "changed_files": [
+    "app/admin/live-control/page.tsx",
+    "app/admin/orders/OrderEditor.tsx",
+    "app/admin/orders/OrderEntry.tsx",
+    "app/api/admin/order-products/route.ts",
+    "app/api/admin/order-shipping/route.ts",
+    "app/api/admin/orders/edit/route.ts",
+    "app/api/admin/orders/legacy.ts",
+    "app/live/overlay/overlay.css",
+    "app/live/overlay/page.tsx",
+    "lib/shipping-server.ts"
+  ],
+  "runtime_preserved": true,
+  "public_build_arguments_preserved": true,
+  "traffic_promoted": false
+}
