@@ -37,4 +37,4 @@ jobs:
           for i in sorted(selected):
            line=lines[i]
            if not any(x in line for x in ["NEXT_PUBLIC","eyJ","SUPABASE","TOSS_CLIENT"]):print(line)
-                    PY
+          PY
