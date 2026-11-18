@@ -23,12 +23,13 @@ jobs:
           P="primeval-falcon-491105-i9";R="asia-northeast3"
           def cloud(*a):
            p=subprocess.run(["gcloud",*a,"--project",P,"--quiet"],capture_output=True,text=True,timeout=240)
-           assert p.returncode==0,"Diagnostic command failed"
+           if p.returncode: print("DIAGNOSTIC_ERROR",p.stderr[:2500]); raise RuntimeError("Diagnostic command failed")
            return p.stdout
           builds=json.loads(cloud("builds","list","--region",R,"--limit","5","--format=json"))
           b=next(b for b in builds if any("order-xlsx-44227637112" in x for x in b.get("images",[])))
           print("BUILD",b["id"],b["status"])
-          logs=cloud("builds","log",b["id"],"--region",R)
+          entries=json.loads(cloud("logging","read",'resource.type="build" AND resource.labels.build_id="'+b["id"]+'"',"--limit","3000","--order=asc","--format=json"))
+          logs="\n".join(str(e.get("textPayload",e.get("jsonPayload",""))) for e in entries)
           lines=logs.splitlines()
           indexes=[i for i,line in enumerate(lines) if any(term in line for term in ["Type error:","Failed to compile","Cannot find","Module not found","npm ERR!","Error:"])]
           selected=set()
