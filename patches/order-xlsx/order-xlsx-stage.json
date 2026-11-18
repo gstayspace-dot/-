@@ -1,0 +1,20 @@
+{
+  "success": true,
+  "old_revision": "yeongjinsangsa-00238-miy",
+  "new_revision": "yeongjinsangsa-00241-yac",
+  "candidate_url": "https://order-xlsx-29013484---yeongjinsangsa-5sundngyeq-du.a.run.app",
+  "tag": "order-xlsx-29013484",
+  "generation": 241,
+  "changed_files": [
+    "app/admin/orders/CommerceOrdersPage.tsx",
+    "app/admin/orders/LegacyOrdersPage.tsx",
+    "app/admin/orders/SupplierOrderExport.tsx",
+    "app/api/admin/orders/export/route.ts",
+    "lib/commerce/order-export.ts",
+    "lib/order-workbook.ts",
+    "lib/supplier-order-export.ts"
+  ],
+  "runtime_preserved": true,
+  "public_build_arguments_preserved": true,
+  "traffic_promoted": false
+}
