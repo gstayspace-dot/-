@@ -1,4 +1,4 @@
-name: Inspect order workbook exports
+name: Diagnose native workbook TypeScript
 on:
   push:
     branches: [fix/product-cart-confirm]
@@ -7,35 +7,16 @@ permissions:
   contents: read
   id-token: write
 jobs:
-  inspect:
+  stage:
     runs-on: ubuntu-latest
+    timeout-minutes: 35
     steps:
+      - uses: actions/checkout@v4
       - uses: google-github-actions/auth@v2
         with:
           project_id: primeval-falcon-491105-i9
           workload_identity_provider: projects/865821327055/locations/global/workloadIdentityPools/github-pool/providers/github-provider
           service_account: github-deployer@primeval-falcon-491105-i9.iam.gserviceaccount.com
       - uses: google-github-actions/setup-gcloud@v2
-      - name: Read native workbook build error
-        run: |
-          python3 - <<'PY'
-          import json,subprocess
-          P="primeval-falcon-491105-i9";R="asia-northeast3"
-          def cloud(*a):
-           p=subprocess.run(["gcloud",*a,"--project",P,"--quiet"],capture_output=True,text=True,timeout=240)
-           if p.returncode: print("DIAGNOSTIC_ERROR",p.stderr[:2500]); raise RuntimeError("Diagnostic command failed")
-           return p.stdout
-          builds=json.loads(cloud("builds","list","--region",R,"--limit","5","--format=json"))
-          b=next(b for b in builds if any("order-xlsx-44227637112" in x for x in b.get("images",[])))
-          print("BUILD",b["id"],b["status"])
-          entries=json.loads(cloud("logging","read",'resource.type="build" AND resource.labels.build_id="'+b["id"]+'"',"--limit","3000","--order=asc","--format=json"))
-          logs="\n".join(str(e.get("textPayload",e.get("jsonPayload",""))) for e in entries)
-          lines=logs.splitlines()
-          indexes=[i for i,line in enumerate(lines) if any(term in line for term in ["Type error:","Failed to compile","Cannot find","Module not found","npm ERR!","Error:"])]
-          selected=set()
-          for i in indexes:
-           selected.update(range(max(0,i-2),min(len(lines),i+12)))
-          for i in sorted(selected):
-           line=lines[i]
-           if not any(x in line for x in ["NEXT_PUBLIC","eyJ","SUPABASE","TOSS_CLIENT"]):print(line)
-          PY
+      - name: Build native XLSX exports on exact live source
+        run: python3 patches/order-xlsx/diagnose.py
