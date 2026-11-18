@@ -1,0 +1,111 @@
+{
+  "success": true,
+  "old_revision": "yeongjinsangsa-00241-yac",
+  "new_revision": "yeongjinsangsa-00244-taj",
+  "candidate_url": "https://admin-motion-67522578---yeongjinsangsa-5sundngyeq-du.a.run.app",
+  "tag": "admin-motion-67522578",
+  "generation": 244,
+  "changed_files": [
+    "app/admin/live-control/page.tsx",
+    "app/admin/orders/OrderEditor.tsx",
+    "app/admin/orders/OrderEntry.tsx",
+    "app/api/admin/order-products/route.ts",
+    "app/api/admin/order-shipping/route.ts",
+    "app/api/admin/orders/edit/route.ts",
+    "app/api/admin/orders/legacy.ts",
+    "app/live/overlay/overlay.css",
+    "app/live/overlay/page.tsx",
+    "lib/shipping-server.ts"
+  ],
+  "runtime_preserved": true,
+  "public_build_arguments_preserved": true,
+  "traffic_promoted": true,
+  "hidden_product_behavior_tests_passed": 12,
+  "obs_cycle_seconds": 840,
+  "obs_visible_seconds": 420,
+  "obs_hidden_seconds": 420,
+  "browser_verified_before_promotion": false,
+  "live_health_verified": true,
+  "live_verification": {
+    "customerHiddenProductRejected": true,
+    "clientCannotOverrideHiddenRestriction": true,
+    "adminQuoteRequiresSession": true,
+    "adminSearchRequiresSession": true,
+    "commerceConfigurationPreserved": true,
+    "liveAdminHiddenSearchVerified": true,
+    "liveAdminHiddenAddAndShippingVerified": true,
+    "liveOverlayDurationSeconds": 840,
+    "liveOverlayTransparentBackgroundVerified": true,
+    "realOrdersCreated": 0,
+    "smsSent": 0
+  },
+  "browser_cycle_phases": [
+    {
+      "phase": "등장 시작",
+      "duration": "840s",
+      "iteration": "infinite",
+      "opacity": 0,
+      "transform": "matrix(0.04, 0, 0, 0.04, 0, 0)",
+      "visibility": "visible"
+    },
+    {
+      "phase": "등장 초기",
+      "duration": "840s",
+      "iteration": "infinite",
+      "opacity": 0.523248,
+      "transform": "matrix(0.542318, 0, 0, 0.542318, 0, 0)",
+      "visibility": "visible"
+    },
+    {
+      "phase": "등장 중간",
+      "duration": "840s",
+      "iteration": "infinite",
+      "opacity": 0.979826,
+      "transform": "matrix(0.980633, 0, 0, 0.980633, 0, 0)",
+      "visibility": "visible"
+    },
+    {
+      "phase": "표시 중",
+      "duration": "840s",
+      "iteration": "infinite",
+      "opacity": 1,
+      "transform": "matrix(1, 0, 0, 1, 0, 0)",
+      "visibility": "visible"
+    },
+    {
+      "phase": "퇴장 중",
+      "duration": "840s",
+      "iteration": "infinite",
+      "opacity": 0.979826,
+      "transform": "matrix(0.980633, 0, 0, 0.980633, 0, 0)",
+      "visibility": "visible"
+    },
+    {
+      "phase": "7분 후 숨김",
+      "duration": "840s",
+      "iteration": "infinite",
+      "opacity": 0,
+      "transform": "matrix(0.04, 0, 0, 0.04, 0, 0)",
+      "visibility": "hidden"
+    },
+    {
+      "phase": "숨김 유지",
+      "duration": "840s",
+      "iteration": "infinite",
+      "opacity": 0,
+      "transform": "matrix(0.04, 0, 0, 0.04, 0, 0)",
+      "visibility": "hidden"
+    },
+    {
+      "phase": "14분 후 재등장",
+      "duration": "840s",
+      "iteration": "infinite",
+      "opacity": 0.523248,
+      "transform": "matrix(0.542318, 0, 0, 0.542318, 0, 0)",
+      "visibility": "visible"
+    }
+  ],
+  "full_source_typescript_verified": true,
+  "browser_verified_after_promotion": true,
+  "workflow_manual_only": true
+}

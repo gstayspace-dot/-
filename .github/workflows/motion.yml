@@ -1,7 +1,5 @@
 name: Publish administrator hidden products and OBS animation
 on:
-  push:
-    branches: [fix/product-cart-confirm]
   workflow_dispatch:
 permissions:
   contents: read
