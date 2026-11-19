@@ -1,4 +1,4 @@
-name: Stage immediate order without duplicate cart items
+name: Publish immediate order without duplicate cart items
 on:
   push:
     branches: [fix/product-cart-confirm]
@@ -7,7 +7,7 @@ permissions:
   contents: read
   id-token: write
 jobs:
-  stage:
+  publish:
     runs-on: ubuntu-latest
     timeout-minutes: 35
     steps:
@@ -18,9 +18,10 @@ jobs:
           workload_identity_provider: projects/865821327055/locations/global/workloadIdentityPools/github-pool/providers/github-provider
           service_account: github-deployer@primeval-falcon-491105-i9.iam.gserviceaccount.com
       - uses: google-github-actions/setup-gcloud@v2
-      - name: Build immediate-order cart correction on exact source
-        run: python3 patches/purchase-cart/stage.py
+      - name: Publish tested immediate-order cart correction
+        run: python3 patches/purchase-cart/promote.py
       - uses: actions/upload-artifact@v4
         with:
-          name: purchase-cart-stage
-          path: purchase-cart-stage.json
+          name: purchase-cart-deployment
+          path: purchase-cart-deployment.json
+

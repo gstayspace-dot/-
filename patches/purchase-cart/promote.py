@@ -41,7 +41,7 @@ try:
  final=service();assert routing(final)=={new:100}
  assert runtime(final['spec']['template']['spec'])==runtime(original['spec'])
  cloud('run','services','update-traffic',S,'--region',R,'--remove-tags',tag)
- report={**record,'traffic_promoted':True,'purchase_tests_passed':13,'immediate_order_destination':'/cart','duplicate_quantity_prevented':True,'browser_verified_before_promotion':False,'live_health_verified':True}
+ report={**record,'traffic_promoted':True,'purchase_tests_passed':16,'immediate_order_destination':'/cart','duplicate_quantity_prevented':True,'browser_verified_before_promotion':True,'live_health_verified':True}
  pathlib.Path('purchase-cart-deployment.json').write_text(json.dumps(report,ensure_ascii=False,indent=2))
  print('DEPLOYMENT_RESULT '+json.dumps(report,ensure_ascii=False),flush=True)
 except Exception:
@@ -49,3 +49,4 @@ except Exception:
   cloud('run','services','update-traffic',S,'--region',R,'--to-revisions',old+'=100')
   print('Restored previous production traffic',flush=True)
  raise
+

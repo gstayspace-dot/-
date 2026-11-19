@@ -1,0 +1,17 @@
+{
+  "success": true,
+  "old_revision": "yeongjinsangsa-00244-taj",
+  "new_revision": "yeongjinsangsa-00247-ked",
+  "candidate_url": "https://purchase-cart-82773640---yeongjinsangsa-5sundngyeq-du.a.run.app",
+  "tag": "purchase-cart-82773640",
+  "generation": 247,
+  "changed_files": [
+    "app/components/ConfiguredPurchase.tsx",
+    "app/components/commerce/ProductPurchasePanel.tsx",
+    "app/shop/page.tsx",
+    "lib/purchase-cart.ts"
+  ],
+  "runtime_preserved": true,
+  "public_build_arguments_preserved": true,
+  "traffic_promoted": false
+}

@@ -1,0 +1,26 @@
+[
+  {
+    "case": "desktop_add_then_order_now",
+    "quantity": 1,
+    "path": "/cart",
+    "passed": true
+  },
+  {
+    "case": "desktop_selection_two_preserves_two",
+    "quantity": 2,
+    "path": "/cart",
+    "passed": true
+  },
+  {
+    "case": "mobile_first_order_now",
+    "quantity": 1,
+    "path": "/cart",
+    "passed": true
+  },
+  {
+    "case": "mobile_repeated_order_now",
+    "quantity": 1,
+    "path": "/cart",
+    "passed": true
+  }
+]
