@@ -15,7 +15,7 @@ function navigation(win: Window) { return (win as Window & { navigation?: Browse
 export function allowCustomerDeparture() { allowedUntil = Date.now() + 2000 }
 function isAllowed() { return paymentRequests > 0 || Date.now() < allowedUntil }
 /** An already-confirmed payment handoff must not receive an extra exit prompt. */
-export async function withCustomerPayment<T>(action: () => Promise<T>): Promise<T> {
+export async function withCustomerPayment<T>(action: () => T | Promise<T>): Promise<T> {
   paymentRequests++
   try { return await action() } finally { paymentRequests-- }
 }
@@ -40,7 +40,7 @@ export function installCustomerExitGuard(win: Window, doc: Document) {
   const beforeUnload = (event: BeforeUnloadEvent) => {
     if (internalNavigation || isAllowed()) return
     event.preventDefault()
-    event.returnValue = ''
+    event.returnValue = CUSTOMER_EXIT_MESSAGE
   }
   const navigate = (event: Event) => {
     const next = event as NavigateDetails
@@ -85,3 +85,4 @@ export function installCustomerExitGuard(win: Window, doc: Document) {
     nav?.removeEventListener('navigateerror', reset)
   }
 }
+
