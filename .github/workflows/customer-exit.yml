@@ -1,7 +1,5 @@
 name: Publish explicit shipping fees and safe customer exit
 on:
-  push:
-    branches: [fix/product-cart-confirm]
   workflow_dispatch:
 permissions:
   contents: read
