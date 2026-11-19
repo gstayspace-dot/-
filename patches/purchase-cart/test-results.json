@@ -1,0 +1,7 @@
+{
+  "passed": 13,
+  "componentIntegrationVerified": true,
+  "quantityAndAddonCasesVerified": true,
+  "noOrdersCreated": true,
+  "expectedDestination": "/cart"
+}

@@ -1,0 +1,6 @@
+{
+  "lib/purchase-cart.ts": null,
+  "app/components/ConfiguredPurchase.tsx": "e21b7a4d5cedc1cafd84525f6456dfeec720e55e2c626dfa3b7aabc2bd63c450",
+  "app/shop/page.tsx": "86ce10a7bf08f57283319a0fc7009b9bdcf29b9754a6ae531abefd24a97b8897",
+  "app/components/commerce/ProductPurchasePanel.tsx": "cfdd46bedf7de4b732c75f20ba533d064642862a6ae00bfb0202e168778968c0"
+}
