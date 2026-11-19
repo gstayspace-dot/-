@@ -1,7 +1,5 @@
 name: Publish customer supplier labels and bank SMS notice
 on:
-  push:
-    branches: [fix/product-cart-confirm]
   workflow_dispatch:
 permissions:
   contents: read

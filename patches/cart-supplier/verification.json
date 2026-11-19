@@ -1,0 +1,49 @@
+{
+  "success": true,
+  "old_revision": "yeongjinsangsa-00247-ked",
+  "new_revision": "yeongjinsangsa-00250-piz",
+  "candidate_url": "https://cart-supplier-85234919---yeongjinsangsa-5sundngyeq-du.a.run.app",
+  "tag": "cart-supplier-85234919",
+  "generation": 250,
+  "changed_files": [
+    "app/cart/LegacyCartPage.tsx",
+    "app/components/ProductSupplierLabel.tsx",
+    "app/components/commerce/CommerceCart.tsx",
+    "app/components/commerce/OrderSummary.tsx",
+    "app/my-orders/page.tsx"
+  ],
+  "runtime_preserved": true,
+  "public_build_arguments_preserved": true,
+  "traffic_promoted": true,
+  "per_product_supplier_labels": true,
+  "bank_transfer_sms_notice": true,
+  "database_unchanged": true,
+  "browser_verified_before_promotion": true,
+  "live_health_verified": true,
+  "candidate_browser_verification": {
+    "desktopCartSuppliers": [
+      "수입원_S",
+      "수입원_G"
+    ],
+    "mobileCartSuppliersVerified": true,
+    "mobileCheckoutSuppliersVerified": true,
+    "bankNoticeVisibleWhenBankSelected": true,
+    "bankNoticeHiddenWhenCardSelected": true,
+    "noHorizontalOverflow": true,
+    "realOrdersCreated": 0,
+    "smsSent": 0
+  },
+  "live_browser_verification": {
+    "productSupplierNamesVerified": [
+      "수입원_S",
+      "수입원_G"
+    ],
+    "cartLabelsVerified": true,
+    "checkoutLabelsVerified": true,
+    "bankTransferNoticeVerified": true,
+    "realOrdersCreated": 0,
+    "smsSent": 0
+  },
+  "full_source_typescript_verified": true,
+  "workflow_manual_only": true
+}
