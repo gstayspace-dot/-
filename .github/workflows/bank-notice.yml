@@ -1,0 +1,31 @@
+name: Emphasize automatic account SMS notice
+on:
+  push:
+    branches: [fix/product-cart-confirm]
+  workflow_dispatch:
+permissions:
+  contents: read
+  id-token: write
+jobs:
+  stage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: google-github-actions/auth@v2
+        with:
+          project_id: primeval-falcon-491105-i9
+          workload_identity_provider: projects/865821327055/locations/global/workloadIdentityPools/github-pool/providers/github-provider
+          service_account: github-deployer@primeval-falcon-491105-i9.iam.gserviceaccount.com
+      - uses: google-github-actions/setup-gcloud@v2
+      - name: Build and publish emphasized bank SMS notice
+        run: |
+          python3 patches/bank-notice/stage.py
+          cp bank-notice-stage.json patches/bank-notice/bank-notice-stage.json
+          python3 patches/bank-notice/promote.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bank-notice-stage
+          path: |
+            bank-notice-stage.json
+            bank-notice-deployment.json
