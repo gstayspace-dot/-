@@ -1,0 +1,24 @@
+{
+  "success": true,
+  "old_revision": "yeongjinsangsa-00254-xik",
+  "new_revision": "yeongjinsangsa-00257-lim",
+  "candidate_url": "https://bank-notice-92367439---yeongjinsangsa-5sundngyeq-du.a.run.app",
+  "tag": "bank-notice-92367439",
+  "generation": 257,
+  "changed_files": [
+    "app/cart/LegacyCartPage.tsx"
+  ],
+  "runtime_preserved": true,
+  "public_build_arguments_preserved": true,
+  "traffic_promoted": true,
+  "bank_notice_emphasized": true,
+  "database_unchanged": true,
+  "browser_verified_before_promotion": false,
+  "live_health_verified": true,
+  "live_mobile_notice_verified": true,
+  "font_size": "16px",
+  "font_weight": 700,
+  "background": "orange-50",
+  "real_orders_created": 0,
+  "test_cart_cleaned": true
+}
