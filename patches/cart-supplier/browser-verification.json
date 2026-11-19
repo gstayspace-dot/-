@@ -1,0 +1,13 @@
+{
+  "desktopCartSuppliers": [
+    "수입원_S",
+    "수입원_G"
+  ],
+  "mobileCartSuppliersVerified": true,
+  "mobileCheckoutSuppliersVerified": true,
+  "bankNoticeVisibleWhenBankSelected": true,
+  "bankNoticeHiddenWhenCardSelected": true,
+  "noHorizontalOverflow": true,
+  "realOrdersCreated": 0,
+  "smsSent": 0
+}

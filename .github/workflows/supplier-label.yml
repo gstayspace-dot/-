@@ -1,4 +1,4 @@
-name: Stage customer supplier labels and bank SMS notice
+name: Publish customer supplier labels and bank SMS notice
 on:
   push:
     branches: [fix/product-cart-confirm]
@@ -7,7 +7,7 @@ permissions:
   contents: read
   id-token: write
 jobs:
-  stage:
+  publish:
     runs-on: ubuntu-latest
     timeout-minutes: 35
     steps:
@@ -18,9 +18,10 @@ jobs:
           workload_identity_provider: projects/865821327055/locations/global/workloadIdentityPools/github-pool/providers/github-provider
           service_account: github-deployer@primeval-falcon-491105-i9.iam.gserviceaccount.com
       - uses: google-github-actions/setup-gcloud@v2
-      - name: Build supplier labels and bank transfer notice
-        run: python3 patches/cart-supplier/stage.py
+      - name: Publish verified supplier labels and bank notice
+        run: python3 patches/cart-supplier/promote.py
       - uses: actions/upload-artifact@v4
         with:
-          name: cart-supplier-stage
-          path: cart-supplier-stage.json
+          name: cart-supplier-deployment
+          path: cart-supplier-deployment.json
+

@@ -1,0 +1,18 @@
+{
+  "success": true,
+  "old_revision": "yeongjinsangsa-00247-ked",
+  "new_revision": "yeongjinsangsa-00250-piz",
+  "candidate_url": "https://cart-supplier-85234919---yeongjinsangsa-5sundngyeq-du.a.run.app",
+  "tag": "cart-supplier-85234919",
+  "generation": 250,
+  "changed_files": [
+    "app/cart/LegacyCartPage.tsx",
+    "app/components/ProductSupplierLabel.tsx",
+    "app/components/commerce/CommerceCart.tsx",
+    "app/components/commerce/OrderSummary.tsx",
+    "app/my-orders/page.tsx"
+  ],
+  "runtime_preserved": true,
+  "public_build_arguments_preserved": true,
+  "traffic_promoted": false
+}
