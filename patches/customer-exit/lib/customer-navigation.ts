@@ -4,6 +4,15 @@ type NavigateDetails = Event & { destination?: { url: string }; downloadRequest?
 export const CUSTOMER_EXIT_MESSAGE = '리빙라방 홈페이지를 나가시겠습니까?\n취소를 누르면 쇼핑을 계속할 수 있습니다.'
 let allowedUntil = 0
 let paymentRequests = 0
+let confirmation: (() => Promise<boolean>) | null = null
+export function registerCustomerExitConfirmation(ask: () => Promise<boolean>) {
+  confirmation = ask
+  return () => { if (confirmation === ask) confirmation = null }
+}
+function askToLeave(win: Window, leave: () => void) {
+  if (confirmation) { void confirmation().then(approved => { if (approved) leave() }); return }
+  if (win.confirm(CUSTOMER_EXIT_MESSAGE)) leave()
+}
 
 export function isCustomerRoute(path: string) {
   return !/^\/(admin|api|payment)(\/|$)/.test(path) && !/^\/live\/overlay(\/|$)/.test(path)
@@ -24,7 +33,7 @@ export function customerBack(router: CustomerRouter, fallback = '/') {
   const nav = navigation(window)
   const ownPrevious = nav ? nav.canGoBack : Boolean(document.referrer && isOwnDestination(document.referrer, window.location.origin))
   if (ownPrevious) { if (!nav) allowCustomerDeparture(); router.back(); return }
-  if (window.confirm(CUSTOMER_EXIT_MESSAGE)) { allowCustomerDeparture(); router.back() }
+  askToLeave(window, () => { allowCustomerDeparture(); router.back() })
 }
 
 /** No synthetic history entries: cancelling an exit never traps browser Back. */
@@ -57,6 +66,12 @@ export function installCustomerExitGuard(win: Window, doc: Document) {
     if (/^(tel|mailto):/i.test(link.href)) { allowInternal(); return }
     if (!/^https?:/i.test(link.href)) return
     if (isOwnDestination(link.href, win.location.origin)) { allowInternal(); return }
+    if (isAllowed()) return
+    if (confirmation) {
+      event.preventDefault(); event.stopPropagation()
+      askToLeave(win, () => { allowCustomerDeparture(); link.click() })
+      return
+    }
     if (!win.confirm(CUSTOMER_EXIT_MESSAGE)) { event.preventDefault(); event.stopPropagation(); return }
     allowCustomerDeparture()
   }
@@ -85,4 +100,3 @@ export function installCustomerExitGuard(win: Window, doc: Document) {
     nav?.removeEventListener('navigateerror', reset)
   }
 }
-
