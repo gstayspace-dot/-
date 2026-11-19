@@ -1,0 +1,7 @@
+{
+  "app/cart/LegacyCartPage.tsx": "890ae6244ce59ab9aa2445749d0766024ad5b3e056cdd3ed3e7b4e476d5f854c",
+  "app/components/ProductSupplierLabel.tsx": null,
+  "app/my-orders/page.tsx": "071f6e4bb9493a1ef66409f7790487295b7db2dd578ae2b6f9d941f72fbb248a",
+  "app/components/commerce/CommerceCart.tsx": "0e10d2e1fb8a6fb6a28e21c5eee21f6e3e6cfe4e99f4c147bee77ca8f10e6ec1",
+  "app/components/commerce/OrderSummary.tsx": "9d3855dca29edaadba16c5c27151b31552bae5993c38f7109c34a5ce1471da09"
+}
