@@ -1,0 +1,58 @@
+{
+  "success": true,
+  "old_revision": "yeongjinsangsa-00244-taj",
+  "new_revision": "yeongjinsangsa-00247-ked",
+  "candidate_url": "https://purchase-cart-82773640---yeongjinsangsa-5sundngyeq-du.a.run.app",
+  "tag": "purchase-cart-82773640",
+  "generation": 247,
+  "changed_files": [
+    "app/components/ConfiguredPurchase.tsx",
+    "app/components/commerce/ProductPurchasePanel.tsx",
+    "app/shop/page.tsx",
+    "lib/purchase-cart.ts"
+  ],
+  "runtime_preserved": true,
+  "public_build_arguments_preserved": true,
+  "traffic_promoted": true,
+  "purchase_tests_passed": 16,
+  "immediate_order_destination": "/cart",
+  "duplicate_quantity_prevented": true,
+  "browser_verified_before_promotion": true,
+  "live_health_verified": true,
+  "live_browser_verification": {
+    "url": "https://xn--oi2bm5bw2c73c.com/cart",
+    "quantity": 1,
+    "cartHeadingVisible": true,
+    "checkoutButtonVisible": true,
+    "realOrdersCreated": 0,
+    "realPaymentsMade": 0
+  },
+  "candidate_browser_cases": [
+    {
+      "case": "desktop_add_then_order_now",
+      "quantity": 1,
+      "path": "/cart",
+      "passed": true
+    },
+    {
+      "case": "desktop_selection_two_preserves_two",
+      "quantity": 2,
+      "path": "/cart",
+      "passed": true
+    },
+    {
+      "case": "mobile_first_order_now",
+      "quantity": 1,
+      "path": "/cart",
+      "passed": true
+    },
+    {
+      "case": "mobile_repeated_order_now",
+      "quantity": 1,
+      "path": "/cart",
+      "passed": true
+    }
+  ],
+  "full_source_typescript_verified": true,
+  "workflow_manual_only": true
+}
