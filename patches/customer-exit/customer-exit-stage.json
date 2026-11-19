@@ -1,0 +1,25 @@
+{
+  "success": true,
+  "old_revision": "yeongjinsangsa-00250-piz",
+  "new_revision": "yeongjinsangsa-00254-xik",
+  "candidate_url": "https://customer-exit-90435315---yeongjinsangsa-5sundngyeq-du.a.run.app",
+  "tag": "customer-exit-90435315",
+  "generation": 254,
+  "changed_files": [
+    "app/cart/LegacyCartPage.tsx",
+    "app/components/AppServices.tsx",
+    "app/components/CustomerExitGuard.tsx",
+    "app/components/ShippingBreakdown.tsx",
+    "app/components/commerce/CommerceCart.tsx",
+    "app/components/commerce/OrderSummary.tsx",
+    "app/components/commerce/ProductPurchasePanel.tsx",
+    "app/components/commerce/TossPaymentMethods.tsx",
+    "app/my-orders/page.tsx",
+    "app/product/[id]/CommerceProductPage.tsx",
+    "app/product/[id]/LegacyProductPage.tsx",
+    "lib/customer-navigation.ts"
+  ],
+  "runtime_preserved": true,
+  "public_build_arguments_preserved": true,
+  "traffic_promoted": false
+}

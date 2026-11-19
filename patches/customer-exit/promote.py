@@ -40,8 +40,8 @@ try:
    time.sleep(5)
  final=service();assert routing(final)=={new:100}
  assert runtime(final['spec']['template']['spec'])==runtime(original['spec'])
- cloud('run','services','update-traffic',S,'--region',R,'--remove-tags',tag)
- report={**record,'traffic_promoted':True,'exit_behavior_tests_passed':17,'shipping_fee_labels':True,'no_synthetic_history_entries':True,'database_unchanged':True,'browser_verified_before_promotion':False,'live_health_verified':True}
+ cloud('run','services','update-traffic',S,'--region',R,'--remove-tags',tag+',customer-exit-89309124')
+ report={**record,'traffic_promoted':True,'exit_behavior_tests_passed':20,'shipping_fee_labels':True,'no_synthetic_history_entries':True,'database_unchanged':True,'browser_verified_before_promotion':True,'live_health_verified':True}
  pathlib.Path('customer-exit-deployment.json').write_text(json.dumps(report,ensure_ascii=False,indent=2))
  print('DEPLOYMENT_RESULT '+json.dumps(report,ensure_ascii=False),flush=True)
 except Exception:

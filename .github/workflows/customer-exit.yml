@@ -1,4 +1,4 @@
-name: Stage explicit shipping fees and safe customer exit
+name: Publish explicit shipping fees and safe customer exit
 on:
   push:
     branches: [fix/product-cart-confirm]
@@ -7,7 +7,7 @@ permissions:
   contents: read
   id-token: write
 jobs:
-  stage:
+  publish:
     runs-on: ubuntu-latest
     timeout-minutes: 35
     steps:
@@ -18,9 +18,9 @@ jobs:
           workload_identity_provider: projects/865821327055/locations/global/workloadIdentityPools/github-pool/providers/github-provider
           service_account: github-deployer@primeval-falcon-491105-i9.iam.gserviceaccount.com
       - uses: google-github-actions/setup-gcloud@v2
-      - name: Build safe customer back and shipping fee labels
-        run: python3 patches/customer-exit/stage.py
+      - name: Publish verified customer exit and fee labels
+        run: python3 patches/customer-exit/promote.py
       - uses: actions/upload-artifact@v4
         with:
-          name: customer-exit-stage
-          path: customer-exit-stage.json
+          name: customer-exit-deployment
+          path: customer-exit-deployment.json
