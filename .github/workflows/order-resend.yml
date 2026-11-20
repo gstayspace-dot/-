@@ -1,7 +1,5 @@
 name: Add administrator order edit SMS resend
 on:
-  push:
-    branches: [fix/product-cart-confirm]
   workflow_dispatch:
 permissions:
   contents: read

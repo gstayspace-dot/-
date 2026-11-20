@@ -1,0 +1,26 @@
+{
+  "success": true,
+  "old_revision": "yeongjinsangsa-00257-lim",
+  "new_revision": "yeongjinsangsa-00260-puj",
+  "candidate_url": "https://order-resend-54562691---yeongjinsangsa-5sundngyeq-du.a.run.app",
+  "tag": "order-resend-54562691",
+  "generation": 260,
+  "changed_files": [
+    "app/admin/orders/OrderEditor.tsx",
+    "app/api/admin/orders/resend/route.ts",
+    "lib/admin-order-message.ts"
+  ],
+  "runtime_preserved": true,
+  "public_build_arguments_preserved": true,
+  "traffic_promoted": true,
+  "administrator_resend_tests_passed": 12,
+  "real_sms_sent_during_verification": 0,
+  "database_unchanged": true,
+  "browser_verified_before_promotion": false,
+  "live_health_verified": true,
+  "ui_flow_tests_passed": 6,
+  "total_behavior_tests_passed": 18,
+  "canonical_admin_ui_verified": true,
+  "resend_confirmation_cancel_verified": true,
+  "real_orders_modified_during_verification": 0
+}
