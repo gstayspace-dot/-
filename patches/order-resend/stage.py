@@ -63,6 +63,9 @@ with tempfile.TemporaryDirectory(prefix="living-order-resend-") as td:
  checked=subprocess.run(["npx","tsc","--noEmit","--incremental","false"],cwd=check_source,capture_output=True,text=True,timeout=240)
  if checked.returncode: print(checked.stdout+checked.stderr,flush=True); raise RuntimeError("TypeScript validation failed")
  print("Full source TypeScript check passed",flush=True)
+ lint=subprocess.run(["npx","next","lint","--no-cache"],cwd=check_source,capture_output=True,text=True,timeout=180)
+ if lint.returncode: print(lint.stdout+lint.stderr,flush=True); raise RuntimeError("Lint validation failed")
+ print("Full source lint check passed",flush=True)
  stage="build candidate"
  # Reproduce the currently serving image's public Docker build arguments.
  # They are intentionally browser-visible; never read server secrets into build args.

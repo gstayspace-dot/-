@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
     await sendSms([editedOrderMessage(current.data, rows.data)])
     uncertain = false
     sent = true
-  } catch (error) {
+  } catch {
     failure = uncertain ? '발송 결과를 확인하지 못했습니다. 이미 전송되었을 수 있으니 수신 여부를 확인한 뒤 재발송해주세요.' : '주문 또는 상품을 조회하지 못해 문자를 발송하지 않았습니다. 목록을 새로고침해주세요.'
     console.error('Administrator order SMS resend failed', { orderId: order.id, deliveryUncertain: uncertain })
   } finally {
