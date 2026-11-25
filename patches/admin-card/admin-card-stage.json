@@ -1,0 +1,18 @@
+{
+  "success": true,
+  "old_revision": "yeongjinsangsa-00260-puj",
+  "new_revision": "yeongjinsangsa-00263-cag",
+  "candidate_url": "https://admin-card-53797449---yeongjinsangsa-5sundngyeq-du.a.run.app",
+  "tag": "admin-card-53797449",
+  "generation": 263,
+  "changed_files": [
+    "app/admin/orders/OrderEntry.tsx",
+    "app/api/admin/orders/legacy.ts",
+    "app/api/payapp/request/route.ts",
+    "lib/order-notification.ts",
+    "lib/payapp-request.ts"
+  ],
+  "runtime_preserved": true,
+  "public_build_arguments_preserved": true,
+  "traffic_promoted": false
+}
