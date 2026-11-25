@@ -1,0 +1,27 @@
+name: Read current administrator card payment source
+on:
+  push:
+    branches: [fix/product-cart-confirm]
+    paths: [.github/workflows/admin-card-audit.yml, patches/admin-card/audit_current.py]
+  workflow_dispatch:
+permissions:
+  contents: read
+  id-token: write
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: google-github-actions/auth@v2
+        with:
+          project_id: primeval-falcon-491105-i9
+          workload_identity_provider: projects/865821327055/locations/global/workloadIdentityPools/github-pool/providers/github-provider
+          service_account: github-deployer@primeval-falcon-491105-i9.iam.gserviceaccount.com
+      - uses: google-github-actions/setup-gcloud@v2
+      - run: python3 patches/admin-card/audit_current.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: admin-card-source
+          path: admin-card-source
+          retention-days: 1
