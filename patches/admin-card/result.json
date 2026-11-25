@@ -1,0 +1,117 @@
+{
+  "status": "deployed_and_read_only_verified",
+  "baseline_revision": "yeongjinsangsa-00260-puj",
+  "changed_files": [
+    {
+      "path": "lib/order-notification.ts",
+      "sha256": "3a9b999c71f6ea8f8de3aa6a9edfdf3247f303bafd35898f8cfbac1920e49c5e"
+    },
+    {
+      "path": "lib/payapp-request.ts",
+      "sha256": "1dae2505aed02883c46cdd367780a3059c8b0bda6d6a58732a0ecd14f6bdeec2"
+    },
+    {
+      "path": "app/api/payapp/request/route.ts",
+      "sha256": "91752cc89b5a6e1cac9131038c4db24bf107c6a993b2c858b4a20478fb201e72"
+    },
+    {
+      "path": "app/api/admin/orders/legacy.ts",
+      "sha256": "197d89ce7d0c3aa2ab468ef0804fc421dc6889c2b77a555f9db937f1de8cf416"
+    },
+    {
+      "path": "app/admin/orders/OrderEntry.tsx",
+      "sha256": "fd6f5c7f1db8ac4bb0895fbbf52865ddec1ae5ecaf8a2c92fe91bb03300db834"
+    }
+  ],
+  "server_mock_tests": {
+    "passed": 22,
+    "productionOrdersCreated": 0,
+    "actualPaymentRequests": 0,
+    "actualSms": 0
+  },
+  "ui_handler_tests": {
+    "passed": 7,
+    "actualBrowserPopupTested": false,
+    "productionWrites": 0
+  },
+  "browser_mock_flow_verified": true,
+  "actual_payment_requests": 0,
+  "actual_customer_sms": 0,
+  "actual_orders_created_or_updated": 0,
+  "schema_changes": 0,
+  "existing_callback_modified": false,
+  "existing_callback_approval_state": "pay_state=4",
+  "cash_default_preserved": true,
+  "payment_approval_verified_using": "existing callback source with mocked credentials/database and genuine HMAC implementation",
+  "actual_live_card_settlement_verified": false,
+  "runtime_payment_config_enabled": true,
+  "stage_workflow_run": 45553797449,
+  "deployment": {
+    "success": true,
+    "old_revision": "yeongjinsangsa-00260-puj",
+    "new_revision": "yeongjinsangsa-00263-cag",
+    "candidate_url": "https://admin-card-53797449---yeongjinsangsa-5sundngyeq-du.a.run.app",
+    "tag": "admin-card-53797449",
+    "generation": 263,
+    "changed_files": [
+      "app/admin/orders/OrderEntry.tsx",
+      "app/api/admin/orders/legacy.ts",
+      "app/api/payapp/request/route.ts",
+      "lib/order-notification.ts",
+      "lib/payapp-request.ts"
+    ],
+    "runtime_preserved": true,
+    "public_build_arguments_preserved": true,
+    "traffic_promoted": true,
+    "administrator_card_payment_tests_passed": 22,
+    "ui_handler_tests_passed": 7,
+    "actual_payment_requests_during_verification": 0,
+    "real_sms_sent_during_verification": 0,
+    "database_unchanged": true,
+    "browser_verified_before_promotion": false,
+    "live_health_verified": true
+  },
+  "live_http": {
+    "actual_orders_created": 0,
+    "actual_payment_requests": 0,
+    "actual_sms": 0,
+    "domains": {
+      "https://yeongjinsangsa-865821327055.asia-northeast3.run.app": {
+        "/": 200,
+        "/cart": 200,
+        "/api/commerce/config": 200,
+        "/api/payapp/request": 200,
+        "/api/admin/orders": 401,
+        "admin_page_status": 307,
+        "admin_order_scripts_checked": 0,
+        "card_selector_in_deployed_script": false,
+        "cash_selector_in_deployed_script": false,
+        "card_link_button_in_deployed_script": false
+      },
+      "https://xn--oi2bm5bw2c73c.com": {
+        "/": 200,
+        "/cart": 200,
+        "/api/commerce/config": 200,
+        "/api/payapp/request": 200,
+        "/api/admin/orders": 401,
+        "admin_page_status": 307,
+        "admin_order_scripts_checked": 0,
+        "card_selector_in_deployed_script": false,
+        "cash_selector_in_deployed_script": false,
+        "card_link_button_in_deployed_script": false
+      }
+    }
+  },
+  "full_source_typescript": "passed",
+  "full_source_lint": "passed",
+  "cloud_build": "passed",
+  "production_browser_verified": {
+    "route": "/admin/orders/import",
+    "cash_selected_by_default": true,
+    "card_radio_selectable": true,
+    "card_checkout_button_label": true,
+    "approval_callback_explanation_visible": true,
+    "submitted_order": false
+  },
+  "payment_status_refresh": "Existing page refreshes on focus and every 60 seconds; confirmed callback updates DB independently."
+}

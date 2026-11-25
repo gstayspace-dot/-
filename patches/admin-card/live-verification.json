@@ -1,0 +1,31 @@
+{
+  "actual_orders_created": 0,
+  "actual_payment_requests": 0,
+  "actual_sms": 0,
+  "domains": {
+    "https://yeongjinsangsa-865821327055.asia-northeast3.run.app": {
+      "/": 200,
+      "/cart": 200,
+      "/api/commerce/config": 200,
+      "/api/payapp/request": 200,
+      "/api/admin/orders": 401,
+      "admin_page_status": 307,
+      "admin_order_scripts_checked": 0,
+      "card_selector_in_deployed_script": false,
+      "cash_selector_in_deployed_script": false,
+      "card_link_button_in_deployed_script": false
+    },
+    "https://xn--oi2bm5bw2c73c.com": {
+      "/": 200,
+      "/cart": 200,
+      "/api/commerce/config": 200,
+      "/api/payapp/request": 200,
+      "/api/admin/orders": 401,
+      "admin_page_status": 307,
+      "admin_order_scripts_checked": 0,
+      "card_selector_in_deployed_script": false,
+      "cash_selector_in_deployed_script": false,
+      "card_link_button_in_deployed_script": false
+    }
+  }
+}
