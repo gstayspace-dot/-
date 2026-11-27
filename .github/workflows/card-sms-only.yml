@@ -1,0 +1,32 @@
+name: Send administrator card checkout links only to customers
+on:
+  push:
+    branches: [fix/product-cart-confirm]
+    paths: [.github/workflows/card-sms-only.yml, patches/card-sms-only/**]
+  workflow_dispatch:
+permissions:
+  contents: read
+  id-token: write
+jobs:
+  stage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: google-github-actions/auth@v2
+        with:
+          project_id: primeval-falcon-491105-i9
+          workload_identity_provider: projects/865821327055/locations/global/workloadIdentityPools/github-pool/providers/github-provider
+          service_account: github-deployer@primeval-falcon-491105-i9.iam.gserviceaccount.com
+      - uses: google-github-actions/setup-gcloud@v2
+      - name: Build and publish customer-only card payment links
+        run: |
+          python3 patches/card-sms-only/stage.py
+          cp card-sms-only-stage.json patches/card-sms-only/card-sms-only-stage.json
+          python3 patches/card-sms-only/promote.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: card-sms-only-stage
+          path: |
+            card-sms-only-stage.json
+            card-sms-only-deployment.json
