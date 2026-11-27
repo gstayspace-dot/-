@@ -33,14 +33,14 @@ def health(base):
 before=service()
 assert routing(before)=={EXPECTED:100},"Production changed; inspect first"
 revision=read("run","revisions","describe",EXPECTED,"--region",REGION)
-IMAGE=None
+IMAGE=revision["spec"]["containers"][0]["image"].split("@",1)[1]
 assert IMAGE.startswith("sha256:")
 builds=read("builds","list","--region",REGION,"--limit","40")
 matches=[b for b in builds if any(x.get("digest")==IMAGE for x in b.get("results",{}).get("images",[]))]
 assert matches,"Serving build provenance missing"
 provenance=read("builds","describe",matches[0]["id"],"--region",REGION)
 ss=provenance.get("sourceProvenance",{}).get("resolvedStorageSource") or provenance["source"]["storageSource"]
-SOURCE=None
+SOURCE="gs://"+ss["bucket"]+"/"+ss["object"]+("#"+str(ss["generation"]) if ss.get("generation") else "")
 assert runtime(before)==runtime({"spec":{"template":{"spec":revision["spec"]}}})
 baseline=health(DOMAINS[0])
 with tempfile.TemporaryDirectory(prefix="living-dispatch-label-") as td:
