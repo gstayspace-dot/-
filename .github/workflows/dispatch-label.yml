@@ -1,8 +1,5 @@
 name: Display dispatch origin on customer cart labels
 on:
-  push:
-    branches: [fix/product-cart-confirm]
-    paths: [.github/workflows/dispatch-label.yml, patches/dispatch-label/**]
   workflow_dispatch:
 permissions:
   contents: read

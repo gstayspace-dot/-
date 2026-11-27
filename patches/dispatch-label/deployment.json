@@ -1,0 +1,24 @@
+{
+  "success": true,
+  "old_revision": "yeongjinsangsa-00269-lut",
+  "new_revision": "yeongjinsangsa-00272-dej",
+  "candidate_url": "https://dispatch-label-93635944---yeongjinsangsa-5sundngyeq-du.a.run.app",
+  "tag": "dispatch-label-93635944",
+  "generation": 272,
+  "changed_files": [
+    "app/components/ProductSupplierLabel.tsx"
+  ],
+  "runtime_preserved": true,
+  "public_build_arguments_preserved": true,
+  "traffic_promoted": true,
+  "display_label_changed_to_dispatch": true,
+  "supplier_names_and_shipping_logic_unchanged": true,
+  "database_unchanged": true,
+  "browser_verified_before_promotion": false,
+  "live_health_verified": true,
+  "live_cart_label_verified": "발송처: 수입원_E",
+  "old_cart_label_absent": true,
+  "shipping_fee_verified": 4000,
+  "test_cart_cleaned": true,
+  "real_orders_created": 0
+}
