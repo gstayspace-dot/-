@@ -1,0 +1,25 @@
+{
+  "success": true,
+  "old_revision": "yeongjinsangsa-00263-cag",
+  "new_revision": "yeongjinsangsa-00266-meq",
+  "candidate_url": "https://card-sms-only-63271249---yeongjinsangsa-5sundngyeq-du.a.run.app",
+  "tag": "card-sms-only-63271249",
+  "generation": 266,
+  "changed_files": [
+    "app/admin/orders/OrderEntry.tsx"
+  ],
+  "runtime_preserved": true,
+  "public_build_arguments_preserved": true,
+  "traffic_promoted": true,
+  "customer_card_sms_tests_passed": 8,
+  "actual_payment_requests_during_verification": 0,
+  "administrator_auto_popup_removed": true,
+  "real_sms_sent_during_verification": 0,
+  "database_unchanged": true,
+  "browser_verified_before_promotion": false,
+  "live_health_verified": true,
+  "live_admin_browser_verified": false,
+  "admin_login_required": true,
+  "customer_sms_required_in_card_form": true,
+  "administrator_payment_link_button_removed": true
+}

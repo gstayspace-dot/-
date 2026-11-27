@@ -1,8 +1,5 @@
 name: Send administrator card checkout links only to customers
 on:
-  push:
-    branches: [fix/product-cart-confirm]
-    paths: [.github/workflows/card-sms-only.yml, patches/card-sms-only/**]
   workflow_dispatch:
 permissions:
   contents: read
