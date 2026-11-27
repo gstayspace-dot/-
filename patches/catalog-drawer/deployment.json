@@ -1,0 +1,31 @@
+{
+  "success": true,
+  "old_revision": "yeongjinsangsa-00266-meq",
+  "new_revision": "yeongjinsangsa-00269-lut",
+  "candidate_url": "https://catalog-drawer-71783551---yeongjinsangsa-5sundngyeq-du.a.run.app",
+  "tag": "catalog-drawer-71783551",
+  "generation": 269,
+  "changed_files": [
+    "app/components/AppServices.tsx",
+    "app/components/CatalogDrawer.module.css",
+    "app/components/CatalogDrawer.tsx",
+    "lib/catalog-drawer.ts"
+  ],
+  "runtime_preserved": true,
+  "public_build_arguments_preserved": true,
+  "traffic_promoted": true,
+  "catalog_navigation_checks_passed": 11,
+  "shared_catalog_drawer": true,
+  "real_sms_sent_during_verification": 0,
+  "database_unchanged": true,
+  "browser_verified_before_promotion": false,
+  "live_health_verified": true,
+  "mobile_live_browser_verified": true,
+  "desktop_live_browser_verified": true,
+  "brand_and_category_navigation_verified": true,
+  "live_search_and_product_detail_navigation_verified": true,
+  "search_from_product_detail_verified": true,
+  "escape_focus_restore_and_outside_click_verified": true,
+  "real_orders_created": 0,
+  "real_payments_made": 0
+}

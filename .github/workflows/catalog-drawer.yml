@@ -1,8 +1,5 @@
 name: Publish shared customer catalog drawer and search
 on:
-  push:
-    branches: [fix/product-cart-confirm]
-    paths: [.github/workflows/catalog-drawer.yml, patches/catalog-drawer/**]
   workflow_dispatch:
 permissions:
   contents: read
