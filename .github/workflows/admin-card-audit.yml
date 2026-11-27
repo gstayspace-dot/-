@@ -25,3 +25,5 @@ jobs:
           name: admin-card-source
           path: admin-card-source
           retention-days: 1
+
+# Recheck the currently serving card checkout behavior (read-only).
